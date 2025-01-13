@@ -30,6 +30,7 @@
   width: 100%;
   display: flex;
   align-items: flex-start;
+  flex-direction: row:
 }
 
 /* Ensure the layout is responsive on small screens */

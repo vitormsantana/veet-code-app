@@ -14,9 +14,11 @@ declare global {
   styleUrls: ['./questions-stats.component.css'],
   standalone: false,
 })
+
 export class QuestionsStatsComponent implements OnInit, AfterViewInit {
   @ViewChild('myChart') chartCanvas!: ElementRef<HTMLCanvasElement>;
   @ViewChild('incrementalChart') incrementalChartCanvas!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('difficultyChart') difficultyChartCanvas!: ElementRef<HTMLCanvasElement>;
 
   statistics: Statistics | null = null;
   isLoading = true;
@@ -24,6 +26,7 @@ export class QuestionsStatsComponent implements OnInit, AfterViewInit {
 
   chartData: any = { labels: [], datasets: [] };
   incrementalChartData: any = { labels: [], datasets: [] };
+  difficultyChartData: any = { labels: [], datasets: [] };
 
   chartOptions: any = {
     responsive: true,
@@ -46,6 +49,7 @@ export class QuestionsStatsComponent implements OnInit, AfterViewInit {
 
   private isChartInitialized = false;
   private isIncrementalChartInitialized = false;
+  private isDifficultyChartInitialized = false;
 
   constructor(private questionsStatsService: QuestionsStatsService) {}
 
@@ -61,6 +65,9 @@ export class QuestionsStatsComponent implements OnInit, AfterViewInit {
       if (!this.isIncrementalChartInitialized) {
         this.initializeIncrementalChart();
       }
+      if (!this.isDifficultyChartInitialized) {
+        this.initializeDifficultyChart();
+      }
     }
   }
 
@@ -74,6 +81,7 @@ export class QuestionsStatsComponent implements OnInit, AfterViewInit {
         this.isLoading = false;
         this.updateChartData();
         this.updateIncrementalChartData();
+        this.updateDifficultyChartData();  // Add this line to update the difficulty chart
       },
       (error) => {
         this.errorMessage = 'Failed to load statistics. Please try again later.';
@@ -130,6 +138,28 @@ export class QuestionsStatsComponent implements OnInit, AfterViewInit {
     }
   }
 
+  updateDifficultyChartData(): void {
+    if (this.statistics?.questionsCrackedPerDifficulty) {
+      const labels = Object.keys(this.statistics.questionsCrackedPerDifficulty);
+      const data = Object.values(this.statistics.questionsCrackedPerDifficulty);
+
+      this.difficultyChartData = {
+        labels: labels,
+        datasets: [
+          {
+            data: data,
+            backgroundColor: ['#ff6f61', '#ffcc00', '#66bb6a'], // Example colors for Easy, Medium, and easy
+            hoverBackgroundColor: ['#ff7043', '#ffeb3b', '#81c784'],
+          },
+        ],
+      };
+
+      if (!this.isDifficultyChartInitialized) {
+        this.initializeDifficultyChart();
+      }
+    }
+  }
+
   initializeChart(): void {
     const ctx = this.chartCanvas.nativeElement;
     if (this.chartData && this.chartOptions) {
@@ -151,6 +181,17 @@ export class QuestionsStatsComponent implements OnInit, AfterViewInit {
         options: this.chartOptions,
       });
       this.isIncrementalChartInitialized = true;
+    }
+  }
+
+  initializeDifficultyChart(): void {
+    const ctx = this.difficultyChartCanvas.nativeElement;
+    if (this.difficultyChartData) {
+      new Chart(ctx, {
+        type: 'pie',  // Pie chart type
+        data: this.difficultyChartData,
+      });
+      this.isDifficultyChartInitialized = true;
     }
   }
 }
