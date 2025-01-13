@@ -1,0 +1,14 @@
+.chart-container {
+  width: 400px; /* Set your desired width */
+  height: 300px; /* Set your desired height */
+  position: relative; /* Ensure relative positioning for Chart.js responsiveness */
+  margin: 0 auto; /* Center the container horizontally */
+  display: flex; /* Enable flexbox layout */
+  align-items: center; /* Center vertically */
+  justify-content: center; /* Center horizontally */
+}
+
+canvas {
+  width: 100% !important; /* Stretch the canvas to the full width of the container */
+  height: 100% !important; /* Match the container's height */
+}

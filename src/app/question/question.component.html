@@ -1,0 +1,33 @@
+<div class="question-container">
+    <h2>Insert the Solved LeetCode Question</h2>
+
+    <form>
+      <label for="title">Question Name:</label>
+      <input type="text" id="title" name="title" [(ngModel)]="question.name" required />
+
+      <label for="difficulty">Difficulty:</label>
+      <select id="difficulty" name="difficulty" [(ngModel)]="question.difficulty">
+        <option value="easy">Easy</option>
+        <option value="medium">Medium</option>
+        <option value="hard">Hard</option>
+      </select>
+
+      <label for="date">Date that question was cracked:</label>
+      <input id="date" name="date" [(ngModel)]="question.date" required />
+
+      <label for="tags">Tags:</label>
+      <select id="tags" name="tags" multiple required [(ngModel)]="question.tags">
+        <option *ngFor="let tag of availableTags" [value]="tag">{{ tag }}</option>
+      </select>
+
+      <button type="submit" (click)="submitForm()">Add Question</button>
+    </form>
+
+    <div *ngIf="submittedQuestion">
+        <h3>Submitted Question Details</h3>
+        <p><strong>Question Name:</strong> {{ submittedQuestion.name }} </p>
+        <p><strong>Difficulty:</strong> {{ submittedQuestion.difficulty }} </p>
+        <p><strong>Question Solved in:</strong> {{ submittedQuestion.date }} </p>
+    </div>
+  </div>
+
