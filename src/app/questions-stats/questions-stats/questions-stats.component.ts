@@ -12,16 +12,19 @@ declare global {
   selector: 'app-questions-stats',
   templateUrl: './questions-stats.component.html',
   styleUrls: ['./questions-stats.component.css'],
-  standalone: false
+  standalone: false,
 })
 export class QuestionsStatsComponent implements OnInit, AfterViewInit {
   @ViewChild('myChart') chartCanvas!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('incrementalChart') incrementalChartCanvas!: ElementRef<HTMLCanvasElement>;
 
   statistics: Statistics | null = null;
   isLoading = true;
   errorMessage: string | null = null;
 
   chartData: any = { labels: [], datasets: [] };
+  incrementalChartData: any = { labels: [], datasets: [] };
+
   chartOptions: any = {
     responsive: true,
     maintainAspectRatio: false,
@@ -41,36 +44,38 @@ export class QuestionsStatsComponent implements OnInit, AfterViewInit {
     },
   };
 
-  private isChartInitialized = false; // Flag to track chart initialization
+  private isChartInitialized = false;
+  private isIncrementalChartInitialized = false;
 
   constructor(private questionsStatsService: QuestionsStatsService) {}
 
   ngOnInit(): void {
-    console.log('ngOnInit: Fetching statistics...');
     this.fetchStatistics();
   }
 
   ngAfterViewInit(): void {
-    console.log('ngAfterViewInit: Checking if chart should be initialized...');
-    if (this.statistics && !this.isLoading && !this.isChartInitialized) {
-      this.initializeChart();
+    if (this.statistics && !this.isLoading) {
+      if (!this.isChartInitialized) {
+        this.initializeChart();
+      }
+      if (!this.isIncrementalChartInitialized) {
+        this.initializeIncrementalChart();
+      }
     }
   }
 
   fetchStatistics(): void {
-    console.log('fetchStatistics: Fetching statistics from the service...');
     this.isLoading = true;
     this.errorMessage = null;
 
     this.questionsStatsService.getStatistics().subscribe(
       (data) => {
-        console.log('fetchStatistics: Statistics data fetched successfully');
         this.statistics = data;
         this.isLoading = false;
         this.updateChartData();
+        this.updateIncrementalChartData();
       },
       (error) => {
-        console.error('fetchStatistics: Error fetching statistics', error);
         this.errorMessage = 'Failed to load statistics. Please try again later.';
         this.isLoading = false;
       }
@@ -78,8 +83,7 @@ export class QuestionsStatsComponent implements OnInit, AfterViewInit {
   }
 
   updateChartData(): void {
-    if (this.statistics && this.statistics.questionsCrackedPerDay) {
-      console.log('updateChartData: Updating chart data...');
+    if (this.statistics?.questionsCrackedPerDay) {
       const labels = this.statistics.questionsCrackedPerDay.map((item) => item.date);
       const data = this.statistics.questionsCrackedPerDay.map((item) => item.count);
 
@@ -92,45 +96,61 @@ export class QuestionsStatsComponent implements OnInit, AfterViewInit {
             backgroundColor: 'rgba(63, 81, 181, 0.5)',
             borderColor: 'rgba(63, 81, 181, 1)',
             borderWidth: 2,
-            pointBackgroundColor: 'rgba(63, 81, 181, 1)',
-            pointBorderColor: '#fff',
-            pointBorderWidth: 2,
           },
         ],
       };
 
-      console.log('updateChartData: Chart data updated:', this.chartData);
-
       if (!this.isChartInitialized) {
         this.initializeChart();
       }
-    } else {
-      console.error('updateChartData: No statistics available');
+    }
+  }
+
+  updateIncrementalChartData(): void {
+    if (this.statistics?.incrementalQuestionsCrackedPerDay) {
+      const labels = this.statistics.incrementalQuestionsCrackedPerDay.map((item) => item.date);
+      const data = this.statistics.incrementalQuestionsCrackedPerDay.map((item) => item.count);
+
+      this.incrementalChartData = {
+        labels: labels,
+        datasets: [
+          {
+            label: 'Incremental Questions Cracked Per Day',
+            data: data,
+            backgroundColor: 'rgba(76, 175, 80, 0.5)',
+            borderColor: 'rgba(76, 175, 80, 1)',
+            borderWidth: 2,
+          },
+        ],
+      };
+
+      if (!this.isIncrementalChartInitialized) {
+        this.initializeIncrementalChart();
+      }
     }
   }
 
   initializeChart(): void {
-    console.log('initializeChart: Initializing chart...');
-    const ctx = document.getElementById('myChart') as HTMLCanvasElement;
-
-    if (!ctx) {
-      console.error('initializeChart: Canvas element not found!');
-      return;
-    }
-
-    console.log('initializeChart: Canvas element found');
-
+    const ctx = this.chartCanvas.nativeElement;
     if (this.chartData && this.chartOptions) {
       window.myChart = new Chart(ctx, {
         type: 'line',
         data: this.chartData,
         options: this.chartOptions,
       });
+      this.isChartInitialized = true;
+    }
+  }
 
-      console.log('initializeChart: Chart initialized successfully');
-      this.isChartInitialized = true; // Set flag after initialization
-    } else {
-      console.error('initializeChart: Chart data or options missing');
+  initializeIncrementalChart(): void {
+    const ctx = this.incrementalChartCanvas.nativeElement;
+    if (this.incrementalChartData && this.chartOptions) {
+      window.myChart = new Chart(ctx, {
+        type: 'line',
+        data: this.incrementalChartData,
+        options: this.chartOptions,
+      });
+      this.isIncrementalChartInitialized = true;
     }
   }
 }

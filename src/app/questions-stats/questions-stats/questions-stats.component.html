@@ -1,4 +1,10 @@
 <div class="chart-container">
-  <canvas id="myChart"></canvas>
+  <canvas #myChart></canvas>
 </div>
 
+<div class="chart-container">
+  <canvas #incrementalChart></canvas>
+</div>
+
+<div *ngIf="isLoading">Loading statistics...</div>
+<div *ngIf="errorMessage">{{ errorMessage }}</div>
