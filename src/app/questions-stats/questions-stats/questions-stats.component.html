@@ -6,10 +6,12 @@
     <canvas #incrementalChart></canvas>
   </div>
   <div class="chart-container">
-    <canvas #difficultyChart></canvas> <!-- New Pie Chart -->
+    <canvas #difficultyChart></canvas>
+  </div>
+  <div class="chart-container">
+    <canvas #tagChart></canvas> <!-- New Pie Chart for Tags -->
   </div>
 </div>
 
 <div *ngIf="isLoading">Loading statistics...</div>
 <div *ngIf="errorMessage">{{ errorMessage }}</div>
-

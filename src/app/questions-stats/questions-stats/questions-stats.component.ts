@@ -19,6 +19,7 @@ export class QuestionsStatsComponent implements OnInit, AfterViewInit {
   @ViewChild('myChart') chartCanvas!: ElementRef<HTMLCanvasElement>;
   @ViewChild('incrementalChart') incrementalChartCanvas!: ElementRef<HTMLCanvasElement>;
   @ViewChild('difficultyChart') difficultyChartCanvas!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('tagChart') tagChartCanvas!: ElementRef<HTMLCanvasElement>;
 
   statistics: Statistics | null = null;
   isLoading = true;
@@ -27,6 +28,7 @@ export class QuestionsStatsComponent implements OnInit, AfterViewInit {
   chartData: any = { labels: [], datasets: [] };
   incrementalChartData: any = { labels: [], datasets: [] };
   difficultyChartData: any = { labels: [], datasets: [] };
+  tagChartData: any = { labels: [], datasets: [] };
 
   chartOptions: any = {
     responsive: true,
@@ -50,6 +52,7 @@ export class QuestionsStatsComponent implements OnInit, AfterViewInit {
   private isChartInitialized = false;
   private isIncrementalChartInitialized = false;
   private isDifficultyChartInitialized = false;
+  private isTagChartInitialized = false;
 
   constructor(private questionsStatsService: QuestionsStatsService) {}
 
@@ -81,7 +84,8 @@ export class QuestionsStatsComponent implements OnInit, AfterViewInit {
         this.isLoading = false;
         this.updateChartData();
         this.updateIncrementalChartData();
-        this.updateDifficultyChartData();  // Add this line to update the difficulty chart
+        this.updateDifficultyChartData();
+        this.updateTagChartData();
       },
       (error) => {
         this.errorMessage = 'Failed to load statistics. Please try again later.';
@@ -148,7 +152,7 @@ export class QuestionsStatsComponent implements OnInit, AfterViewInit {
         datasets: [
           {
             data: data,
-            backgroundColor: ['#ff6f61', '#ffcc00', '#66bb6a'], // Example colors for Easy, Medium, and easy
+            backgroundColor: ['#ff6f61', '#ffcc00', '#66bb6a'],
             hoverBackgroundColor: ['#ff7043', '#ffeb3b', '#81c784'],
           },
         ],
@@ -156,6 +160,27 @@ export class QuestionsStatsComponent implements OnInit, AfterViewInit {
 
       if (!this.isDifficultyChartInitialized) {
         this.initializeDifficultyChart();
+      }
+    }
+  }
+
+  updateTagChartData(): void {
+    if (this.statistics?.questionsCrackedPerTag) {
+      const labels = Object.keys(this.statistics.questionsCrackedPerTag);
+      const data = Object.values(this.statistics.questionsCrackedPerTag);
+
+      this.tagChartData = {
+        labels: labels,
+        theme: "dark2",
+        datasets: [
+          {
+            data: data,
+            backgroundColor: labels.map(() => `#${Math.floor(Math.random() * 16777215).toString(16)}`),          },
+        ],
+      };
+
+      if (!this.isTagChartInitialized) {
+        this.initializeTagChart();
       }
     }
   }
@@ -192,6 +217,46 @@ export class QuestionsStatsComponent implements OnInit, AfterViewInit {
         data: this.difficultyChartData,
       });
       this.isDifficultyChartInitialized = true;
+    }
+  }
+
+  initializeTagChart(): void {
+    const ctx = this.tagChartCanvas.nativeElement;
+    if (this.tagChartData) {
+      new Chart(ctx, {
+        type: 'doughnut',
+        data: this.tagChartData,
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '75%', // Inner radius as a percentage
+          plugins: {
+            legend: {
+              display: false, // Legends are hidden above the chart
+            },
+            title: {
+              display: true,
+              text: 'Questions per Theme', // Title of the chart
+              color: '#3f51b5',
+              font: {
+                size: 16,
+                weight: 'bold',
+              },
+            },
+            tooltip: {
+              callbacks: {
+                label: (tooltipItem) => {
+                  const index = tooltipItem.dataIndex;
+                  const label = this.tagChartData.labels[index];
+                  const value = this.tagChartData.datasets[0].data[index];
+                  return `${label}: ${value}`;
+                },
+              },
+            },
+          },
+        },
+      });
+      this.isTagChartInitialized = true;
     }
   }
 }
