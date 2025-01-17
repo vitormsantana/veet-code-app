@@ -103,7 +103,7 @@ export class QuestionsStatsComponent implements OnInit, AfterViewInit {
         labels: labels,
         datasets: [
           {
-            label: 'Questions Cracked Per Day',
+            label: 'Cracked Questions Per Day',
             data: data,
             backgroundColor: 'rgba(63, 81, 181, 0.5)',
             borderColor: 'rgba(63, 81, 181, 1)',
@@ -127,7 +127,7 @@ export class QuestionsStatsComponent implements OnInit, AfterViewInit {
         labels: labels,
         datasets: [
           {
-            label: 'Incremental Questions Cracked Per Day',
+            label: 'Incremental Crecked Questions Per Day',
             data: data,
             backgroundColor: 'rgba(76, 175, 80, 0.5)',
             borderColor: 'rgba(76, 175, 80, 1)',
@@ -236,7 +236,7 @@ export class QuestionsStatsComponent implements OnInit, AfterViewInit {
             },
             title: {
               display: true,
-              text: 'Questions per Theme', // Title of the chart
+              text: 'Times That Each Tag Appeared', // Title of the chart
               color: '#3f51b5',
               font: {
                 size: 16,
