@@ -20,13 +20,15 @@ import { QuestionsStatsComponent } from './questions-stats/questions-stats/quest
 import { QuestionsStatsService } from './questions-stats/questions-stats.service';
 
 import { ChartModule } from 'primeng/chart';
+import { StudyComponent } from './study/study.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     QuestionComponent,
     QuestionsTableComponent,
-    QuestionsStatsComponent
+    QuestionsStatsComponent,
+    StudyComponent
   ],
   imports: [
     BrowserModule,

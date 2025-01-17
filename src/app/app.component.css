@@ -16,6 +16,14 @@
   min-height: 500px; /* Adjust height as needed */
 }
 
+.study-container {
+  width: 100%; /* Full width */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-height: 500px; /* Adjust height as needed */
+}
+
 /* Container for Table */
 .table-container {
   width: 100%; /* Full width */
@@ -40,7 +48,8 @@
   }
 
   .question-container,
+  .study-container,
   .table-container,
-  .stats-container,
+  .stats-container
 }
 
