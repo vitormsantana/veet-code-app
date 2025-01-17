@@ -127,7 +127,7 @@ export class QuestionsStatsComponent implements OnInit, AfterViewInit {
         labels: labels,
         datasets: [
           {
-            label: 'Incremental Crecked Questions Per Day',
+            label: 'Incremental Cracked Questions Per Day',
             data: data,
             backgroundColor: 'rgba(76, 175, 80, 0.5)',
             borderColor: 'rgba(76, 175, 80, 1)',
