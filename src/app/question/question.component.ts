@@ -16,7 +16,7 @@ export class QuestionComponent {
     tags: [] as string[]
   };
 
-  availableTags = ['Arrays', 'String', 'Hash Tables', 'Two Pointers', 'Sliding Window',
+  availableTags = ['Arrays', 'String', 'Hash Tables', 'Linked Lists', 'Two Pointers', 'Sliding Window',
     'Stacks', 'Queues', 'Heaps', 'Binary Tree', 'BFS', 'DFS', 'Sets', 'Sort',
     'Dynamic Programming', 'Graph', 'Math'];
 
