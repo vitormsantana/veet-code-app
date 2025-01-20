@@ -3,8 +3,8 @@ import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { QuestionComponent } from './question/question.component';
-import { QuestionsTableComponent } from './questions-table/questions-table.component';
+import { QuestionComponent } from './questions/question/question.component';
+import { QuestionsTableComponent } from './questions/questions-table/questions-table.component';
 
 import { HttpClientModule } from '@angular/common/http';
 
@@ -16,11 +16,13 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { QuestionsStatsComponent } from './questions-stats/questions-stats/questions-stats.component';
-import { QuestionsStatsService } from './questions-stats/questions-stats.service';
+import { QuestionsStatsComponent } from './questions/questions-stats/questions-stats/questions-stats.component';
+import { QuestionsStatsService } from './questions/questions-stats/questions-stats.service';
 
 import { ChartModule } from 'primeng/chart';
-import { StudyComponent } from './study/study.component';
+import { StudyComponent } from './studies/study/study.component';
+import { HomeComponent } from './home/home.component';
+import { QuestionsPageComponent } from './questions/questions-page/questions-page.component';
 
 @NgModule({
   declarations: [
@@ -28,7 +30,9 @@ import { StudyComponent } from './study/study.component';
     QuestionComponent,
     QuestionsTableComponent,
     QuestionsStatsComponent,
-    StudyComponent
+    StudyComponent,
+    HomeComponent,
+    QuestionsPageComponent
   ],
   imports: [
     BrowserModule,

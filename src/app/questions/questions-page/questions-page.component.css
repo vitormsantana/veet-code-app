@@ -1,0 +1,30 @@
+.content-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* Two equal columns */
+  grid-template-rows: auto auto; /* Two rows */
+  gap: 16px; /* Space between items */
+  padding: 16px; /* Padding around the content */
+}
+
+.question-container {
+  grid-column: 1; /* First column */
+  grid-row: 1; /* First row */
+}
+
+.table-container {
+  grid-column: 2; /* Second column */
+  grid-row: 1; /* First row */
+}
+
+.stats-container {
+  grid-column: 1 / 3; /* Span across both columns */
+  grid-row: 2; /* Second row */
+}
+
+.navigation-container {
+  grid-column: 1 / 3; /* Span across both columns */
+  grid-row: 3; /* Third row */
+  display: flex;
+  justify-content: center; /* Center the button horizontally */
+}
+
