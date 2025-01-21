@@ -10,7 +10,7 @@ export interface StudyStatistic {
 export interface StudyStatistics {
   totalMinutesStudied: number;
   totalMinutesPerDay: { date: string, minutes: number }[];
-  minutesPerThemePerDay: { [theme: string]: { date: string, minutes: number }[] };
+   minutesPerThemePerDay: { [theme: string]: { [date: string]: number } };
 }
 
 @Injectable({

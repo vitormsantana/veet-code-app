@@ -27,6 +27,7 @@ import { StudiesPageComponent } from './studies/studies-page/studies-page.compon
 import { StudiesTableComponent } from './studies/studies-table/studies-table.component';
 import { StudiesStatsComponent } from './studies/studies-stats/studies-stats.component';
 import { RouterModule } from '@angular/router';
+import { StudiesStatsPerThemeComponent } from './studies/studies-stats-per-theme/studies-stats-per-theme.component';
 
 @NgModule({
   declarations: [
@@ -39,7 +40,8 @@ import { RouterModule } from '@angular/router';
     QuestionsPageComponent,
     StudiesPageComponent,
     StudiesTableComponent,
-    StudiesStatsComponent
+    StudiesStatsComponent,
+    StudiesStatsPerThemeComponent
   ],
   imports: [
     BrowserModule,
