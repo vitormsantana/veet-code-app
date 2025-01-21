@@ -23,6 +23,10 @@ import { ChartModule } from 'primeng/chart';
 import { StudyComponent } from './studies/study/study.component';
 import { HomeComponent } from './home/home.component';
 import { QuestionsPageComponent } from './questions/questions-page/questions-page.component';
+import { StudiesPageComponent } from './studies/studies-page/studies-page.component';
+import { StudiesTableComponent } from './studies/studies-table/studies-table.component';
+import { StudiesStatsComponent } from './studies/studies-stats/studies-stats.component';
+import { RouterModule } from '@angular/router';
 
 @NgModule({
   declarations: [
@@ -32,7 +36,10 @@ import { QuestionsPageComponent } from './questions/questions-page/questions-pag
     QuestionsStatsComponent,
     StudyComponent,
     HomeComponent,
-    QuestionsPageComponent
+    QuestionsPageComponent,
+    StudiesPageComponent,
+    StudiesTableComponent,
+    StudiesStatsComponent
   ],
   imports: [
     BrowserModule,

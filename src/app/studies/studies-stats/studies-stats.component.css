@@ -1,0 +1,26 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+
+.charts-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin-top: 20px;
+}
+
+.chart-container {
+  width: 90%; /* Use a percentage for responsiveness */
+  max-width: 800px; /* Limit the maximum width */
+  height: 400px; /* Set the height */
+  position: relative;
+}
+
+canvas {
+  width: 100% !important; /* Ensure the canvas stretches fully */
+  height: 100% !important; /* Ensure it matches the container height */
+}
