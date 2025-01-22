@@ -1,19 +1,51 @@
-.charts-container {
-  display: flex; /* Arrange child elements side by side */
-  justify-content: space-around; /* Space out the charts */
-  gap: 150px; /* Space between charts */
-  width: 100%; /* Ensure the container uses full width */
-  flex-wrap: wrap; /* Wrap charts to the next row if necessary */
+.content-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* Two equal columns */
+  grid-template-rows: auto auto auto; /* Three rows */
+  gap: 16px; /* Space between items */
+  padding: 16px; /* Padding around the content */
 }
 
-.chart-container {
-  width: 100%; /* Adjust the width for each chart container */
-  max-width: 500px; /* Optional: limit the maximum width */
-  height: 380px; /* Set the height */
-  position: relative;
+.study-form-container {
+  grid-column: 1; /* First column */
+  grid-row: 1; /* First row */
 }
 
-canvas {
-  width: 100% !important; /* Stretch canvas to the container's width */
-  height: 100% !important; /* Match container's height */
+.study-table-container {
+  grid-column: 2; /* Second column */
+  grid-row: 1; /* First row */
 }
+
+.study-stats-container {
+  grid-column: 1; /* First column */
+  grid-row: 2; /* Second row */
+}
+
+.study-stats-per-theme-container {
+  grid-column: 2; /* Second column */
+  grid-row: 2; /* Second row */
+}
+
+.navigation-container {
+  grid-column: 1 / 3; /* Span across both columns */
+  grid-row: 3; /* Third row */
+  display: flex;
+  justify-content: center; /* Center the button horizontally */
+  align-items: center; /* Center vertically if needed */
+}
+
+.return-home-button {
+  padding: 8px 16px;
+  background-color: #007BFF;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.return-home-button:hover {
+  background-color: #0056b3;
+}
+
