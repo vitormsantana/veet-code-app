@@ -358,6 +358,14 @@ export class QuestionsStatsComponent implements OnInit, AfterViewInit {
     });
     this.isTagChartInitialized = true;
   }
+  // Update the colors to more serious shades
+  this.tagChartData.datasets[0].backgroundColor = [
+    '#2B3D41',  // Darker greyish blue
+    '#A17C6B',  // Muted brown
+    '#0a0908',  // Strong red
+    '#3e4f52',  // Soft green
+    '#779fa1',  // Strong blue
+  ];
 }
 }
 
