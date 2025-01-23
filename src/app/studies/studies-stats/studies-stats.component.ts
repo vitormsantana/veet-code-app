@@ -39,18 +39,18 @@ export class StudiesStatsComponent implements OnInit {
     return;
   }
 
-  // Create chart with cumulative data in hours
+  // Create chart with cumulative data in hours as a column chart
   this.chart = new Chart('canvas', {
-    type: 'line',
+    type: 'bar', // Change chart type to bar
     data: {
       labels: dates,
       datasets: [
         {
           label: 'Total Hours Studied',
           data: cumulativeHours,
-          fill: false,
-          borderColor: '#4CAF50',
-          tension: 0.1,
+          backgroundColor: '#33ffbe', // Set column color
+          borderColor: '#3396ff', // Optional: Add border color
+          borderWidth: 3,
         },
       ],
     },
@@ -73,5 +73,4 @@ export class StudiesStatsComponent implements OnInit {
       },
     },
   });
-}
-}
+}}

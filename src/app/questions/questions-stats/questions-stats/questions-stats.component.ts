@@ -31,24 +31,24 @@ export class QuestionsStatsComponent implements OnInit, AfterViewInit {
   tagChartData: any = { labels: [], datasets: [] };
 
   chartOptions: any = {
-    responsive: true,
-    maintainAspectRatio: false,
-    scales: {
-      x: {
-        beginAtZero: true,
-        grid: { color: 'rgba(63, 81, 181, 0.2)' },
-      },
-      y: {
-        grid: { color: 'rgba(63, 81, 181, 0.2)' },
-      },
+  responsive: true,
+  maintainAspectRatio: false,
+  scales: {
+    x: {
+      beginAtZero: true,
+      grid: { color: 'rgba(63, 81, 181, 0.2)' },
     },
-    plugins: {
-      legend: {
-        labels: { color: 'rgba(63, 81, 181, 1)', font: { size: 14 } },
-      },
+    y: {
+      beginAtZero: true, // Ensure y-axis starts at 0
+      grid: { color: 'rgba(63, 81, 181, 0.2)' },
     },
-  };
-
+  },
+  plugins: {
+    legend: {
+      labels: { color: 'rgba(63, 81, 181, 1)', font: { size: 14 } },
+    },
+  },
+};
   private isChartInitialized = false;
   private isIncrementalChartInitialized = false;
   private isDifficultyChartInitialized = false;
@@ -95,95 +95,111 @@ export class QuestionsStatsComponent implements OnInit, AfterViewInit {
   }
 
   updateChartData(): void {
-    if (this.statistics?.questionsCrackedPerDay) {
-      const labels = this.statistics.questionsCrackedPerDay.map((item) => item.date);
-      const data = this.statistics.questionsCrackedPerDay.map((item) => item.count);
+  if (this.statistics?.questionsCrackedPerDay) {
+    // Extract labels (dates) and data (counts)
+    const labels = this.statistics.questionsCrackedPerDay
+      .filter((item) => item.count > 0) // Exclude days with count = 0
+      .map((item) => item.date);
 
-      this.chartData = {
-        labels: labels,
-        datasets: [
-          {
-            label: 'Cracked Questions Per Day',
-            data: data,
-            backgroundColor: 'rgba(63, 81, 181, 0.5)',
-            borderColor: 'rgba(63, 81, 181, 1)',
-            borderWidth: 2,
-          },
-        ],
-      };
+    const data = this.statistics.questionsCrackedPerDay
+      .filter((item) => item.count > 0) // Match labels
+      .map((item) => item.count);
 
-      if (!this.isChartInitialized) {
-        this.initializeChart();
-      }
+    this.chartData = {
+      labels: labels,
+      datasets: [
+        {
+          label: 'Cracked Questions Per Day',
+          data: data,
+          backgroundColor: 'rgba(63, 81, 181, 0.5)',
+          borderColor: 'rgba(63, 81, 181, 1)',
+          borderWidth: 2,
+          fill: false, // Avoid filling under the line
+          tension: 0.4, // Add smoothness to the line
+        },
+      ],
+    };
+
+    if (!this.isChartInitialized) {
+      this.initializeChart();
     }
   }
+}
 
   updateIncrementalChartData(): void {
-    if (this.statistics?.incrementalQuestionsCrackedPerDay) {
-      const labels = this.statistics.incrementalQuestionsCrackedPerDay.map((item) => item.date);
-      const data = this.statistics.incrementalQuestionsCrackedPerDay.map((item) => item.count);
+  if (this.statistics?.incrementalQuestionsCrackedPerDay) {
+    const labels = this.statistics.incrementalQuestionsCrackedPerDay.map((item) => item.date);
+    const data = this.statistics.incrementalQuestionsCrackedPerDay.map((item) => item.count);
 
-      this.incrementalChartData = {
-        labels: labels,
-        datasets: [
-          {
-            label: 'Incremental Cracked Questions Per Day',
-            data: data,
-            backgroundColor: 'rgba(76, 175, 80, 0.5)',
-            borderColor: 'rgba(76, 175, 80, 1)',
-            borderWidth: 2,
-          },
-        ],
-      };
+    this.incrementalChartData = {
+      labels: labels,
+      datasets: [
+        {
+          label: 'Incremental Cracked Questions Per Day',
+          data: data,
+          backgroundColor: '#33ffbe', // Bar color
+          borderColor: '#3396ff',     // Border color
+          borderWidth: 3,            // Border width
+        },
+      ],
+    };
 
-      if (!this.isIncrementalChartInitialized) {
-        this.initializeIncrementalChart();
-      }
+    if (!this.isIncrementalChartInitialized) {
+      this.initializeIncrementalChart();
     }
   }
+}
 
   updateDifficultyChartData(): void {
-    if (this.statistics?.questionsCrackedPerDifficulty) {
-      const labels = Object.keys(this.statistics.questionsCrackedPerDifficulty);
-      const data = Object.values(this.statistics.questionsCrackedPerDifficulty);
+  if (this.statistics?.questionsCrackedPerDifficulty) {
+    const labels = Object.keys(this.statistics.questionsCrackedPerDifficulty);
+    const data = Object.values(this.statistics.questionsCrackedPerDifficulty);
 
-      this.difficultyChartData = {
-        labels: labels,
-        datasets: [
-          {
-            data: data,
-            backgroundColor: ['#ff6f61', '#ffcc00', '#66bb6a'],
-            hoverBackgroundColor: ['#ff7043', '#ffeb3b', '#81c784'],
-          },
-        ],
-      };
+    this.difficultyChartData = {
+      labels: labels,
+      datasets: [
+        {
+          data: data,
+          backgroundColor: ['#ecff00', '#ffaf33', '#ff3333'], // Updated colors: medium is now orange, and easy is red
+          hoverBackgroundColor: ['#ffeb3b', '#ff7043', '#ff3349'], // Updated hover colors to match
+        },
+      ],
+    };
 
-      if (!this.isDifficultyChartInitialized) {
-        this.initializeDifficultyChart();
-      }
+    if (!this.isDifficultyChartInitialized) {
+      this.initializeDifficultyChart();
     }
   }
-
+}
   updateTagChartData(): void {
-    if (this.statistics?.questionsCrackedPerTag) {
-      const labels = Object.keys(this.statistics.questionsCrackedPerTag);
-      const data = Object.values(this.statistics.questionsCrackedPerTag);
+  if (this.statistics?.questionsCrackedPerTag) {
+    const labels = Object.keys(this.statistics.questionsCrackedPerTag);
+    const data = Object.values(this.statistics.questionsCrackedPerTag);
 
-      this.tagChartData = {
-        labels: labels,
-        theme: "dark2",
-        datasets: [
-          {
-            data: data,
-            backgroundColor: labels.map(() => `#${Math.floor(Math.random() * 16777215).toString(16)}`),          },
-        ],
-      };
+    // Define a fixed set of colors
+    const colors = [
+      '#FF5733', '#33FF57', '#3357FF', '#FF33A1', '#A133FF',
+      '#33FFF5', '#FF8C33', '#DFFF33', '#8C33FF', '#33FF8C'
+    ];
 
-      if (!this.isTagChartInitialized) {
-        this.initializeTagChart();
-      }
+    // Assign colors to tags consistently by their order in the labels array
+    const backgroundColors = labels.map((_, index) => colors[index % colors.length]);
+
+    this.tagChartData = {
+      labels: labels,
+      datasets: [
+        {
+          data: data,
+          backgroundColor: backgroundColors,
+        },
+      ],
+    };
+
+    if (!this.isTagChartInitialized) {
+      this.initializeTagChart();
     }
   }
+}
 
   initializeChart(): void {
     const ctx = this.chartCanvas.nativeElement;
@@ -198,16 +214,42 @@ export class QuestionsStatsComponent implements OnInit, AfterViewInit {
   }
 
   initializeIncrementalChart(): void {
-    const ctx = this.incrementalChartCanvas.nativeElement;
-    if (this.incrementalChartData && this.chartOptions) {
-      window.myChart = new Chart(ctx, {
-        type: 'line',
-        data: this.incrementalChartData,
-        options: this.chartOptions,
-      });
-      this.isIncrementalChartInitialized = true;
-    }
+  const ctx = this.incrementalChartCanvas.nativeElement;
+  if (this.incrementalChartData) {
+    window.myChart = new Chart(ctx, {
+      type: 'bar', // Bar chart
+      data: this.incrementalChartData,
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: 'Date', // Label for x-axis
+            },
+          },
+          y: {
+            title: {
+              display: true,
+              text: 'Questions Cracked', // Label for y-axis
+            },
+            beginAtZero: true,
+          },
+        },
+        plugins: {
+          legend: {
+            labels: {
+              color: '#3f51b5', // Legend text color
+              font: { size: 14 },
+            },
+          },
+        },
+      },
+    });
+    this.isIncrementalChartInitialized = true;
   }
+}
 
   initializeDifficultyChart(): void {
     const ctx = this.difficultyChartCanvas.nativeElement;
