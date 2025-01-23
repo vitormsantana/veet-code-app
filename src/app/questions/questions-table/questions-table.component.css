@@ -6,7 +6,7 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Enhanced shadow for better depth */
   font-family: 'Arial', sans-serif; /* Clean and modern font */
   margin: 0 auto;
-  height: 400px; /* Set a fixed height for the table container */
+  height: 457px; /* Set a fixed height for the table container */
   overflow-y: scroll; /* Make the table scrollable if the content exceeds the height */
   overflow: scroll; /* Always show scrollbar */
 }

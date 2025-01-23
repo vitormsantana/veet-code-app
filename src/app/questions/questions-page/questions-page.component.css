@@ -1,49 +1,84 @@
+/* Main content container with grid layout */
 .content-container {
   display: grid;
-  grid-template-columns: 1fr 1fr; /* Two equal columns */
-  grid-template-rows: auto auto auto; /* Three rows to accommodate the new section */
+  grid-template-columns: 1fr 2fr; /* Adjusted to give more space to the second column */
+  grid-template-rows: auto auto auto; /* Auto height for each row */
   gap: 16px; /* Space between items */
   padding: 16px; /* Padding around the content */
 }
 
+/* Question section - reduced size */
 .question-container {
   grid-column: 1; /* First column */
   grid-row: 1; /* First row */
+  padding: 8px; /* Reduced padding */
+  background-color: #779fa1; /* Light background */
+  border-radius: 8px; /* Rounded corners */
+  border: 1px solid #ddd; /* Light border for separation */
+  max-width: 90%; /* Reduced width to make it more compact */
+  margin-left: auto; /* Align the form to the right */
 }
 
+/* Table section - reduced size */
 .table-container {
   grid-column: 2; /* Second column */
   grid-row: 1; /* First row */
+  padding: 8px; /* Reduced padding */
+  background-color: #779fa1; /* Light background */
+  border-radius: 8px; /* Rounded corners */
+  border: 1px solid #ddd; /* Light border */
+  max-width: 90%; /* Reduced width to make it more compact */
+  margin-left: auto; /* Align the table to the right */
 }
 
+/* Stats section - spanning both columns */
 .stats-container {
   grid-column: 1 / 3; /* Span across both columns */
   grid-row: 2; /* Second row */
+  padding: 16px;
+  background-color: #2B3D41; /* Darker background for serious tone */
+  color: white; /* White text for readability */
+  border-radius: 8px; /* Rounded corners */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow */
 }
 
+/* Recommendation section - more serious design */
 .openai-questions-recommendation-container {
   grid-column: 1 / 3; /* Span across both columns */
   grid-row: 3; /* Third row */
-  background-color: #ffffff; /* Brighter background */
-  color: #333333; /* Darker text color for readability */
-  padding: 16px; /* Padding inside the container */
-  border: 1px solid #ccc; /* Border for visual separation */
+  background-color: #f4f4f4; /* Light grey background */
+  color: #333333; /* Dark text color */
+  padding: 16px;
+  border: 1px solid #ccc; /* Light border */
   border-radius: 8px; /* Rounded corners */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for emphasis */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for emphasis */
 }
 
 .openai-questions-recommendation-container h2 {
-  color: #007bff; /* Change title color to blue */
+  color: #2B3D41; /* Dark, serious color for title */
+  font-size: 20px; /* Slightly larger title */
+  margin-bottom: 10px; /* Spacing below title */
 }
 
 .openai-questions-recommendation-container p {
-  font-size: 14px; /* Slightly smaller font size for description */
-  line-height: 1.6; /* Better line spacing */
+  font-size: 14px; /* Normal font size */
+  line-height: 1.6; /* Better readability */
+  margin-top: 8px; /* Space above description */
 }
 
+/* Navigation button container - centered below the charts */
 .navigation-container {
   grid-column: 1 / 3; /* Span across both columns */
   grid-row: 4; /* Fourth row */
   display: flex;
-  justify-content: center; /* Center the button horizontally */
+  justify-content: center; /* Center the button */
+  margin-top: 16px; /* Space above navigation */
+}
+
+/* Chart section - placed below stats and recommendation */
+.chart-container {
+  grid-column: 1 / 3; /* Spans across both columns */
+  grid-row: 5; /* Fifth row */
+  display: grid;
+  gap: 16px;
 }

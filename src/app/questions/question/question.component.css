@@ -1,6 +1,6 @@
 .question-container {
   max-width: 640px;
-  padding: 20px;
+  padding: 12px;
   background-color: #a17c6b; /* Updated to selected background */
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
