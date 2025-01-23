@@ -2,7 +2,7 @@
   max-width: 900px; /* Slightly wider for better spacing */
   margin-left: 20px;
   background-color: #f8faff; /* Bright white for a clean look */
-  border-radius: 0; /* Smoother edges */
+  border-radius: 8px; /* Rounded corners for the table */
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Enhanced shadow for better depth */
   font-family: 'Arial', sans-serif; /* Clean and modern font */
   margin: 0 auto;
@@ -14,12 +14,12 @@
 .questions-table-container h2 {
   font-size: 1.8rem;
   font-weight: bold;
-  color: #007bff;
+  color: #fff; /* White color for better contrast */
   text-align: center;
   margin-bottom: 20px;
   font-family: 'Arial', sans-serif;
   letter-spacing: 1px;
-  background-color: #007bff;
+  background-color: #2b3d41; /* Background color updated to selected one */
   padding: 12px 0;
   border-radius: 8px;
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
@@ -30,6 +30,8 @@
   border-collapse: collapse;
   border-spacing: 0; /* Removes spacing between cells */
   table-layout: fixed; /* Ensures columns stay fixed */
+  border-radius: 8px; /* Rounded corners for the table */
+  overflow: hidden; /* Ensures no content overflows the rounded corners */
 }
 
 .questions-table-container th, .questions-table-container td {
@@ -39,11 +41,12 @@
   font-size: 0.85rem; /* Slightly smaller font to shorten row height */
   overflow: hidden; /* Prevent text overflow */
   text-overflow: ellipsis; /* Truncate overflowed text */
+  color: #fff; /* White text color for better contrast */
 }
 
 .questions-table-container th {
-  background-color: #007bff;
-  color: #ffffff;
+  background-color: #a17c6b; /* Updated to the selected brown for the header */
+  color: #fff; /* White text */
   font-weight: bold;
   text-transform: uppercase; /* Adds emphasis */
   font-size: 0.9rem;
@@ -54,16 +57,18 @@
 }
 
 .questions-table-container td {
-  background-color: #f9f9f0; /* Bege for rows */
-  color: #333333; /* Dark text for better readability */
   font-size: 0.9rem;
 }
 
 .questions-table-container tr:nth-child(even) td {
-  background-color: #f4f4f4; /* Alternating row color for better distinction */
+  background-color: #3e4f52; /* Darker background for even rows */
+}
+
+.questions-table-container tr:nth-child(odd) td {
+  background-color: #000; /* Black background for odd rows */
 }
 
 .questions-table-container tr:hover td {
-  background-color: #d7e7ff; /* Highlight row on hover */
+  background-color: #b3c5d9; /* Subtle hover effect with a lighter, more balanced color */
   transition: background-color 0.3s ease; /* Smooth hover effect */
 }
