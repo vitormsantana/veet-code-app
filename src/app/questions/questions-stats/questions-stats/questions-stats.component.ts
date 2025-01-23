@@ -219,26 +219,31 @@ export class QuestionsStatsComponent implements OnInit, AfterViewInit {
   }
 
   updateTagChartData(): void {
-    if (this.statistics?.questionsCrackedPerTag) {
-      const labels = Object.keys(this.statistics.questionsCrackedPerTag);
-      const data = Object.values(this.statistics.questionsCrackedPerTag);
+  if (this.statistics?.questionsCrackedPerTag) {
+    const labels = Object.keys(this.statistics.questionsCrackedPerTag);
+    const data = Object.values(this.statistics.questionsCrackedPerTag);
 
-      this.tagChartData = {
-        labels: labels,
-        datasets: [
-          {
-            data: data,
-            backgroundColor: ['#FF5733', '#33FF57', '#3357FF', '#FF33A1', '#A133FF'],
-          },
-        ],
-      };
+    this.tagChartData = {
+      labels: labels,
+      datasets: [
+        {
+          data: data,
+          backgroundColor: [
+            '#2B3D41',  // Darker greyish blue
+            '#A17C6B',  // Muted brown
+            '#0a0908',  // Strong red
+            '#3e4f52',  // Soft green
+            '#779fa1',  // Strong blue
+          ], // Colors as requested
+        },
+      ],
+    };
 
-      if (!this.isTagChartInitialized) {
-        this.initializeTagChart();
-      }
+    if (!this.isTagChartInitialized) {
+      this.initializeTagChart();
     }
   }
-
+}
   initializeChart(): void {
     const ctx = this.chartCanvas.nativeElement;
     if (this.chartData && this.chartOptions) {

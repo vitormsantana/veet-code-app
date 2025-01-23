@@ -1,15 +1,15 @@
 /* Main content container with grid layout */
 .content-container {
   display: grid;
-  grid-template-columns: 1fr 2fr; /* Adjusted to give more space to the second column */
-  grid-template-rows: auto auto auto; /* Auto height for each row */
+  grid-template-columns: 1fr 2fr 1fr; /* Adjusted for 33% form, 66% table, 33% recommendations */
+  grid-template-rows: auto auto; /* Two rows: one for form/table/recommendations, one for stats */
   gap: 16px; /* Space between items */
   padding: 16px; /* Padding around the content */
 }
 
 /* Question section - reduced size */
 .question-container {
-  grid-column: 1; /* First column */
+  grid-column: 1; /* First column (33%) */
   grid-row: 1; /* First row */
   padding: 8px; /* Reduced padding */
   background-color: #779fa1; /* Light background */
@@ -21,7 +21,7 @@
 
 /* Table section - reduced size */
 .table-container {
-  grid-column: 2; /* Second column */
+  grid-column: 2; /* Second column (66%) */
   grid-row: 1; /* First row */
   padding: 8px; /* Reduced padding */
   background-color: #779fa1; /* Light background */
@@ -31,21 +31,10 @@
   margin-left: auto; /* Align the table to the right */
 }
 
-/* Stats section - spanning both columns */
-.stats-container {
-  grid-column: 1 / 3; /* Span across both columns */
-  grid-row: 2; /* Second row */
-  padding: 16px;
-  background-color: #2B3D41; /* Darker background for serious tone */
-  color: white; /* White text for readability */
-  border-radius: 8px; /* Rounded corners */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow */
-}
-
 /* Recommendation section - more serious design */
 .openai-questions-recommendation-container {
-  grid-column: 1 / 3; /* Span across both columns */
-  grid-row: 3; /* Third row */
+  grid-column: 3; /* Third column (33%) */
+  grid-row: 1; /* First row */
   background-color: #f4f4f4; /* Light grey background */
   color: #333333; /* Dark text color */
   padding: 16px;
@@ -66,10 +55,21 @@
   margin-top: 8px; /* Space above description */
 }
 
+/* Stats section - spanning both columns */
+.stats-container {
+  grid-column: 1 / 3; /* Span across both columns */
+  grid-row: 2; /* Second row */
+  padding: 16px;
+  background-color: #2B3D41; /* Darker background for serious tone */
+  color: white; /* White text for readability */
+  border-radius: 8px; /* Rounded corners */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow */
+}
+
 /* Navigation button container - centered below the charts */
 .navigation-container {
   grid-column: 1 / 3; /* Span across both columns */
-  grid-row: 4; /* Fourth row */
+  grid-row: 3; /* Fourth row */
   display: flex;
   justify-content: center; /* Center the button */
   margin-top: 16px; /* Space above navigation */
@@ -78,7 +78,7 @@
 /* Chart section - placed below stats and recommendation */
 .chart-container {
   grid-column: 1 / 3; /* Spans across both columns */
-  grid-row: 5; /* Fifth row */
+  grid-row: 4; /* Fifth row */
   display: grid;
   gap: 16px;
 }

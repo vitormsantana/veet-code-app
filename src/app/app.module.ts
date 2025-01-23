@@ -14,6 +14,7 @@ import { MatSortModule } from '@angular/material/sort';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatExpansionModule } from '@angular/material/expansion';
 import { QuestionsStatsComponent } from './questions/questions-stats/questions-stats/questions-stats.component';
 import { QuestionsStatsService } from './questions/questions-stats/questions-stats.service';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -51,6 +52,7 @@ import { QuestionsRecomendationsOpenaiComponent } from './questions/questions-re
     FormsModule,
     MatTableModule,
     MatPaginatorModule,
+    MatExpansionModule,
     MatSortModule,
     MatButtonModule,
     MatIconModule,

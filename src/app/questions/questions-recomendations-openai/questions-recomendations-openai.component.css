@@ -1,21 +1,51 @@
 .recommendations-container {
-  padding: 16px;
-}
-
-.loading {
-  text-align: center;
-}
-
-.error {
-  color: red;
-  font-weight: bold;
-}
-
-.recommendations-text {
-  white-space: pre-wrap; /* Preserve line breaks */
-  background-color: #f9f9f9;
-  border: 1px solid #ddd;
-  padding: 12px;
+  background-color: #2B3D41; /* Darker greyish blue */
+  padding: 20px;
   border-radius: 8px;
-  font-family: monospace;
+  color: white;
+}
+
+.loading, .error {
+  color: #FF3333; /* Strong red for error */
+}
+
+.recommendations-table {
+  margin-top: 20px;
+  overflow-y: auto;
+  max-height: 300px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #A17C6B; /* Muted brown */
+}
+
+th {
+  background-color: #A17C6B; /* Soft blue header */
+  color: white; /* White letters in header */
+  height: 100%; /* Make header as tall as the content */
+}
+
+.question-column {
+  font-size: 18px;
+}
+
+td {
+  background-color: #3e4f52; /* Soft green */
+  color: white; /* White letters in content */
+  height: 100%; /* Make content as tall as the header */
+}
+
+.question-cell p {
+  margin: 0;
+  padding: 10px;
+  height: 100%;
+  display: flex;
+  align-items: center; /* Center text vertically */
 }
