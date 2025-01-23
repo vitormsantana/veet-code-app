@@ -1,33 +1,47 @@
-  <div class="question-container">
-    <h2>Insert the Solved LeetCode Question</h2>
+<div class="question-container">
+  <h2>Insert the Solved LeetCode Question</h2>
 
-    <form>
-      <label for="title">Question Name:</label>
-      <input type="text" id="title" name="title" [(ngModel)]="question.name" required />
+  <form [formGroup]="questionForm" (ngSubmit)="submitForm()">
+    <mat-form-field appearance="fill">
+      <mat-label>Question Name</mat-label>
+      <input matInput formControlName="name" required />
+      <mat-error *ngIf="questionForm.controls['name'].hasError('required')">This field is required.</mat-error>
+    </mat-form-field>
 
-      <label for="difficulty">Difficulty:</label>
-      <select id="difficulty" name="difficulty" [(ngModel)]="question.difficulty">
-        <option value="Easy">Easy</option>
-        <option value="Medium">Medium</option>
-        <option value="Hard">Hard</option>
-      </select>
+    <mat-form-field appearance="fill">
+      <mat-label>Difficulty</mat-label>
+      <mat-select formControlName="difficulty">
+        <mat-option value="Easy">Easy</mat-option>
+        <mat-option value="Medium">Medium</mat-option>
+        <mat-option value="Hard">Hard</mat-option>
+      </mat-select>
+    </mat-form-field>
 
-      <label for="date">Date that question was cracked:</label>
-      <input id="date" name="date" [(ngModel)]="question.date" required />
+    <mat-form-field appearance="fill">
+      <mat-label>Date that question was cracked</mat-label>
+      <input matInput formControlName="date" type="date" required />
+    </mat-form-field>
 
-      <label for="tags">Tags:</label>
-      <select id="tags" name="tags" multiple required [(ngModel)]="question.tags">
-        <option *ngFor="let tag of availableTags" [value]="tag">{{ tag }}</option>
-      </select>
+    <mat-form-field appearance="fill">
+      <mat-label>Tags</mat-label>
+      <mat-select formControlName="tags" multiple required>
+        <mat-option *ngFor="let tag of availableTags" [value]="tag">{{ tag }}</mat-option>
+      </mat-select>
+    </mat-form-field>
 
-      <button type="submit" (click)="submitForm()">Add Question</button>
-    </form>
+    <button mat-raised-button color="primary" type="submit" [disabled]="questionForm.invalid">Add Question</button>
+  </form>
 
-    <div *ngIf="submittedQuestion">
-        <h3>Submitted Question Details</h3>
-        <p><strong>Question Name:</strong> {{ submittedQuestion.name }} </p>
-        <p><strong>Difficulty:</strong> {{ submittedQuestion.difficulty }} </p>
-        <p><strong>Question Solved in:</strong> {{ submittedQuestion.date }} </p>
-    </div>
+  <div *ngIf="submittedQuestion">
+    <h3>Submitted Question Details</h3>
+    <p><strong>Question Name:</strong> {{ submittedQuestion.name }} </p>
+    <p><strong>Difficulty:</strong> {{ submittedQuestion.difficulty }} </p>
+    <p><strong>Question Solved in:</strong> {{ submittedQuestion.date }} </p>
   </div>
+
+  <div *ngIf="responseMessage" class="response-message">
+    <p>{{ responseMessage }}</p>
+  </div>
+</div>
+
 

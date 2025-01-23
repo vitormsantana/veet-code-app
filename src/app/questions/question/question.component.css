@@ -1,73 +1,34 @@
 .question-container {
-    max-width: 640px; /* Limits the width of the container to 900px for better readability */
-    padding: 0px 0px 20px 0px; /* Adds 20px padding to the bottom */
-    background-color: #f9f9f0; /* Sets a light background color for the container */
-    border-radius: 0px; /* Removes rounding of the corners */
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Adds a shadow for a subtle 3D effect */
+  max-width: 640px;
+  padding: 20px;
+  background-color: #007bff; /* Change to blue background for the container */
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-h2 {
-    font-size: 2rem; /* Increases the font size for better visibility */
-    font-weight: 600; /* Makes the text bold */
-    color: #fff; /* Sets the text color to white for contrast */
-    text-align: center; /* Centers the title text */
-    margin: 0 0 20px 0; /* Removes default margin above the title and keeps 20px below */
-    font-family: 'Arial', sans-serif; /* Uses a clean, modern sans-serif font */
-    letter-spacing: 1px; /* Adds slight spacing between the letters */
-
-    /* Background Box Styles */
-    background-color: #007bff; /* Sets the background color to blue */
-    padding: 10px 0; /* Adds vertical padding inside the title's background box */
-    border-radius: 8px; /* Rounds the corners of the background box */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Adds a subtle shadow to the background box */
+mat-form-field {
+  width: 100%;
 }
 
-form {
-    display: flex; /* Makes the form items a flex container */
-    flex-direction: column; /* Arranges the items vertically */
-    gap: 15px; /* Adds space between form items */
-}
-
-label {
-    font-weight: bold; /* Makes the label text bold */
-    margin-bottom: 0; /* Adds a small space below the label */
-    margin-left: 3%; /* Pushes the label slightly to the right */
-}
-
-input, textarea {
-    width: 80%; /* Sets the input and textarea width to 80% of their container */
-    padding: 1px; /* Adds a small amount of padding inside the input and textarea */
-    font-size: 14px; /* Sets the font size for better readability */
-    border: 1px solid #ccc; /* Adds a light gray border */
-    border-radius: 4px; /* Rounds the corners slightly */
-    margin-left: 3%; /* Pushes the input/textarea slightly to the right */
-}
-
-select {
-    width: 30%; /* Limits the width of select and button elements to 20% of their container */
-    padding: 1px; /* Adds a small amount of padding */
-    font-size: 14px; /* Sets a readable font size */
-    border: 1px solid #ccc; /* Adds a light gray border */
-    border-radius: 4px; /* Rounds the corners slightly */
-    margin-left: 3%; /* Pushes the select/button slightly to the right */
+mat-form-field .mat-form-field-infix {
+  background-color: #fff; /* White background for the input fields */
+  border-radius: 4px;
 }
 
 button {
-    width: 90%;
-    background-color: #007bff; /* Sets the button background color to blue */
-    color: white; /* Sets the button text color to white */
-    border: none; /* Removes the default button border */
-    cursor: pointer; /* Changes the cursor to a pointer on hover for interactivity */
-    font-size: 16px; /* Sets a slightly larger font size for the button text */
-    transition: background-color 0.3s; /* Adds a smooth transition effect on hover */
-    margin-left: 3%; /* Pushes the button slightly to the right */
+  margin-top: 20px;
+  width: 100%;
 }
 
-button:hover {
-    background-color: #0056b3; /* Darkens the button background color on hover */
+h2 {
+  text-align: center;
+  color: #fff; /* Change to white for the title */
+  margin-bottom: 20px;
 }
 
-textarea {
-    resize: vertical; /* Allows the user to resize the textarea vertically only */
-    min-height: 90px; /* Sets a minimum height for the textarea */
+.response-message {
+  margin-top: 20px;
+  color: green;
+  text-align: center;
 }
+
