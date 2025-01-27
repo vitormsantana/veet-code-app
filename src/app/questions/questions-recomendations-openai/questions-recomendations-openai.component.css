@@ -1,18 +1,18 @@
 .recommendations-container {
   background-color: #2B3D41; /* Darker greyish blue */
-  padding: 20px;
   border-radius: 8px;
   color: white;
+  transition: none; /* Ensure no transition */
 }
 
 .loading, .error {
-  color: #FF3333; /* Strong red for error */
+  color: #FFF; /* Strong red for error */
 }
 
 .recommendations-table {
-  margin-top: 20px;
   overflow-y: auto;
-  max-height: 300px;
+  max-height: 457px;
+  border-radius: 8px;
 }
 
 table {
@@ -21,25 +21,35 @@ table {
 }
 
 th, td {
-  padding: 12px;
+  padding: 0px 12px; /* Match questions table padding */
   text-align: left;
   border-bottom: 1px solid #A17C6B; /* Muted brown */
+  transition: none; /* Ensure no transitions */
 }
 
 th {
-  background-color: #A17C6B; /* Soft blue header */
+  background-color: #A17C6B; /* Muted brown header */
   color: white; /* White letters in header */
-  height: 100%; /* Make header as tall as the content */
+  font-weight: bold;
+  text-transform: uppercase; /* Emphasize header */
+  font-size: 0.9rem; /* Match font size with questions table */
+  position: sticky; /* Keep header fixed when scrolling */
+  top: 0;
+  z-index: 1; /* Ensure header stays above rows */
+  height: 55px; /* Explicit height to match questions table header */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  transition: none; /* Ensure no transition */
+}
+
+td {
+  background-color: #3e4f52; /* Dark greyish blue */
+  color: white; /* White letters in content */
+  font-size: 0.9rem; /* Match font size with questions table */
+  transition: none; /* Ensure no transition */
 }
 
 .question-column {
   font-size: 18px;
-}
-
-td {
-  background-color: #3e4f52; /* Soft green */
-  color: white; /* White letters in content */
-  height: 100%; /* Make content as tall as the header */
 }
 
 .question-cell p {
@@ -49,3 +59,18 @@ td {
   display: flex;
   align-items: center; /* Center text vertically */
 }
+
+.recommendations-table tr:nth-child(even) td {
+  background-color: #3e4f52; /* Darker background for even rows */
+}
+
+.recommendations-table tr:nth-child(odd) td {
+  background-color: #000; /* Black background for odd rows */
+}
+
+/* No hover transition */
+.recommendations-table tr:hover td {
+  background-color: #b3c5d9; /* Subtle hover effect */
+  transition: none; /* Remove transition */
+}
+

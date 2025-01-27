@@ -12,7 +12,7 @@ import { FormGroup, FormControl, Validators } from '@angular/forms';
 export class QuestionComponent {
   questionForm: FormGroup;
 
-  availableTags = ['Arrays', 'String', 'Hash Tables', 'Linked Lists', 'Two Pointers', 'Sliding Window',
+  availableTags = ['Arrays', 'String', 'Binary Search', 'Hash Tables', 'Linked Lists', 'Two Pointers', 'Sliding Window',
     'Stacks', 'Queues', 'Heaps', 'Binary Tree', 'BFS', 'DFS', 'Sets', 'Sort',
     'Dynamic Programming', 'Graph', 'Math'];
 
