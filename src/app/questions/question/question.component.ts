@@ -12,9 +12,9 @@ import { FormGroup, FormControl, Validators } from '@angular/forms';
 export class QuestionComponent {
   questionForm: FormGroup;
 
-  availableTags = ['Arrays', 'String', 'Binary Search', 'Hash Tables', 'Linked Lists', 'Two Pointers', 'Sliding Window',
-    'Stacks', 'Queues', 'Heaps', 'Binary Tree', 'BFS', 'DFS', 'Sets', 'Sort',
-    'Dynamic Programming', 'Graph', 'Math'];
+  availableTags = ['Arrays', 'Backtracking', 'String', 'Binary Search', 'Hash Tables', 'Linked Lists', 'Two Pointers', 'Sliding Window',
+    'Stacks', 'Queues', 'Heaps', 'Recursion' , 'Tree', 'BST', 'Binary Tree', 'BFS', 'DFS', 'Sets', 'Sort',
+    'Dynamic Programming', 'Memoization','Graph', 'Math', 'Greedy'];
 
   submittedQuestion: any = null;
   responseMessage: string = '';

@@ -207,7 +207,7 @@ export class QuestionsStatsComponent implements OnInit, AfterViewInit {
         datasets: [
           {
             data: data,
-            backgroundColor: ['#2B3D41', '#A17C6B', '#FF3333'], // Different colors for easy, medium, and hard
+            backgroundColor: ['#2B3D41', '#FF3333', '#A17C6B'], // Different colors for easy, medium, and hard
           },
         ],
       };
