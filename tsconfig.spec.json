@@ -9,6 +9,7 @@
     ]
   },
   "include": [
+    "src/global-shim.ts",
     "src/**/*.spec.ts",
     "src/**/*.d.ts"
   ]

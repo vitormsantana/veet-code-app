@@ -27,6 +27,7 @@
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [
+              "src/global-shim.ts",
               "zone.js"
             ],
             "tsConfig": "tsconfig.app.json",
@@ -90,6 +91,7 @@
           "builder": "@angular-devkit/build-angular:karma",
           "options": {
             "polyfills": [
+              "src/global-shim.ts",
               "zone.js",
               "zone.js/testing"
             ],

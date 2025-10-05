@@ -29,6 +29,7 @@ import { StudiesStatsComponent } from './studies/studies-stats/studies-stats.com
 import { RouterModule } from '@angular/router';
 import { StudiesStatsPerThemeComponent } from './studies/studies-stats-per-theme/studies-stats-per-theme.component';
 import { QuestionsRecomendationsOpenaiComponent } from './questions/questions-recomendations-openai/questions-recomendations-openai.component';
+import { LoginComponent } from './auth/login/login.component';
 
 @NgModule({
   declarations: [
@@ -43,7 +44,8 @@ import { QuestionsRecomendationsOpenaiComponent } from './questions/questions-re
     StudiesTableComponent,
     StudiesStatsComponent,
     StudiesStatsPerThemeComponent,
-    QuestionsRecomendationsOpenaiComponent
+    QuestionsRecomendationsOpenaiComponent,
+    LoginComponent
   ],
   imports: [
     BrowserModule,

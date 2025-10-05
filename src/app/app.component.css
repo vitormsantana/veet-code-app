@@ -38,7 +38,7 @@
   width: 100%;
   display: flex;
   align-items: flex-start;
-  flex-direction: row:
+  flex-direction: row;
 }
 
 /* Ensure the layout is responsive on small screens */
@@ -50,6 +50,7 @@
   .question-container,
   .study-container,
   .table-container,
-  .stats-container
+  .stats-container {
+    width: 100%;
+  }
 }
-
