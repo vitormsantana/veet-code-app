@@ -99,3 +99,10 @@ form button:hover:not(:disabled) {
   font-size: 0.875rem;
   margin: 0;
 }
+
+.status {
+  color: #2563eb;
+  font-size: 0.875rem;
+  margin: 0;
+  text-align: center;
+}

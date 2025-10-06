@@ -4,7 +4,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { QuestionComponent } from './questions/question/question.component';
 import { QuestionsTableComponent } from './questions/questions-table/questions-table.component';
-import { HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -30,6 +30,7 @@ import { RouterModule } from '@angular/router';
 import { StudiesStatsPerThemeComponent } from './studies/studies-stats-per-theme/studies-stats-per-theme.component';
 import { QuestionsRecomendationsOpenaiComponent } from './questions/questions-recomendations-openai/questions-recomendations-openai.component';
 import { LoginComponent } from './auth/login/login.component';
+import { AuthInterceptor } from './auth/auth.interceptor';
 
 @NgModule({
   declarations: [
@@ -66,7 +67,12 @@ import { LoginComponent } from './auth/login/login.component';
     ReactiveFormsModule,  ],
   providers: [
     provideAnimationsAsync(),
-    QuestionsStatsService
+    QuestionsStatsService,
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true
+    }
   ],
   bootstrap: [AppComponent]
 })

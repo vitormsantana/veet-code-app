@@ -8,6 +8,7 @@
       type="email"
       formControlName="email"
       autocomplete="email"
+      [disabled]="isProcessingRedirect || isRedirectingToProvider"
       [class.invalid]="emailInvalid"
     />
     <p class="error" *ngIf="emailInvalid">Enter a valid email.</p>
@@ -18,11 +19,12 @@
       type="password"
       formControlName="password"
       autocomplete="current-password"
+      [disabled]="isProcessingRedirect || isRedirectingToProvider"
       [class.invalid]="passwordInvalid"
     />
     <p class="error" *ngIf="passwordInvalid">Password is required.</p>
 
-    <button type="submit" [disabled]="isSubmitting">
+    <button type="submit" [disabled]="isSubmitting || isProcessingRedirect || isRedirectingToProvider">
       {{ isSubmitting ? 'Signing in…' : 'Continue with email' }}
     </button>
   </form>
@@ -31,9 +33,16 @@
     <span>or</span>
   </div>
 
-  <button type="button" class="google-button" (click)="connectWithGoogle()">
-    Continue with Google
+  <button
+    type="button"
+    class="google-button"
+    (click)="connectWithGoogle()"
+    [disabled]="isProcessingRedirect || isRedirectingToProvider"
+  >
+    {{ isRedirectingToProvider ? 'Redirecting…' : 'Continue with Google' }}
   </button>
+
+  <p class="status" *ngIf="isProcessingRedirect">Finishing sign-in…</p>
 
   <p class="error" *ngIf="errorMessage">{{ errorMessage }}</p>
 </section>
