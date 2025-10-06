@@ -41,6 +41,7 @@ export class LoginComponent {
   }
 
   connectWithGoogle(): void {
+    console.info('[LoginComponent] Google sign-in button clicked');
     this.authService.signInWithGoogle();
   }
 

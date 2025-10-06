@@ -34,6 +34,12 @@ export class AuthService {
 
   signInWithGoogle(): void {
     const authorizeUrl = this.buildAuthorizeUrl('Google');
+    console.info('[AuthService] Redirecting to Cognito Google sign-in', {
+      authorizeUrl,
+      domain: cognitoConfig.domain,
+      redirectUri: cognitoConfig.redirectUri,
+      clientId: cognitoConfig.clientId
+    });
     window.location.assign(authorizeUrl);
   }
 
@@ -56,6 +62,13 @@ export class AuthService {
       params.append('identity_provider', identityProvider);
     }
 
-    return `${baseUrl}?${params.toString()}`;
+    const url = `${baseUrl}?${params.toString()}`;
+    console.debug('[AuthService] Built authorize URL', {
+      baseUrl,
+      params: params.toString(),
+      identityProvider,
+      url
+    });
+    return url;
   }
 }
