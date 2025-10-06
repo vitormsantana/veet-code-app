@@ -39,7 +39,12 @@ export class StudiesStatsPerThemeComponent implements OnInit {
     // Prepare datasets for the chart
     const datasets = Object.entries(minutesPerThemePerDay).map(([theme, data]) => ({
       label: theme,
-      data: sortedDates.map((date) => (data[date] ? data[date] / 60 : null)),
+      data: sortedDates.map((date) => {
+        if (data[date]) {
+          return data[date] / 60;
+        }
+        return null;
+      }),
       fill: false,
       borderColor: this.generateColorFromTheme(theme),
       tension: 0.1,
@@ -93,4 +98,3 @@ export class StudiesStatsPerThemeComponent implements OnInit {
     return `rgb(${r}, ${g}, ${b})`;
   }
 }
-

@@ -101,23 +101,23 @@ export class QuestionsStatsComponent implements OnInit, AfterViewInit {
   }
 
   updateChartData(): void {
-  if (this.statistics?.questionsCrackedPerDay) {
-    const labels = this.statistics.questionsCrackedPerDay
-      .filter((item) => item.count > 0)
-      .map((item) => item.date);
+    const stats = this.statistics;
+    if (!stats || !stats.questionsCrackedPerDay) {
+      return;
+    }
 
-    const data = this.statistics.questionsCrackedPerDay
-      .filter((item) => item.count > 0)
-      .map((item) => item.count);
+    const filteredItems = stats.questionsCrackedPerDay.filter((item) => item.count > 0);
+    const labels = filteredItems.map((item) => item.date);
+    const data = filteredItems.map((item) => item.count);
 
     this.chartData = {
-      labels: labels,
+      labels,
       datasets: [
         {
           label: 'Cracked Questions Per Day',
-          data: data,
-          backgroundColor: 'rgba(255, 255, 255, 0.5)', // White line color
-          borderColor: 'rgba(255, 255, 255, 1)', // White border
+          data,
+          backgroundColor: 'rgba(255, 255, 255, 0.5)',
+          borderColor: 'rgba(255, 255, 255, 1)',
           borderWidth: 2,
           fill: false,
           tension: 0.4,
@@ -125,7 +125,6 @@ export class QuestionsStatsComponent implements OnInit, AfterViewInit {
       ],
     };
 
-    // Apply the updated chart options here
     this.chartOptions = {
       responsive: true,
       maintainAspectRatio: false,
@@ -137,10 +136,10 @@ export class QuestionsStatsComponent implements OnInit, AfterViewInit {
             color: 'white',
           },
           grid: {
-            color: 'rgba(255, 255, 255, 0.2)', // White grid lines
+            color: 'rgba(255, 255, 255, 0.2)',
           },
           ticks: {
-            color: 'white', // White labels on x-axis
+            color: 'white',
           },
         },
         y: {
@@ -150,10 +149,10 @@ export class QuestionsStatsComponent implements OnInit, AfterViewInit {
             color: 'white',
           },
           grid: {
-            color: 'rgba(255, 255, 255, 0.2)', // White grid lines
+            color: 'rgba(255, 255, 255, 0.2)',
           },
           ticks: {
-            color: 'white', // White labels on y-axis
+            color: 'white',
           },
           beginAtZero: true,
         },
@@ -172,69 +171,79 @@ export class QuestionsStatsComponent implements OnInit, AfterViewInit {
       this.initializeChart();
     }
   }
-}
+
   updateIncrementalChartData(): void {
-    if (this.statistics?.incrementalQuestionsCrackedPerDay) {
-      const labels = this.statistics.incrementalQuestionsCrackedPerDay.map((item) => item.date);
-      const data = this.statistics.incrementalQuestionsCrackedPerDay.map((item) => item.count);
+    const stats = this.statistics;
+    if (!stats || !stats.incrementalQuestionsCrackedPerDay) {
+      return;
+    }
 
-      this.incrementalChartData = {
-        labels: labels,
-        datasets: [
-          {
-            label: 'Incremental Cracked Questions Per Day',
-            data: data,
-            backgroundColor: '#A17C6B', // Brown bars
-            borderColor: '#ffffff',     // White border
-            borderWidth: 2,             // Border width
-          },
-        ],
-      };
+    const labels = stats.incrementalQuestionsCrackedPerDay.map((item) => item.date);
+    const data = stats.incrementalQuestionsCrackedPerDay.map((item) => item.count);
 
-      if (!this.isIncrementalChartInitialized) {
-        this.initializeIncrementalChart();
-      }
+    this.incrementalChartData = {
+      labels,
+      datasets: [
+        {
+          label: 'Incremental Cracked Questions Per Day',
+          data,
+          backgroundColor: '#A17C6B',
+          borderColor: '#ffffff',
+          borderWidth: 2,
+        },
+      ],
+    };
+
+    if (!this.isIncrementalChartInitialized) {
+      this.initializeIncrementalChart();
     }
   }
 
   updateDifficultyChartData(): void {
-    if (this.statistics?.questionsCrackedPerDifficulty) {
-      const labels = Object.keys(this.statistics.questionsCrackedPerDifficulty);
-      const data = Object.values(this.statistics.questionsCrackedPerDifficulty);
+    const stats = this.statistics;
+    if (!stats || !stats.questionsCrackedPerDifficulty) {
+      return;
+    }
 
-      this.difficultyChartData = {
-        labels: labels,
-        datasets: [
-          {
-            data: data,
-            backgroundColor: ['#2B3D41', '#FF3333', '#A17C6B'], // Different colors for easy, medium, and hard
-          },
-        ],
-      };
+    const labels = Object.keys(stats.questionsCrackedPerDifficulty);
+    const data = Object.values(stats.questionsCrackedPerDifficulty);
 
-      if (!this.isDifficultyChartInitialized) {
-        this.initializeDifficultyChart();
-      }
+    this.difficultyChartData = {
+      labels,
+      datasets: [
+        {
+          data,
+          backgroundColor: ['#2B3D41', '#FF3333', '#A17C6B'],
+        },
+      ],
+    };
+
+    if (!this.isDifficultyChartInitialized) {
+      this.initializeDifficultyChart();
     }
   }
 
   updateTagChartData(): void {
-  if (this.statistics?.questionsCrackedPerTag) {
-    const labels = Object.keys(this.statistics.questionsCrackedPerTag);
-    const data = Object.values(this.statistics.questionsCrackedPerTag);
+    const stats = this.statistics;
+    if (!stats || !stats.questionsCrackedPerTag) {
+      return;
+    }
+
+    const labels = Object.keys(stats.questionsCrackedPerTag);
+    const data = Object.values(stats.questionsCrackedPerTag);
 
     this.tagChartData = {
-      labels: labels,
+      labels,
       datasets: [
         {
-          data: data,
+          data,
           backgroundColor: [
-            '#2B3D41',  // Darker greyish blue
-            '#A17C6B',  // Muted brown
-            '#0a0908',  // Strong red
-            '#3e4f52',  // Soft green
-            '#779fa1',  // Strong blue
-          ], // Colors as requested
+            '#2B3D41',
+            '#A17C6B',
+            '#0a0908',
+            '#3e4f52',
+            '#779fa1',
+          ],
         },
       ],
     };
@@ -243,7 +252,7 @@ export class QuestionsStatsComponent implements OnInit, AfterViewInit {
       this.initializeTagChart();
     }
   }
-}
+
   initializeChart(): void {
     const ctx = this.chartCanvas.nativeElement;
     if (this.chartData && this.chartOptions) {
@@ -373,4 +382,3 @@ export class QuestionsStatsComponent implements OnInit, AfterViewInit {
   ];
 }
 }
-

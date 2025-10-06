@@ -15,6 +15,12 @@
 .app-header nav {
   display: flex;
   gap: 12px;
+  align-items: center;
+}
+
+.auth-status {
+  font-size: 0.9rem;
+  color: #93c5fd;
 }
 
 .app-header button {

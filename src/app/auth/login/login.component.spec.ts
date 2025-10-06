@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { AuthService } from '../auth.service';
@@ -17,18 +16,16 @@ describe('LoginComponent', () => {
 
   beforeEach(async () => {
     authService = jasmine.createSpyObj<AuthService>('AuthService', [
-      'signInWithEmail',
       'signInWithGoogle',
       'completeAuthorizationCodeGrant'
     ]);
 
-    authService.signInWithEmail.and.returnValue(Promise.resolve());
     authService.signInWithGoogle.and.returnValue(Promise.resolve());
     authService.completeAuthorizationCodeGrant.and.returnValue(Promise.resolve());
 
     await TestBed.configureTestingModule({
       declarations: [LoginComponent],
-      imports: [ReactiveFormsModule, RouterTestingModule],
+      imports: [RouterTestingModule],
       providers: [
         { provide: AuthService, useValue: authService },
         { provide: ActivatedRoute, useValue: activatedRouteStub }
@@ -43,14 +40,6 @@ describe('LoginComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
-  });
-
-  it('should trigger email sign in when form is valid', async () => {
-    component.loginForm.setValue({ email: 'test@example.com', password: 'password' });
-
-    await component.onSubmit();
-
-    expect(authService.signInWithEmail).toHaveBeenCalledWith('test@example.com', 'password');
   });
 
   it('should initiate Google sign in flow', async () => {

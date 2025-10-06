@@ -1,16 +1,12 @@
 import { TestBed } from '@angular/core/testing';
-import { NavigationEnd, Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
-import { Subject } from 'rxjs';
 import { AuthService } from './auth/auth.service';
 import { AppComponent } from './app.component';
 
 describe('AppComponent', () => {
-  let routerEvents$: Subject<NavigationEnd>;
   let authService: jasmine.SpyObj<AuthService>;
 
   beforeEach(async () => {
-    routerEvents$ = new Subject<NavigationEnd>();
     authService = jasmine.createSpyObj<AuthService>('AuthService', ['getSession', 'signOut']);
     authService.getSession.and.returnValue(null);
 
@@ -22,13 +18,7 @@ describe('AppComponent', () => {
         AppComponent
       ],
       providers: [
-        { provide: AuthService, useValue: authService },
-        {
-          provide: Router,
-          useValue: {
-            events: routerEvents$.asObservable()
-          }
-        }
+        { provide: AuthService, useValue: authService }
       ]
     }).compileComponents();
   });

@@ -5,6 +5,8 @@
     <button routerLink="/">Home</button>
     <button routerLink="/questions">Questions</button>
     <button routerLink="/studies">Studies</button>
+    <span class="auth-status" *ngIf="isAuthenticated">Signed in as {{ userEmail || 'your account' }}</span>
+    <span class="auth-status" *ngIf="!isAuthenticated">Not signed in</span>
     <button type="button" (click)="logout()" *ngIf="isAuthenticated">
       Log out
     </button>

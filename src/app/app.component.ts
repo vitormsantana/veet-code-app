@@ -12,6 +12,7 @@ import { AuthService } from './auth/auth.service';
 export class AppComponent implements OnInit {
   title = 'veet-app';
   isAuthenticated = false;
+  userEmail: string | undefined;
 
   constructor(private readonly authService: AuthService, private readonly router: Router) {
     this.router.events
@@ -26,11 +27,20 @@ export class AppComponent implements OnInit {
   }
 
   logout(): void {
+    this.isAuthenticated = false;
+    this.userEmail = undefined;
     this.authService.signOut();
   }
 
   private syncAuthState(): void {
     const session = this.authService.getSession();
-    this.isAuthenticated = !!(session && session.accessToken && session.expiresAt > Date.now());
+    const isValid = !!(session && session.accessToken && session.expiresAt > Date.now());
+    this.isAuthenticated = isValid;
+
+    if (isValid && session && session.profile && typeof session.profile.email === 'string') {
+      this.userEmail = session.profile.email;
+    } else {
+      this.userEmail = undefined;
+    }
   }
 }

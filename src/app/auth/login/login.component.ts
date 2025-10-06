@@ -1,5 +1,4 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../auth.service';
 
@@ -10,43 +9,15 @@ import { AuthService } from '../auth.service';
   styleUrls: ['./login.component.css']
 })
 export class LoginComponent implements OnInit {
-  private readonly formBuilder = inject(FormBuilder);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
-
-  readonly loginForm = this.formBuilder.nonNullable.group({
-    email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required]]
-  });
-
-  isSubmitting = false;
   isProcessingRedirect = false;
   isRedirectingToProvider = false;
   errorMessage = '';
 
   ngOnInit(): void {
     void this.handleAuthRedirect();
-  }
-
-  async onSubmit(): Promise<void> {
-    if (this.loginForm.invalid) {
-      this.loginForm.markAllAsTouched();
-      return;
-    }
-
-    const { email, password } = this.loginForm.getRawValue();
-
-    this.isSubmitting = true;
-    this.errorMessage = '';
-
-    try {
-      await this.authService.signInWithEmail(email, password);
-    } catch (error) {
-      this.errorMessage = this.extractErrorMessage(error);
-    } finally {
-      this.isSubmitting = false;
-    }
   }
 
   async connectWithGoogle(): Promise<void> {
@@ -61,14 +32,11 @@ export class LoginComponent implements OnInit {
     }
   }
 
-  get emailInvalid(): boolean {
-    const control = this.loginForm.controls.email;
-    return control.invalid && control.touched;
-  }
-
-  get passwordInvalid(): boolean {
-    const control = this.loginForm.controls.password;
-    return control.invalid && control.touched;
+  get googleButtonLabel(): string {
+    if (this.isRedirectingToProvider) {
+      return 'Signing in with Google…';
+    }
+    return 'Continue with Google';
   }
 
   private extractErrorMessage(error: unknown): string {

@@ -22,6 +22,14 @@ export interface AuthSession {
   refreshToken?: string;
   tokenType: string;
   expiresAt: number;
+  profile?: AuthProfile;
+}
+
+export interface AuthProfile {
+  sub?: string;
+  email?: string;
+  email_verified?: boolean;
+  [key: string]: unknown;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -78,7 +86,11 @@ export class AuthService {
   }
 
   async completeAuthorizationCodeGrant(code: string, returnedState?: string | null): Promise<void> {
-    const storedState = this.storage?.getItem(this.stateKey);
+    const storage = this.storage;
+    let storedState: string | null = null;
+    if (storage) {
+      storedState = storage.getItem(this.stateKey);
+    }
     if (storedState) {
       if (!returnedState || storedState !== returnedState) {
         this.clearPkceArtifacts();
@@ -86,7 +98,10 @@ export class AuthService {
       }
     }
 
-    const codeVerifier = this.storage?.getItem(this.codeVerifierKey);
+    let codeVerifier: string | null = null;
+    if (storage) {
+      codeVerifier = storage.getItem(this.codeVerifierKey);
+    }
     if (!codeVerifier) {
       throw new Error('Missing PKCE verifier. Please start the sign-in process again.');
     }
@@ -127,16 +142,27 @@ export class AuthService {
   }
 
   getSession(): AuthSession | null {
-    const raw = this.storage?.getItem(this.sessionKey);
+    const storage = this.storage;
+    let raw: string | null = null;
+    if (storage) {
+      raw = storage.getItem(this.sessionKey);
+    }
     if (!raw) {
       return null;
     }
 
     try {
-      return JSON.parse(raw) as AuthSession;
+      const session = JSON.parse(raw) as AuthSession;
+      if (!session.profile) {
+        session.profile = this.decodeIdToken(session.idToken);
+        this.persistToSession(this.sessionKey, JSON.stringify(session));
+      }
+      return session;
     } catch (error) {
       console.warn('[AuthService] Unable to parse stored session', error);
-      this.storage?.removeItem(this.sessionKey);
+      if (storage) {
+        storage.removeItem(this.sessionKey);
+      }
       return null;
     }
   }
@@ -175,8 +201,13 @@ export class AuthService {
   }
 
   private persistToSession(key: string, value: string): void {
+    const storage = this.storage;
+    if (!storage) {
+      return;
+    }
+
     try {
-      this.storage?.setItem(key, value);
+      storage.setItem(key, value);
     } catch (error) {
       console.warn('[AuthService] Unable to persist value to sessionStorage', { key, error });
     }
@@ -219,8 +250,13 @@ export class AuthService {
   }
 
   private clearPkceArtifacts(): void {
-    this.storage?.removeItem(this.codeVerifierKey);
-    this.storage?.removeItem(this.stateKey);
+    const storage = this.storage;
+    if (!storage) {
+      return;
+    }
+
+    storage.removeItem(this.codeVerifierKey);
+    storage.removeItem(this.stateKey);
   }
 
   private persistSession(tokenResponse: TokenResponse): void {
@@ -230,12 +266,39 @@ export class AuthService {
       idToken: tokenResponse.id_token,
       refreshToken: tokenResponse.refresh_token,
       tokenType: tokenResponse.token_type,
-      expiresAt
+      expiresAt,
+      profile: this.decodeIdToken(tokenResponse.id_token)
     };
     this.persistToSession(this.sessionKey, JSON.stringify(session));
   }
 
   private clearSession(): void {
-    this.storage?.removeItem(this.sessionKey);
+    const storage = this.storage;
+    if (storage) {
+      storage.removeItem(this.sessionKey);
+    }
+  }
+
+  private decodeIdToken(idToken: string): AuthProfile | undefined {
+    if (!idToken) {
+      return undefined;
+    }
+
+    const parts = idToken.split('.');
+    if (parts.length !== 3) {
+      console.warn('[AuthService] Unexpected ID token format');
+      return undefined;
+    }
+
+    try {
+      const payload = parts[1]
+        .replace(/-/g, '+')
+        .replace(/_/g, '/');
+      const decoded = atob(payload);
+      return JSON.parse(decoded) as AuthProfile;
+    } catch (error) {
+      console.warn('[AuthService] Failed to decode ID token', error);
+      return undefined;
+    }
   }
 }
