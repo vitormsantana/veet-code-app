@@ -43,6 +43,7 @@ export class AuthService {
   private readonly codeVerifierKey = 'cognito.pkce.codeVerifier';
   private readonly stateKey = 'cognito.oauth.state';
   private readonly sessionKey = 'cognito.session';
+  private refreshPromise: Promise<AuthSession | null> | null = null;
 
   signInWithEmail(email: string, password: string): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -135,7 +136,7 @@ export class AuthService {
   }
 
   signOut(): void {
-    this.clearSession();
+    this.clearSessionStorage();
     const logoutUrl = `${cognitoConfig.domain}/logout?client_id=${cognitoConfig.clientId}` +
       `&logout_uri=${encodeURIComponent(cognitoConfig.logoutUri)}`;
     window.location.assign(logoutUrl);
@@ -165,6 +166,35 @@ export class AuthService {
       }
       return null;
     }
+  }
+
+  async ensureValidSession(offsetMs = 60_000): Promise<AuthSession | null> {
+    const session = this.getSession();
+
+    if (!session) {
+      return null;
+    }
+
+    if (!this.isSessionExpired(session, offsetMs)) {
+      return session;
+    }
+
+    if (!session.refreshToken) {
+      this.clearSessionStorage();
+      return null;
+    }
+
+    if (!this.refreshPromise) {
+      this.refreshPromise = this.refreshSession(session.refreshToken).finally(() => {
+        this.refreshPromise = null;
+      });
+    }
+
+    return this.refreshPromise;
+  }
+
+  clearLocalSession(): void {
+    this.clearSessionStorage();
   }
 
   private buildAuthorizeUrl(identityProvider?: string, extras: { state?: string; codeChallenge?: string } = {}): string {
@@ -259,12 +289,12 @@ export class AuthService {
     storage.removeItem(this.stateKey);
   }
 
-  private persistSession(tokenResponse: TokenResponse): void {
+  private persistSession(tokenResponse: TokenResponse, fallbackRefreshToken?: string): void {
     const expiresAt = Date.now() + tokenResponse.expires_in * 1000;
     const session: AuthSession = {
       accessToken: tokenResponse.access_token,
       idToken: tokenResponse.id_token,
-      refreshToken: tokenResponse.refresh_token,
+      refreshToken: tokenResponse.refresh_token ?? fallbackRefreshToken,
       tokenType: tokenResponse.token_type,
       expiresAt,
       profile: this.decodeIdToken(tokenResponse.id_token)
@@ -272,11 +302,45 @@ export class AuthService {
     this.persistToSession(this.sessionKey, JSON.stringify(session));
   }
 
-  private clearSession(): void {
+  private clearSessionStorage(): void {
     const storage = this.storage;
     if (storage) {
       storage.removeItem(this.sessionKey);
     }
+  }
+
+  private async refreshSession(refreshToken: string): Promise<AuthSession | null> {
+    const body = new HttpParams()
+      .set('grant_type', 'refresh_token')
+      .set('client_id', cognitoConfig.clientId)
+      .set('refresh_token', refreshToken);
+
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/x-www-form-urlencoded'
+    });
+
+    const tokenEndpoint = `${cognitoConfig.domain}/oauth2/token`;
+
+    try {
+      const response = await firstValueFrom(
+        this.http.post<TokenResponse>(tokenEndpoint, body.toString(), { headers })
+      );
+
+      if (!response.refresh_token) {
+        response.refresh_token = refreshToken;
+      }
+
+      this.persistSession(response, refreshToken);
+      return this.getSession();
+    } catch (error) {
+      console.error('[AuthService] Token refresh failed', error);
+      this.clearSessionStorage();
+      return null;
+    }
+  }
+
+  private isSessionExpired(session: AuthSession, offsetMs: number): boolean {
+    return session.expiresAt <= Date.now() + offsetMs;
   }
 
   private decodeIdToken(idToken: string): AuthProfile | undefined {
