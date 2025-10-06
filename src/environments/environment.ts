@@ -1,5 +1,6 @@
 export const environment = {
   production: false,
+  apiBaseUrl: 'https://29nac9o231.execute-api.sa-east-1.amazonaws.com/dev',
   cognito: {
     userPoolId: 'sa-east-1_DA5LPqMRP',
     clientId: '1he1mnplnk0vgkjmlr7sq58l50',

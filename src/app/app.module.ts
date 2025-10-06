@@ -20,6 +20,7 @@ import { QuestionsStatsService } from './questions/questions-stats/questions-sta
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { ChartModule } from 'primeng/chart';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { StudyComponent } from './studies/study/study.component';
 import { HomeComponent } from './home/home.component';
 import { QuestionsPageComponent } from './questions/questions-page/questions-page.component';
@@ -63,8 +64,9 @@ import { AuthInterceptor } from './auth/auth.interceptor';
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
-    MatSelectModule,
-    ReactiveFormsModule,  ],
+    MatCheckboxModule,
+    ReactiveFormsModule,
+  ],
   providers: [
     provideAnimationsAsync(),
     QuestionsStatsService,

@@ -22,7 +22,7 @@ export class AuthInterceptor implements HttpInterceptor {
 
     return from(this.authService.ensureValidSession()).pipe(
       switchMap((session) => {
-        if (!session || !session.accessToken || session.expiresAt <= Date.now()) {
+        if (!session || !session.idToken || session.expiresAt <= Date.now()) {
           this.authService.clearLocalSession();
           return next.handle(req);
         }
@@ -30,7 +30,7 @@ export class AuthInterceptor implements HttpInterceptor {
         const tokenType = session.tokenType || 'Bearer';
         const authReq = req.clone({
           setHeaders: {
-            Authorization: `${tokenType} ${session.accessToken}`
+            Authorization: `${tokenType} ${session.idToken}`
           }
         });
 

@@ -290,15 +290,16 @@ export class AuthService {
     storage.removeItem(this.stateKey);
   }
 
-  private persistSession(tokenResponse: TokenResponse, fallbackRefreshToken?: string): void {
+  private persistSession(tokenResponse: TokenResponse, fallbackRefreshToken?: string, fallbackIdToken?: string): void {
     const expiresAt = Date.now() + tokenResponse.expires_in * 1000;
+    const idToken = tokenResponse.id_token ?? fallbackIdToken ?? '';
     const session: AuthSession = {
       accessToken: tokenResponse.access_token,
-      idToken: tokenResponse.id_token,
+      idToken,
       refreshToken: tokenResponse.refresh_token ?? fallbackRefreshToken,
       tokenType: tokenResponse.token_type,
       expiresAt,
-      profile: this.decodeIdToken(tokenResponse.id_token)
+      profile: this.decodeIdToken(idToken)
     };
     this.persistToSession(this.sessionKey, JSON.stringify(session));
   }
@@ -351,7 +352,9 @@ export class AuthService {
         response.refresh_token = refreshToken;
       }
 
-      this.persistSession(response, refreshToken);
+      const currentSession = this.getSession();
+
+      this.persistSession(response, refreshToken, currentSession?.idToken);
       return this.getSession();
     } catch (error) {
       console.error('[AuthService] Token refresh failed', error);

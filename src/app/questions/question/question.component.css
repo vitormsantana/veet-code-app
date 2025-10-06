@@ -25,6 +25,16 @@ button {
   border-radius: 4px;
 }
 
+.needed-help-checkbox {
+  margin-top: 12px;
+  display: block;
+  color: #fff;
+}
+
+.needed-help-checkbox .mat-checkbox-label {
+  color: #fff;
+}
+
 button:hover {
   background-color: #779fa1; /* Hover effect with a lighter shade */
 }

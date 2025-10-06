@@ -23,11 +23,22 @@
     </mat-form-field>
 
     <mat-form-field appearance="fill">
+      <mat-label>Minutes taken to solve</mat-label>
+      <input matInput type="number" formControlName="minutesTaken" min="1" required />
+      <mat-error *ngIf="questionForm.controls['minutesTaken'].hasError('required')">Enter the time spent in minutes.</mat-error>
+      <mat-error *ngIf="questionForm.controls['minutesTaken'].hasError('min')">Minutes must be greater than zero.</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
       <mat-label>Tags</mat-label>
       <mat-select formControlName="tags" multiple required>
         <mat-option *ngFor="let tag of availableTags" [value]="tag">{{ tag }}</mat-option>
       </mat-select>
     </mat-form-field>
+
+    <mat-checkbox formControlName="neededHelp" class="needed-help-checkbox">
+      I needed help to complete this question
+    </mat-checkbox>
 
     <button mat-raised-button color="primary" type="submit" [disabled]="questionForm.invalid">Add Question</button>
   </form>
@@ -37,6 +48,8 @@
     <p><strong>Question Name:</strong> {{ submittedQuestion.name }} </p>
     <p><strong>Difficulty:</strong> {{ submittedQuestion.difficulty }} </p>
     <p><strong>Question Solved in:</strong> {{ submittedQuestion.date }} </p>
+    <p><strong>Minutes Taken:</strong> {{ submittedQuestion.minutes_taken }}</p>
+    <p><strong>Needed Help:</strong> {{ submittedQuestion.needed_help ? 'Yes' : 'No' }}</p>
   </div>
 
   <div *ngIf="responseMessage" class="response-message">
