@@ -65,7 +65,14 @@ export class LoginComponent implements OnInit {
     const code = queryParams.get('code');
     const state = queryParams.get('state');
     const redirectToParam = queryParams.get('redirectTo');
-    const redirectTarget = this.validateRedirectTarget(redirectToParam);
+
+    if (redirectToParam !== null) {
+      const validated = this.validateRedirectTarget(redirectToParam);
+      this.authService.storeRedirectTarget(validated);
+    }
+
+    const storedTarget = this.authService.getStoredRedirectTarget();
+    const redirectTarget = storedTarget ?? this.validateRedirectTarget(redirectToParam);
 
     if (!code) {
       return;
@@ -77,6 +84,7 @@ export class LoginComponent implements OnInit {
       await this.authService.completeAuthorizationCodeGrant(code, state);
       await this.router.navigateByUrl(redirectTarget, { replaceUrl: true });
       shouldClearParams = false;
+      this.authService.clearRedirectTarget();
       return;
     } catch (error) {
       this.errorMessage = this.extractErrorMessage(error);

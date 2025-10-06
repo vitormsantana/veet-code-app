@@ -1,3 +1,5 @@
+import { environment } from '../../environments/environment';
+
 export interface CognitoConfig {
   userPoolId: string;
   clientId: string;
@@ -8,10 +10,10 @@ export interface CognitoConfig {
 }
 
 export const cognitoConfig: CognitoConfig = {
-  userPoolId: 'sa-east-1_DA5LPqMRP',
-  clientId: '1he1mnplnk0vgkjmlr7sq58l50',
-  domain: 'https://hammocker-domain.auth.sa-east-1.amazoncognito.com',
-  redirectUri: 'http://localhost:4200/login',
-  logoutUri: 'http://localhost:4200',
+  userPoolId: environment.cognito.userPoolId,
+  clientId: environment.cognito.clientId,
+  domain: environment.cognito.domain,
+  redirectUri: environment.cognito.redirectUri,
+  logoutUri: environment.cognito.logoutUri,
   scope: ['email', 'openid', 'profile']
 };

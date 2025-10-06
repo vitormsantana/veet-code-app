@@ -43,6 +43,7 @@ export class AuthService {
   private readonly codeVerifierKey = 'cognito.pkce.codeVerifier';
   private readonly stateKey = 'cognito.oauth.state';
   private readonly sessionKey = 'cognito.session';
+  private readonly redirectTargetKey = 'cognito.redirectTarget';
   private refreshPromise: Promise<AuthSession | null> | null = null;
 
   signInWithEmail(email: string, password: string): Promise<void> {
@@ -306,6 +307,26 @@ export class AuthService {
     const storage = this.storage;
     if (storage) {
       storage.removeItem(this.sessionKey);
+      storage.removeItem(this.redirectTargetKey);
+    }
+  }
+
+  storeRedirectTarget(target: string): void {
+    this.persistToSession(this.redirectTargetKey, target);
+  }
+
+  getStoredRedirectTarget(): string | null {
+    const storage = this.storage;
+    if (!storage) {
+      return null;
+    }
+    return storage.getItem(this.redirectTargetKey);
+  }
+
+  clearRedirectTarget(): void {
+    const storage = this.storage;
+    if (storage) {
+      storage.removeItem(this.redirectTargetKey);
     }
   }
 

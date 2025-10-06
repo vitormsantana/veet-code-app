@@ -17,11 +17,15 @@ describe('LoginComponent', () => {
   beforeEach(async () => {
     authService = jasmine.createSpyObj<AuthService>('AuthService', [
       'signInWithGoogle',
-      'completeAuthorizationCodeGrant'
+      'completeAuthorizationCodeGrant',
+      'storeRedirectTarget',
+      'getStoredRedirectTarget',
+      'clearRedirectTarget'
     ]);
 
     authService.signInWithGoogle.and.returnValue(Promise.resolve());
     authService.completeAuthorizationCodeGrant.and.returnValue(Promise.resolve());
+    authService.getStoredRedirectTarget.and.returnValue(null);
 
     await TestBed.configureTestingModule({
       declarations: [LoginComponent],
