@@ -47,8 +47,9 @@
   display: flex;
   flex-direction: column; /* Stack the sections vertically */
   gap: 0px; /* Add space between the containers */
-  align-items: flex-start; /* Align content to the start */
+  align-items: stretch; /* Allow child containers to occupy full width */
   width: 100%; /* Ensure it occupies the full width */
+  margin: 0 auto;
 }
 
 /* Container for Question */
