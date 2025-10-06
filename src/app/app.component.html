@@ -1,3 +1,19 @@
+<header class="app-header">
+  <h1>Veet Code</h1>
+
+  <nav>
+    <button routerLink="/">Home</button>
+    <button routerLink="/questions">Questions</button>
+    <button routerLink="/studies">Studies</button>
+    <button type="button" (click)="logout()" *ngIf="isAuthenticated">
+      Log out
+    </button>
+    <button routerLink="/login" *ngIf="!isAuthenticated">
+      Log in
+    </button>
+  </nav>
+</header>
+
 <div class="content-container">
   <router-outlet></router-outlet>
 </div>
