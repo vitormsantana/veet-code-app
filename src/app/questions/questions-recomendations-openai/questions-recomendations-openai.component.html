@@ -1,0 +1,33 @@
+<div class="recommendations-container">
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading">
+    <p>Loading recommendations...</p>
+    <div class="spinner"></div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error" class="error">
+    <p>{{ error }}</p>
+  </div>
+
+  <!-- Recommendations Block -->
+  <div *ngIf="!isLoading && recommendations">
+    <div class="recommendations-table">
+      <table>
+        <thead>
+          <tr>
+            <th class="question-column">Recommended Questions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="question-cell">
+              <p>{{ recommendations }}</p>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+

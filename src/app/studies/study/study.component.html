@@ -1,0 +1,18 @@
+  <div class="study-container">
+    <h2>Insert What/How Much You Have Studied</h2>
+    <form>
+      <label for="theme">Theme:</label>
+      <input type="text" id="title" name="title" [(ngModel)]="study.theme" required />
+      <label for="date">Date:</label>
+      <input id="date" name="date" [(ngModel)]="study.date" required />
+      <label for="minutes">Minutes of Study:</label>
+      <input id="minutes" name="minutes" [(ngModel)]="study.minutes" required />
+      <button type="submit" (click)="submitForm()">Add Study</button>
+    </form>
+    <div *ngIf="submittedStudy">
+        <h3>Submitted Study Details</h3>
+        <p><strong>Theme:</strong> {{ submittedStudy.theme }} </p>
+        <p><strong>Date:</strong> {{ submittedStudy.date }} </p>
+        <p><strong>Time of study:</strong> {{ submittedStudy.minutes }} </p>
+    </div>
+  </div>

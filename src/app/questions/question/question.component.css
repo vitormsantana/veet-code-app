@@ -1,0 +1,52 @@
+.question-container {
+  max-width: 640px;
+  padding: 12px;
+  background-color: #a17c6b; /* Updated to selected background */
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+mat-form-field .mat-form-field-infix {
+  background-color: #fff; /* White background for the input fields */
+  border-radius: 4px;
+}
+
+button {
+  margin-top: 20px;
+  width: 100%;
+  background-color: #a17c6b; /* Button with brown color */
+  color: #fff; /* Text in white for contrast */
+  border: none;
+  padding: 10px;
+  border-radius: 4px;
+}
+
+.needed-help-checkbox {
+  margin-top: 12px;
+  display: block;
+  color: #fff;
+}
+
+.needed-help-checkbox .mat-checkbox-label {
+  color: #fff;
+}
+
+button:hover {
+  background-color: #779fa1; /* Hover effect with a lighter shade */
+}
+
+h2 {
+  text-align: center;
+  color: #fff; /* White text for the title */
+  margin-bottom: 20px;
+}
+
+.response-message {
+  margin-top: 20px;
+  color: #a17c6b; /* Brown color for response */
+  text-align: center;
+}

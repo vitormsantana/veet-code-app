@@ -1,0 +1,17 @@
+<div class="charts-container">
+  <div class="chart-container">
+    <canvas #myChart></canvas>
+  </div>
+  <div class="chart-container">
+    <canvas #incrementalChart></canvas>
+  </div>
+  <div class="chart-container">
+    <canvas #difficultyChart></canvas>
+  </div>
+  <div class="chart-container">
+    <canvas #tagChart></canvas> <!-- New Pie Chart for Tags -->
+  </div>
+</div>
+
+<div *ngIf="isLoading">Loading statistics...</div>
+<div *ngIf="errorMessage">{{ errorMessage }}</div>

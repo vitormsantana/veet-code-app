@@ -1,0 +1,17 @@
+.charts-container {
+  display: flex; /* Arrange child elements side by side */
+  justify-content: space-around; /* Space out the charts */
+  gap: 150px; /* Optional: space between charts */
+  width: 100%; /* Ensure container uses full width */
+}
+
+.chart-container {
+  width: 100%; /* Adjust the width for each chart container */
+  height: 380px; /* Set the height */
+  position: relative;
+}
+
+canvas {
+  width: 100% !important; /* Stretch canvas to the container's width */
+  height: 100% !important; /* Match container's height */
+}
