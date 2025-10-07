@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../../auth/auth.service';
 import { QuestionsRefreshService } from '../questions-refresh.service';
@@ -15,18 +16,19 @@ import { QuestionsRefreshService } from '../questions-refresh.service';
 export class QuestionComponent {
   questionForm: FormGroup;
   private readonly apiBaseUrl = environment.apiBaseUrl;
+  private readonly notificationDurationMs = 5000;
 
   availableTags = ['Arrays', 'Backtracking', 'String', 'Binary Search', 'Hash Tables', 'Linked Lists', 'Two Pointers', 'Sliding Window',
     'Stacks', 'Queues', 'Heaps', 'Recursion' , 'Tree', 'BST', 'Binary Tree', 'BFS', 'DFS', 'Sets', 'Sort',
     'Dynamic Programming', 'Memoization','Graph', 'Math', 'Greedy'];
 
-  submittedQuestion: any = null;
   responseMessage: string = '';
 
   constructor(
     private http: HttpClient,
     private authService: AuthService,
-    private questionsRefreshService: QuestionsRefreshService
+    private questionsRefreshService: QuestionsRefreshService,
+    private snackBar: MatSnackBar
   ) {
     this.questionForm = new FormGroup({
       name: new FormControl('', Validators.required),
@@ -55,7 +57,7 @@ export class QuestionComponent {
     const formattedDate = this.formatDate(formValue.date as string);
     const minutesTaken = Number(formValue.minutesTaken);
 
-    const payload = {
+    const payload: SubmissionPayload = {
       name: formValue.name,
       difficulty: formValue.difficulty,
       date: formattedDate,
@@ -73,8 +75,8 @@ export class QuestionComponent {
     this.http.post(apiUrl, payload, { headers }).subscribe({
       next: (response: any) => {
         this.responseMessage = response.message || 'Question submitted successfully!';
-        this.submittedQuestion = { ...payload };
         this.questionsRefreshService.triggerRefresh();
+        this.showSubmissionNotification(payload);
       },
       error: (error) => {
         console.error('Error:', error);
@@ -92,4 +94,26 @@ export class QuestionComponent {
     const [year, month, day] = date.split('-');
     return `${day}/${month}/${year}`;
   }
+
+  private showSubmissionNotification(payload: SubmissionPayload): void {
+    const minutes = payload.minutes_taken ? `${payload.minutes_taken} min` : '—';
+    const help = payload.needed_help ? 'Help: Yes' : 'Help: No';
+    const details = [payload.date || 'Date: —', minutes, help].join(' • ');
+    const message = `${payload.name} (${payload.difficulty}) • ${details}`;
+
+    this.snackBar.open(message, 'Dismiss', {
+      duration: this.notificationDurationMs,
+      horizontalPosition: 'right',
+      verticalPosition: 'top'
+    });
+  }
+}
+
+interface SubmissionPayload {
+  name: string;
+  difficulty: string;
+  date: string;
+  tags: string[];
+  minutes_taken: number;
+  needed_help: boolean;
 }

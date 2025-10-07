@@ -2,6 +2,8 @@ import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testin
 import { ReactiveFormsModule } from '@angular/forms';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { AuthService } from '../../auth/auth.service';
 
 import { QuestionComponent } from './question.component';
@@ -13,6 +15,7 @@ describe('QuestionComponent', () => {
   let authServiceSpy: jasmine.SpyObj<AuthService>;
   let refreshService: QuestionsRefreshService;
   let httpMock: HttpTestingController;
+  let snackBar: MatSnackBar;
 
   beforeEach(async () => {
     authServiceSpy = jasmine.createSpyObj<AuthService>('AuthService', ['ensureValidSession']);
@@ -26,7 +29,7 @@ describe('QuestionComponent', () => {
 
     await TestBed.configureTestingModule({
       declarations: [QuestionComponent],
-      imports: [ReactiveFormsModule, HttpClientTestingModule],
+      imports: [ReactiveFormsModule, HttpClientTestingModule, MatSnackBarModule, NoopAnimationsModule],
       providers: [{ provide: AuthService, useValue: authServiceSpy }],
       schemas: [NO_ERRORS_SCHEMA]
     })
@@ -36,7 +39,9 @@ describe('QuestionComponent', () => {
     component = fixture.componentInstance;
     refreshService = TestBed.inject(QuestionsRefreshService);
     httpMock = TestBed.inject(HttpTestingController);
+    snackBar = TestBed.inject(MatSnackBar);
     spyOn(refreshService, 'triggerRefresh');
+    spyOn(snackBar, 'open');
     fixture.detectChanges();
   });
 
@@ -68,5 +73,14 @@ describe('QuestionComponent', () => {
     tick();
 
     expect(refreshService.triggerRefresh).toHaveBeenCalled();
+    expect(snackBar.open).toHaveBeenCalledWith(
+      'Two Sum (Easy) • 05/10/2025 • 15 min • Help: No',
+      'Dismiss',
+      jasmine.objectContaining({
+        duration: 5000,
+        horizontalPosition: 'right',
+        verticalPosition: 'top'
+      })
+    );
   }));
 });

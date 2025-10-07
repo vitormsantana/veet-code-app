@@ -43,15 +43,6 @@
     <button mat-raised-button color="primary" type="submit" [disabled]="questionForm.invalid">Add Question</button>
   </form>
 
-  <div *ngIf="submittedQuestion">
-    <h3>Submitted Question Details</h3>
-    <p><strong>Question Name:</strong> {{ submittedQuestion.name }} </p>
-    <p><strong>Difficulty:</strong> {{ submittedQuestion.difficulty }} </p>
-    <p><strong>Question Solved in:</strong> {{ submittedQuestion.date }} </p>
-    <p><strong>Minutes Taken:</strong> {{ submittedQuestion.minutes_taken }}</p>
-    <p><strong>Needed Help:</strong> {{ submittedQuestion.needed_help ? 'Yes' : 'No' }}</p>
-  </div>
-
   <div *ngIf="responseMessage" class="response-message">
     <p>{{ responseMessage }}</p>
   </div>
