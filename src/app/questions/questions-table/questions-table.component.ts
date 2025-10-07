@@ -1,10 +1,13 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { AuthService } from '../../auth/auth.service';
+import { QuestionsRefreshService } from '../questions-refresh.service';
 
 interface QuestionResponse {
   name: string;
@@ -30,7 +33,7 @@ interface QuestionRow {
   styleUrls: ['./questions-table.component.css'],
   standalone: false
 })
-export class QuestionsTableComponent implements OnInit {
+export class QuestionsTableComponent implements OnInit, OnDestroy {
   displayedColumns: string[] = ['name', 'date', 'difficulty', 'tags', 'minutesTaken', 'neededHelp'];
   questions = new MatTableDataSource<QuestionRow>([]);
   isLoading = false;
@@ -39,10 +42,26 @@ export class QuestionsTableComponent implements OnInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  constructor(private http: HttpClient, private authService: AuthService) {}
+  private readonly destroy$ = new Subject<void>();
+
+  constructor(
+    private http: HttpClient,
+    private authService: AuthService,
+    private questionsRefreshService: QuestionsRefreshService
+  ) {}
 
   ngOnInit(): void {
     this.fetchQuestions();
+    this.questionsRefreshService.refresh$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.fetchQuestions();
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   async fetchQuestions(): Promise<void> {

@@ -1,5 +1,8 @@
-import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, OnDestroy } from '@angular/core';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { QuestionsStatsService, Statistics } from '../questions-stats.service';
+import { QuestionsRefreshService } from '../../questions-refresh.service';
 import { Chart } from 'chart.js'; // Ensure Chart.js is imported
 
 declare global {
@@ -15,7 +18,7 @@ declare global {
   standalone: false,
 })
 
-export class QuestionsStatsComponent implements OnInit, AfterViewInit {
+export class QuestionsStatsComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('myChart') chartCanvas!: ElementRef<HTMLCanvasElement>;
   @ViewChild('incrementalChart') incrementalChartCanvas!: ElementRef<HTMLCanvasElement>;
   @ViewChild('difficultyChart') difficultyChartCanvas!: ElementRef<HTMLCanvasElement>;
@@ -52,32 +55,47 @@ export class QuestionsStatsComponent implements OnInit, AfterViewInit {
     },
   };
 
-  private isChartInitialized = false;
-  private isIncrementalChartInitialized = false;
-  private isDifficultyChartInitialized = false;
-  private isTagChartInitialized = false;
+  private readonly destroy$ = new Subject<void>();
+  private chartInstance: Chart | null = null;
+  private incrementalChartInstance: Chart | null = null;
+  private difficultyChartInstance: Chart | null = null;
+  private tagChartInstance: Chart | null = null;
 
-  constructor(private questionsStatsService: QuestionsStatsService) {}
+  constructor(
+    private questionsStatsService: QuestionsStatsService,
+    private questionsRefreshService: QuestionsRefreshService
+  ) {}
 
   ngOnInit(): void {
     this.fetchStatistics();
+    this.questionsRefreshService.refresh$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.fetchStatistics();
+      });
   }
 
   ngAfterViewInit(): void {
     if (this.statistics && !this.isLoading) {
-      if (!this.isChartInitialized) {
+      if (!this.chartInstance) {
         this.initializeChart();
       }
-      if (!this.isIncrementalChartInitialized) {
+      if (!this.incrementalChartInstance) {
         this.initializeIncrementalChart();
       }
-      if (!this.isDifficultyChartInitialized) {
+      if (!this.difficultyChartInstance) {
         this.initializeDifficultyChart();
       }
-      if (!this.isTagChartInitialized) {
+      if (!this.tagChartInstance) {
         this.initializeTagChart();
       }
     }
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+    this.destroyCharts();
   }
 
   fetchStatistics(): void {
@@ -167,7 +185,11 @@ export class QuestionsStatsComponent implements OnInit, AfterViewInit {
       },
     };
 
-    if (!this.isChartInitialized) {
+    if (this.chartInstance) {
+      this.chartInstance.data = this.chartData;
+      this.chartInstance.options = this.chartOptions;
+      this.chartInstance.update();
+    } else if (this.chartCanvas) {
       this.initializeChart();
     }
   }
@@ -194,7 +216,10 @@ export class QuestionsStatsComponent implements OnInit, AfterViewInit {
       ],
     };
 
-    if (!this.isIncrementalChartInitialized) {
+    if (this.incrementalChartInstance) {
+      this.incrementalChartInstance.data = this.incrementalChartData;
+      this.incrementalChartInstance.update();
+    } else if (this.incrementalChartCanvas) {
       this.initializeIncrementalChart();
     }
   }
@@ -218,7 +243,10 @@ export class QuestionsStatsComponent implements OnInit, AfterViewInit {
       ],
     };
 
-    if (!this.isDifficultyChartInitialized) {
+    if (this.difficultyChartInstance) {
+      this.difficultyChartInstance.data = this.difficultyChartData;
+      this.difficultyChartInstance.update();
+    } else if (this.difficultyChartCanvas) {
       this.initializeDifficultyChart();
     }
   }
@@ -237,18 +265,17 @@ export class QuestionsStatsComponent implements OnInit, AfterViewInit {
       datasets: [
         {
           data,
-          backgroundColor: [
-            '#2B3D41',
-            '#A17C6B',
-            '#0a0908',
-            '#3e4f52',
-            '#779fa1',
-          ],
+          backgroundColor: [],
         },
       ],
     };
 
-    if (!this.isTagChartInitialized) {
+    this.applyTagChartColors();
+
+    if (this.tagChartInstance) {
+      this.tagChartInstance.data = this.tagChartData;
+      this.tagChartInstance.update();
+    } else if (this.tagChartCanvas) {
       this.initializeTagChart();
     }
   }
@@ -256,71 +283,70 @@ export class QuestionsStatsComponent implements OnInit, AfterViewInit {
   initializeChart(): void {
     const ctx = this.chartCanvas.nativeElement;
     if (this.chartData && this.chartOptions) {
-      window.myChart = new Chart(ctx, {
+      this.chartInstance = new Chart(ctx, {
         type: 'line',
         data: this.chartData,
         options: this.chartOptions,
       });
-      this.isChartInitialized = true;
+      window.myChart = this.chartInstance;
     }
   }
 
   initializeIncrementalChart(): void {
-  const ctx = this.incrementalChartCanvas.nativeElement;
-  if (this.incrementalChartData) {
-    new Chart(ctx, {
-      type: 'bar', // Bar chart
-      data: this.incrementalChartData,
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-          x: {
-            title: {
-              display: true,
-              text: 'Date',
-              color: 'white'
+    const ctx = this.incrementalChartCanvas.nativeElement;
+    if (this.incrementalChartData) {
+      this.incrementalChartInstance = new Chart(ctx, {
+        type: 'bar', // Bar chart
+        data: this.incrementalChartData,
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: {
+              title: {
+                display: true,
+                text: 'Date',
+                color: 'white'
+              },
+              grid: {
+                color: 'rgba(255, 255, 255, 0.2)', // White grid lines
+              },
+              ticks: {
+                color: 'white', // White labels on x-axis
+              },
             },
-            grid: {
-              color: 'rgba(255, 255, 255, 0.2)', // White grid lines
-            },
-            ticks: {
-              color: 'white', // White labels on x-axis
+            y: {
+              title: {
+                display: true,
+                text: 'Questions Cracked',
+                color: 'white'
+              },
+              grid: {
+                color: 'rgba(255, 255, 255, 0.2)', // White grid lines
+              },
+              ticks: {
+                color: 'white', // White labels on y-axis
+              },
+              beginAtZero: true,
             },
           },
-          y: {
-            title: {
-              display: true,
-              text: 'Questions Cracked',
-              color: 'white'
+          plugins: {
+            legend: {
+              labels: {
+                color: 'white',
+                font: { size: 14 },
+              },
             },
-            grid: {
-              color: 'rgba(255, 255, 255, 0.2)', // White grid lines
-            },
-            ticks: {
-              color: 'white', // White labels on y-axis
-            },
-            beginAtZero: true,
           },
         },
-        plugins: {
-          legend: {
-            labels: {
-              color: 'white',
-              font: { size: 14 },
-            },
-          },
-        },
-      },
-    });
-    this.isIncrementalChartInitialized = true;
+      });
+    }
   }
-}
 
   initializeDifficultyChart(): void {
     const ctx = this.difficultyChartCanvas.nativeElement;
     if (this.difficultyChartData) {
-      new Chart(ctx, {
+      this.difficultyChartInstance = new Chart(ctx, {
         type: 'pie',
         data: this.difficultyChartData,
         options: {
@@ -333,52 +359,76 @@ export class QuestionsStatsComponent implements OnInit, AfterViewInit {
           },
         },
       });
-      this.isDifficultyChartInitialized = true;
     }
   }
 
   initializeTagChart(): void {
-  const ctx = this.tagChartCanvas.nativeElement;
-  if (this.tagChartData) {
-    new Chart(ctx, {
-      type: 'doughnut',
-      data: this.tagChartData,
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        cutout: '75%',
-        plugins: {
-          title: {
-            display: true,
-            text: 'Times That Each Tag Appeared',
-            color: 'white',
-            font: { size: 16, weight: 'bold' },
-          },
-          tooltip: {
-            callbacks: {
-              label: (tooltipItem) => {
-                const index = tooltipItem.dataIndex;
-                const label = this.tagChartData.labels[index];
-                const value = this.tagChartData.datasets[0].data[index];
-                return `${label}: ${value}`;
+    const ctx = this.tagChartCanvas.nativeElement;
+    if (this.tagChartData) {
+      this.applyTagChartColors();
+      this.tagChartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: this.tagChartData,
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '75%',
+          plugins: {
+            title: {
+              display: true,
+              text: 'Times That Each Tag Appeared',
+              color: 'white',
+              font: { size: 16, weight: 'bold' },
+            },
+            tooltip: {
+              callbacks: {
+                label: (tooltipItem) => {
+                  const index = tooltipItem.dataIndex;
+                  const label = this.tagChartData.labels[index];
+                  const value = this.tagChartData.datasets[0].data[index];
+                  return `${label}: ${value}`;
+                },
               },
             },
-          },
-          legend: {
-            display: false,
+            legend: {
+              display: false,
+            },
           },
         },
-      },
-    });
-    this.isTagChartInitialized = true;
+      });
+    }
   }
-  // Update the colors to more serious shades
-  this.tagChartData.datasets[0].backgroundColor = [
-    '#2B3D41',  // Darker greyish blue
-    '#A17C6B',  // Muted brown
-    '#0a0908',  // Strong red
-    '#3e4f52',  // Soft green
-    '#779fa1',  // Strong blue
-  ];
-}
+
+  private applyTagChartColors(): void {
+    if (!this.tagChartData?.datasets?.length) {
+      return;
+    }
+
+    this.tagChartData.datasets[0].backgroundColor = [
+      '#2B3D41',  // Darker greyish blue
+      '#A17C6B',  // Muted brown
+      '#0a0908',  // Strong red
+      '#3e4f52',  // Soft green
+      '#779fa1',  // Strong blue
+    ];
+  }
+
+  private destroyCharts(): void {
+    if (this.chartInstance) {
+      this.chartInstance.destroy();
+      this.chartInstance = null;
+    }
+    if (this.incrementalChartInstance) {
+      this.incrementalChartInstance.destroy();
+      this.incrementalChartInstance = null;
+    }
+    if (this.difficultyChartInstance) {
+      this.difficultyChartInstance.destroy();
+      this.difficultyChartInstance = null;
+    }
+    if (this.tagChartInstance) {
+      this.tagChartInstance.destroy();
+      this.tagChartInstance = null;
+    }
+  }
 }

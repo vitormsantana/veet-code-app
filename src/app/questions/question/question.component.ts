@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../../auth/auth.service';
+import { QuestionsRefreshService } from '../questions-refresh.service';
 
 @Component({
   selector: 'app-question',
@@ -22,7 +23,11 @@ export class QuestionComponent {
   submittedQuestion: any = null;
   responseMessage: string = '';
 
-  constructor(private http: HttpClient, private authService: AuthService) {
+  constructor(
+    private http: HttpClient,
+    private authService: AuthService,
+    private questionsRefreshService: QuestionsRefreshService
+  ) {
     this.questionForm = new FormGroup({
       name: new FormControl('', Validators.required),
       difficulty: new FormControl('Easy', Validators.required),
@@ -69,6 +74,7 @@ export class QuestionComponent {
       next: (response: any) => {
         this.responseMessage = response.message || 'Question submitted successfully!';
         this.submittedQuestion = { ...payload };
+        this.questionsRefreshService.triggerRefresh();
       },
       error: (error) => {
         console.error('Error:', error);
