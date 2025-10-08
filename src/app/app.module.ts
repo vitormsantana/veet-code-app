@@ -33,6 +33,7 @@ import { StudiesStatsPerThemeComponent } from './studies/studies-stats-per-theme
 import { QuestionsRecomendationsOpenaiComponent } from './questions/questions-recomendations-openai/questions-recomendations-openai.component';
 import { LoginComponent } from './auth/login/login.component';
 import { AuthInterceptor } from './auth/auth.interceptor';
+import { FuturisticLandingComponent } from './landing/futuristic-landing/futuristic-landing.component';
 
 @NgModule({
   declarations: [
@@ -48,7 +49,8 @@ import { AuthInterceptor } from './auth/auth.interceptor';
     StudiesStatsComponent,
     StudiesStatsPerThemeComponent,
     QuestionsRecomendationsOpenaiComponent,
-    LoginComponent
+    LoginComponent,
+    FuturisticLandingComponent
   ],
   imports: [
     BrowserModule,
