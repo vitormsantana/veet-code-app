@@ -34,7 +34,8 @@ export class QuestionComponent {
       date: new FormControl('', Validators.required),
       tags: new FormControl([], Validators.required),
       minutesTaken: new FormControl<number | null>(null, [Validators.required, Validators.min(1)]),
-      neededHelp: new FormControl(false)
+      neededHelp: new FormControl(false),
+      observation: new FormControl('', Validators.maxLength(1000))
     });
   }
 
@@ -54,6 +55,7 @@ export class QuestionComponent {
     const formValue = this.questionForm.value;
     const formattedDate = this.formatDate(formValue.date as string);
     const minutesTaken = Number(formValue.minutesTaken);
+    const observation = typeof formValue.observation === 'string' ? formValue.observation.trim() : '';
 
     const payload: SubmissionPayload = {
       name: formValue.name,
@@ -61,7 +63,8 @@ export class QuestionComponent {
       date: formattedDate,
       tags: Array.isArray(formValue.tags) ? formValue.tags : [],
       minutes_taken: minutesTaken,
-      needed_help: !!formValue.neededHelp
+      needed_help: !!formValue.neededHelp,
+      obs: observation
     };
 
     const apiUrl = `${this.apiBaseUrl}/create_exercise`;
@@ -96,7 +99,8 @@ export class QuestionComponent {
     const minutes = payload.minutes_taken ? `${payload.minutes_taken} min` : '—';
     const help = payload.needed_help ? 'Help: Yes' : 'Help: No';
     const details = [payload.date || 'Date: —', minutes, help].join(' • ');
-    const message = `${payload.name} (${payload.difficulty}) • ${details}`;
+    const observationDetail = payload.obs ? `Observation: ${payload.obs}` : 'Observation: —';
+    const message = `${payload.name} (${payload.difficulty}) • ${details} • ${observationDetail}`;
 
     this.snackBar.open(message, 'Dismiss', {
       duration: this.notificationDurationMs,
@@ -129,4 +133,5 @@ interface SubmissionPayload {
   tags: string[];
   minutes_taken: number;
   needed_help: boolean;
+  obs: string;
 }

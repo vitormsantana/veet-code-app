@@ -36,6 +36,15 @@
       </mat-select>
     </mat-form-field>
 
+    <mat-form-field appearance="fill">
+      <mat-label>Observations (optional)</mat-label>
+      <textarea matInput formControlName="observation" rows="3"></textarea>
+      <mat-hint align="end">{{ questionForm.controls['observation'].value?.length || 0 }}/1000</mat-hint>
+      <mat-error *ngIf="questionForm.controls['observation'].hasError('maxlength')">
+        Observations must be at most 1000 characters.
+      </mat-error>
+    </mat-form-field>
+
     <mat-checkbox formControlName="neededHelp" class="needed-help-checkbox">
       I needed help to complete this question
     </mat-checkbox>
@@ -44,4 +53,3 @@
   </form>
 
 </div>
-

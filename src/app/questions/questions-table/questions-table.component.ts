@@ -16,6 +16,8 @@ interface QuestionResponse {
   tags: string[];
   minutes_taken?: number;
   needed_help?: boolean;
+  observation?: string;
+  obs?: string;
 }
 
 interface QuestionRow {
@@ -25,6 +27,7 @@ interface QuestionRow {
   tags: string;
   minutesTaken: number;
   neededHelp: boolean;
+  observation: string;
 }
 
 @Component({
@@ -34,7 +37,7 @@ interface QuestionRow {
   standalone: false
 })
 export class QuestionsTableComponent implements OnInit, OnDestroy {
-  displayedColumns: string[] = ['name', 'date', 'difficulty', 'tags', 'minutesTaken', 'neededHelp'];
+  displayedColumns: string[] = ['name', 'date', 'difficulty', 'tags', 'minutesTaken', 'neededHelp', 'observation'];
   questions = new MatTableDataSource<QuestionRow>([]);
   isLoading = false;
   errorMessage = '';
@@ -91,6 +94,7 @@ export class QuestionsTableComponent implements OnInit, OnDestroy {
             tags: Array.isArray(q.tags) ? q.tags.join(', ') : '',
             minutesTaken: q.minutes_taken ?? 0,
             neededHelp: !!q.needed_help,
+            observation: q.observation ?? q.obs ?? ''
           }));
 
           this.questions.data = mapped;

@@ -65,19 +65,46 @@ describe('QuestionsTableComponent', () => {
     fixture.detectChanges();
     tick();
 
+    const firstResponse = [
+      {
+        name: 'Two Sum',
+        date: '05/10/2025',
+        difficulty: 'Easy',
+        tags: ['Arrays'],
+        minutes_taken: 10,
+        needed_help: false,
+        obs: 'Warm up question.'
+      }
+    ];
+
     let req = httpMock.expectOne(/read_exercises$/);
     expect(req.request.method).toBe('GET');
-    req.flush([]);
+    req.flush(firstResponse);
     tick();
+
+    expect(component.questions.data[0]?.observation).toBe('Warm up question.');
 
     refreshService.triggerRefresh();
     tick();
 
+    const secondResponse = [
+      {
+        name: 'Binary Search',
+        date: '06/10/2025',
+        difficulty: 'Medium',
+        tags: ['Binary Search'],
+        minutes_taken: 20,
+        needed_help: true,
+        obs: 'Struggled with edge cases.'
+      }
+    ];
+
     req = httpMock.expectOne(/read_exercises$/);
     expect(req.request.method).toBe('GET');
-    req.flush([]);
+    req.flush(secondResponse);
     tick();
 
+    expect(component.questions.data[0]?.observation).toBe('Struggled with edge cases.');
     expect(fetchSpy).toHaveBeenCalledTimes(2);
   }));
 });

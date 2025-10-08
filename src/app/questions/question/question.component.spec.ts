@@ -60,7 +60,8 @@ describe('QuestionComponent', () => {
       date: '2025-10-05',
       tags: ['Arrays'],
       minutesTaken: 15,
-      neededHelp: false
+      neededHelp: false,
+      observation: 'Revisit binary search approach.'
     });
 
     component.submitForm();
@@ -74,7 +75,7 @@ describe('QuestionComponent', () => {
 
     expect(refreshService.triggerRefresh).toHaveBeenCalled();
     expect(snackBar.open).toHaveBeenCalledWith(
-      'Two Sum (Easy) • 05/10/2025 • 15 min • Help: No',
+      'Two Sum (Easy) • 05/10/2025 • 15 min • Help: No • Observation: Revisit binary search approach.',
       'Dismiss',
       jasmine.objectContaining({
         duration: 5000,
