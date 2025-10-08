@@ -39,18 +39,20 @@ export class QuestionsStatsComponent implements OnInit, AfterViewInit, OnDestroy
     scales: {
       x: {
         beginAtZero: true,
-        grid: { color: 'rgba(255, 255, 255, 0.2)' }, // White grid
+        grid: { color: 'rgba(255, 255, 255, 0.12)' },
         title: { color: 'white' },
+        ticks: { color: 'rgba(230, 235, 255, 0.85)' },
       },
       y: {
         beginAtZero: true,
-        grid: { color: 'rgba(255, 255, 255, 0.2)' }, // White grid
+        grid: { color: 'rgba(255, 255, 255, 0.12)' },
         title: { color: 'white' },
+        ticks: { color: 'rgba(230, 235, 255, 0.85)' },
       },
     },
     plugins: {
       legend: {
-        labels: { color: 'white', font: { size: 14 } },
+        labels: { color: 'rgba(230, 235, 255, 0.85)', font: { size: 14 } },
       },
     },
   };
@@ -154,10 +156,10 @@ export class QuestionsStatsComponent implements OnInit, AfterViewInit, OnDestroy
             color: 'white',
           },
           grid: {
-            color: 'rgba(255, 255, 255, 0.2)',
+            color: 'rgba(255, 255, 255, 0.12)',
           },
           ticks: {
-            color: 'white',
+            color: 'rgba(230, 235, 255, 0.85)',
           },
         },
         y: {
@@ -167,10 +169,10 @@ export class QuestionsStatsComponent implements OnInit, AfterViewInit, OnDestroy
             color: 'white',
           },
           grid: {
-            color: 'rgba(255, 255, 255, 0.2)',
+            color: 'rgba(255, 255, 255, 0.12)',
           },
           ticks: {
-            color: 'white',
+            color: 'rgba(230, 235, 255, 0.85)',
           },
           beginAtZero: true,
         },
@@ -178,7 +180,7 @@ export class QuestionsStatsComponent implements OnInit, AfterViewInit, OnDestroy
       plugins: {
         legend: {
           labels: {
-            color: 'white',
+            color: 'rgba(230, 235, 255, 0.85)',
             font: { size: 14 },
           },
         },
@@ -209,9 +211,11 @@ export class QuestionsStatsComponent implements OnInit, AfterViewInit, OnDestroy
         {
           label: 'Incremental Cracked Questions Per Day',
           data,
-          backgroundColor: '#A17C6B',
-          borderColor: '#ffffff',
+          backgroundColor: 'rgba(0, 255, 214, 0.35)',
+          borderColor: 'rgba(255, 255, 255, 0.9)',
           borderWidth: 2,
+          hoverBackgroundColor: 'rgba(255, 255, 255, 0.35)',
+          hoverBorderColor: 'rgba(255, 255, 255, 0.95)',
         },
       ],
     };
@@ -238,7 +242,17 @@ export class QuestionsStatsComponent implements OnInit, AfterViewInit, OnDestroy
       datasets: [
         {
           data,
-          backgroundColor: ['#2B3D41', '#FF3333', '#A17C6B'],
+          backgroundColor: [
+            'rgba(255, 255, 255, 0.85)',
+            'rgba(122, 134, 150, 0.9)',
+            'rgba(0, 255, 214, 0.55)',
+          ],
+          borderColor: [
+            'rgba(255, 255, 255, 0.9)',
+            'rgba(180, 192, 210, 0.6)',
+            'rgba(0, 255, 214, 0.9)',
+          ],
+          borderWidth: 2,
         },
       ],
     };
@@ -309,10 +323,10 @@ export class QuestionsStatsComponent implements OnInit, AfterViewInit, OnDestroy
                 color: 'white'
               },
               grid: {
-                color: 'rgba(255, 255, 255, 0.2)', // White grid lines
+                color: 'rgba(255, 255, 255, 0.12)',
               },
               ticks: {
-                color: 'white', // White labels on x-axis
+                color: 'rgba(230, 235, 255, 0.85)',
               },
             },
             y: {
@@ -322,10 +336,10 @@ export class QuestionsStatsComponent implements OnInit, AfterViewInit, OnDestroy
                 color: 'white'
               },
               grid: {
-                color: 'rgba(255, 255, 255, 0.2)', // White grid lines
+                color: 'rgba(255, 255, 255, 0.12)',
               },
               ticks: {
-                color: 'white', // White labels on y-axis
+                color: 'rgba(230, 235, 255, 0.85)',
               },
               beginAtZero: true,
             },
@@ -333,7 +347,7 @@ export class QuestionsStatsComponent implements OnInit, AfterViewInit, OnDestroy
           plugins: {
             legend: {
               labels: {
-                color: 'white',
+                color: 'rgba(230, 235, 255, 0.85)',
                 font: { size: 14 },
               },
             },
@@ -354,7 +368,7 @@ export class QuestionsStatsComponent implements OnInit, AfterViewInit, OnDestroy
           maintainAspectRatio: false,
           plugins: {
             legend: {
-              labels: { color: 'white' },
+              labels: { color: 'rgba(230, 235, 255, 0.85)' },
             },
           },
         },
@@ -404,13 +418,24 @@ export class QuestionsStatsComponent implements OnInit, AfterViewInit, OnDestroy
       return;
     }
 
-    this.tagChartData.datasets[0].backgroundColor = [
-      '#2B3D41',  // Darker greyish blue
-      '#A17C6B',  // Muted brown
-      '#0a0908',  // Strong red
-      '#3e4f52',  // Soft green
-      '#779fa1',  // Strong blue
+    const palette = [
+      'rgba(255, 255, 255, 0.85)',
+      'rgba(136, 146, 164, 0.85)',
+      'rgba(88, 96, 112, 0.85)',
+      'rgba(0, 255, 214, 0.55)',
+      'rgba(64, 74, 94, 0.85)',
+      'rgba(182, 190, 204, 0.7)',
+      'rgba(42, 46, 60, 0.9)',
     ];
+
+    this.tagChartData.datasets[0].backgroundColor = this.tagChartData.labels.map(
+      (_: unknown, index: number) => palette[index % palette.length]
+    );
+    this.tagChartData.datasets[0].borderColor = this.tagChartData.labels.map(
+      (_: unknown, index: number) =>
+        index % palette.length === 3 ? 'rgba(0, 255, 214, 0.9)' : 'rgba(255, 255, 255, 0.65)'
+    );
+    this.tagChartData.datasets[0].borderWidth = 2;
   }
 
   private destroyCharts(): void {
