@@ -7,6 +7,15 @@
       </p>
       <button mat-raised-button class="return-home-button" routerLink="/">Return to Landing</button>
     </div>
+    <div class="questions-hero__recommendations">
+      <article class="module-card module-card--recommendations hero-recommendations">
+        <div class="module-card__header">
+          <h2>Neon Suggestions</h2>
+          <span class="module-card__sub">AI-curated prompts tuned to your focus lane.</span>
+        </div>
+        <app-questions-recomendations-openai class="card-content"></app-questions-recomendations-openai>
+      </article>
+    </div>
     <div class="questions-hero__accent"></div>
   </header>
 
@@ -35,14 +44,6 @@
         <span class="module-card__sub">Every question, status, and timestamp at a glance.</span>
       </div>
       <app-questions-table class="card-content"></app-questions-table>
-    </article>
-
-    <article class="module-card module-card--recommendations">
-      <div class="module-card__header">
-        <h2>Neon Suggestions</h2>
-        <span class="module-card__sub">AI-curated prompts tuned to your focus lane.</span>
-      </div>
-      <app-questions-recomendations-openai class="card-content"></app-questions-recomendations-openai>
     </article>
   </section>
 

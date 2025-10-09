@@ -13,19 +13,22 @@
 }
 
 .questions-hero {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: clamp(2.4rem, 5vw, 3.6rem);
+  display: grid;
+  grid-template-columns: minmax(0, 0.48fr) minmax(0, 0.52fr);
+  gap: clamp(1.8rem, 4vw, 3rem);
+  align-items: stretch;
+  margin-bottom: clamp(2.8rem, 5vw, 4rem);
   position: relative;
 }
 
 .questions-hero__content {
   max-width: clamp(32rem, 48vw, 44rem);
   text-align: left;
-  align-self: stretch;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
+  justify-content: flex-start;
+  gap: clamp(0.8rem, 2vw, 1.4rem);
+  margin-top: 0.6rem;
 }
 
 .questions-hero__content h1 {
@@ -47,15 +50,37 @@
   width: 100%;
 }
 
+.questions-hero__recommendations {
+  display: flex;
+  justify-content: flex-start;
+  margin-left: clamp(-16rem, -10vw, -1.5rem);
+}
+
+.hero-recommendations {
+  width: 100%;
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .questions-hero__recommendations {
+    margin-left: 0;
+  }
+}
+
+.hero-recommendations .card-content {
+  padding: clamp(4vw, 2.6rem);
+  min-height: clamp(14rem, 26vw, 20rem);
+}
+
 .questions-hero__accent {
   position: absolute;
-  top: -35%;
-  right: -8rem;
-  width: clamp(220px, 32vw, 320px);
-  height: clamp(220px, 32vw, 320px);
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0));
-  filter: blur(60px);
-  opacity: 0.32;
+  top: -25%;
+  right: -5rem;
+  width: clamp(240px, 32vw, 360px);
+  height: clamp(240px, 32vw, 360px);
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0));
+  filter: blur(70px);
+  opacity: 0.35;
   pointer-events: none;
 }
 
@@ -119,7 +144,6 @@
 }
 
 .module-card--form,
-.module-card--recommendations,
 .module-card--table {
   min-height: clamp(20rem, 28vw, 25rem);
 }
@@ -197,7 +221,7 @@
 
 @media (max-width: 768px) {
   .questions-hero {
-    justify-content: flex-start;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .questions-hero__content h1 {
@@ -211,6 +235,10 @@
 
   .questions-hero__content p {
     margin-left: 0;
+  }
+
+  .questions-hero__recommendations {
+    justify-content: flex-start;
   }
 
   .questions-hero__accent {

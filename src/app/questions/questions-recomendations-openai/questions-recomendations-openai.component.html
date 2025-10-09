@@ -11,8 +11,13 @@
   </div>
 
   <!-- Rendered Recommendations -->
-  <div *ngIf="!isLoading && recommendationsHtml" class="recommendations-table">
+  <div *ngIf="!isLoading && parsedRecommendations.length" class="recommendations-table">
     <table>
+      <colgroup>
+        <col class="col-category" />
+        <col class="col-question" />
+        <col class="col-reason" />
+      </colgroup>
       <thead>
         <tr>
           <th>Category</th>
@@ -20,7 +25,17 @@
           <th>Reason</th>
         </tr>
       </thead>
-      <tbody [innerHTML]="recommendationsHtml"></tbody>
+      <tbody>
+        <tr *ngFor="let rec of parsedRecommendations">
+          <td class="col-category">{{ rec.category }}</td>
+          <td class="col-question">{{ rec.question }}</td>
+          <td class="col-reason">{{ rec.reason }}</td>
+        </tr>
+      </tbody>
     </table>
+  </div>
+
+  <div *ngIf="!isLoading && !parsedRecommendations.length && rawRecommendations" class="raw-recommendations">
+    <pre>{{ rawRecommendations }}</pre>
   </div>
 </div>

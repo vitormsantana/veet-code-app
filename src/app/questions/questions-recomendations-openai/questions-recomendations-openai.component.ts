@@ -1,6 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { QuestionsRecomendationsOpenaiService } from './questions-recomendations-openai.service';
+
+interface RecommendationRow {
+  index: number;
+  category: string;
+  question: string;
+  reason: string;
+}
 
 @Component({
   selector: 'app-questions-recomendations-openai',
@@ -9,14 +15,12 @@ import { QuestionsRecomendationsOpenaiService } from './questions-recomendations
   styleUrls: ['./questions-recomendations-openai.component.css'],
 })
 export class QuestionsRecomendationsOpenaiComponent implements OnInit {
-  recommendationsHtml: SafeHtml | null = null;
+  rawRecommendations = '';
+  parsedRecommendations: RecommendationRow[] = [];
   isLoading = false;
   error: string | null = null;
 
-  constructor(
-    private recommendationsService: QuestionsRecomendationsOpenaiService,
-    private sanitizer: DomSanitizer
-  ) {}
+  constructor(private recommendationsService: QuestionsRecomendationsOpenaiService) {}
 
   ngOnInit(): void {
     this.fetchRecommendations();
@@ -28,29 +32,51 @@ export class QuestionsRecomendationsOpenaiComponent implements OnInit {
 
     this.recommendationsService.getRecommendations().subscribe({
       next: (response) => {
-        const raw = response?.suggestions ?? '';
-        const formatted = this.convertMarkdownToHtml(raw);
-        this.recommendationsHtml = this.sanitizer.bypassSecurityTrustHtml(formatted);
+        const raw = (response?.suggestions ?? '').replace(/\r\n/g, '\n').trim();
+        this.rawRecommendations = raw;
+        this.parsedRecommendations = this.parseRecommendations(raw);
         this.isLoading = false;
       },
       error: (error) => {
+        console.error('[Recommendations] Failed to fetch recommendations', error);
+        this.parsedRecommendations = [];
+        this.rawRecommendations = '';
         if (error?.status === 401) {
-          this.error = 'Session expired. Please sign in again.';
+          this.error = 'Session expired. Please sign in again to view recommendations.';
         } else {
-          this.error = 'Failed to fetch recommendations. Try again later.';
+          this.error = 'Failed to fetch recommendations. Please try again later.';
         }
         this.isLoading = false;
       },
     });
   }
 
-  private convertMarkdownToHtml(text: string): string {
-    return text
-      .replace(/^### (.*)$/gm, '<h3>$1</h3>')
-      .replace(/^\d+\.\s\*\*Category Name\*\*: (.*?)\s*<br>/gm, '<tr><td class="category">$1</td>')
-      .replace(/\*\*Question\*\*: (.*?)\s*<br>/gm, '<td class="question">$1</td>')
-      .replace(/\*\*Reason\*\*: (.*?)\s*(?=(\d+\.|$))/gs, '<td class="reason">$1</td></tr>')
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\n/g, '<br>');
+  private parseRecommendations(text: string): RecommendationRow[] {
+    if (!text) {
+      return [];
+    }
+
+    const body = text.replace(/^#+\s*Suggested Questions\s*/i, '').trim();
+    const pattern =
+      /(\d+)\.\s*(?:\*\*?Category(?:\s*Name)?\*\*?\s*:|Category(?:\s*Name)?\s*:)?\s*([^\n]+)\n\s*(?:\*\*?Question\*\*?\s*:|Question\s*:)\s*([^\n]+)\n\s*(?:\*\*?Reason\*\*?\s*:|Reason\s*:)\s*([\s\S]*?)(?=\n\d+\.\s|$)/gi;
+
+    const rows: RecommendationRow[] = [];
+    let match: RegExpExecArray | null;
+
+    while ((match = pattern.exec(body)) !== null) {
+      const [, index, categoryRaw, questionRaw, reasonRaw] = match;
+      rows.push({
+        index: Number(index),
+        category: this.stripFormatting(categoryRaw),
+        question: this.stripFormatting(questionRaw),
+        reason: this.stripFormatting(reasonRaw),
+      });
+    }
+
+    return rows;
+  }
+
+  private stripFormatting(value: string): string {
+    return value.replace(/\*\*/g, '').replace(/\s+/g, ' ').trim();
   }
 }
