@@ -19,6 +19,7 @@ import { QuestionsStatsComponent } from './questions/questions-stats/questions-s
 import { QuestionsStatsService } from './questions/questions-stats/questions-stats.service';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { ChartModule } from 'primeng/chart';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { StudyComponent } from './studies/study/study.component';
@@ -32,6 +33,7 @@ import { StudiesStatsPerThemeComponent } from './studies/studies-stats-per-theme
 import { QuestionsRecomendationsOpenaiComponent } from './questions/questions-recomendations-openai/questions-recomendations-openai.component';
 import { LoginComponent } from './auth/login/login.component';
 import { AuthInterceptor } from './auth/auth.interceptor';
+import { FuturisticLandingComponent } from './landing/futuristic-landing/futuristic-landing.component';
 
 @NgModule({
   declarations: [
@@ -47,7 +49,8 @@ import { AuthInterceptor } from './auth/auth.interceptor';
     StudiesStatsComponent,
     StudiesStatsPerThemeComponent,
     QuestionsRecomendationsOpenaiComponent,
-    LoginComponent
+    LoginComponent,
+    FuturisticLandingComponent
   ],
   imports: [
     BrowserModule,
@@ -66,6 +69,7 @@ import { AuthInterceptor } from './auth/auth.interceptor';
     MatSelectModule,
     MatCheckboxModule,
     ReactiveFormsModule,
+    MatSnackBarModule,
   ],
   providers: [
     provideAnimationsAsync(),

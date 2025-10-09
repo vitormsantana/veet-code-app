@@ -1,10 +1,13 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { AuthService } from '../../auth/auth.service';
+import { QuestionsRefreshService } from '../questions-refresh.service';
 
 interface QuestionResponse {
   name: string;
@@ -13,6 +16,8 @@ interface QuestionResponse {
   tags: string[];
   minutes_taken?: number;
   needed_help?: boolean;
+  observation?: string;
+  obs?: string;
 }
 
 interface QuestionRow {
@@ -22,6 +27,7 @@ interface QuestionRow {
   tags: string;
   minutesTaken: number;
   neededHelp: boolean;
+  observation: string;
 }
 
 @Component({
@@ -30,8 +36,8 @@ interface QuestionRow {
   styleUrls: ['./questions-table.component.css'],
   standalone: false
 })
-export class QuestionsTableComponent implements OnInit {
-  displayedColumns: string[] = ['name', 'date', 'difficulty', 'tags', 'minutesTaken', 'neededHelp'];
+export class QuestionsTableComponent implements OnInit, OnDestroy {
+  displayedColumns: string[] = ['name', 'date', 'difficulty', 'tags', 'minutesTaken', 'neededHelp', 'observation'];
   questions = new MatTableDataSource<QuestionRow>([]);
   isLoading = false;
   errorMessage = '';
@@ -39,10 +45,26 @@ export class QuestionsTableComponent implements OnInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  constructor(private http: HttpClient, private authService: AuthService) {}
+  private readonly destroy$ = new Subject<void>();
+
+  constructor(
+    private http: HttpClient,
+    private authService: AuthService,
+    private questionsRefreshService: QuestionsRefreshService
+  ) {}
 
   ngOnInit(): void {
     this.fetchQuestions();
+    this.questionsRefreshService.refresh$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.fetchQuestions();
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   async fetchQuestions(): Promise<void> {
@@ -72,6 +94,7 @@ export class QuestionsTableComponent implements OnInit {
             tags: Array.isArray(q.tags) ? q.tags.join(', ') : '',
             minutesTaken: q.minutes_taken ?? 0,
             neededHelp: !!q.needed_help,
+            observation: q.observation ?? q.obs ?? ''
           }));
 
           this.questions.data = mapped;

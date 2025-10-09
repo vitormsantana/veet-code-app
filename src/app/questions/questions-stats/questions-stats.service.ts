@@ -1,6 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { from, Observable, throwError } from 'rxjs';
+import { map, switchMap } from 'rxjs/operators';
+import { environment } from '../../../environments/environment';
+import { AuthService } from '../../auth/auth.service';
 
 export interface DayStatistic {
   date: string;
@@ -15,19 +18,60 @@ export interface Statistics {
   incrementalQuestionsCrackedPerDay: DayStatistic[];
 }
 
+type DayStatisticInput = DayStatistic[] | Record<string, number> | undefined | null;
+
+interface StatisticsResponse {
+  questionsCrackedPerDay?: DayStatisticInput;
+  questionsCrackedPerDifficulty?: Record<string, number>;
+  questionsCrackedPerTag?: Record<string, number>;
+  totalQuestionsCracked?: number;
+  incrementalQuestionsCrackedPerDay?: DayStatisticInput;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class QuestionsStatsService {
-  private apiUrl = "https://6p4ojh18mj.execute-api.sa-east-1.amazonaws.com/dev/get_statistics";
+  private readonly apiUrl = `${environment.apiBaseUrl}/read_statistics_from_exercises`;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private authService: AuthService) { }
 
   getStatistics(): Observable<Statistics> {
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-    });
+    return from(this.authService.ensureValidSession()).pipe(
+      switchMap((session) => {
+        if (!session || !session.idToken) {
+          return throwError(() => new Error('Authentication is required to load statistics.'));
+        }
 
-    return this.http.get<Statistics>(this.apiUrl, { headers});
+        const headers = new HttpHeaders({
+          Authorization: `${session.tokenType || 'Bearer'} ${session.idToken}`
+        });
+
+        return this.http.get<StatisticsResponse>(this.apiUrl, { headers });
+      }),
+      map((response) => this.normalizeStatistics(response))
+    );
+  }
+
+  private normalizeStatistics(response: StatisticsResponse): Statistics {
+    const asDayStatistics = (input: DayStatisticInput): DayStatistic[] => {
+      if (!input) {
+        return [];
+      }
+
+      if (Array.isArray(input)) {
+        return input;
+      }
+
+      return Object.entries(input).map(([date, count]) => ({ date, count }));
+    };
+
+    return {
+      questionsCrackedPerDay: asDayStatistics(response.questionsCrackedPerDay),
+      questionsCrackedPerDifficulty: response.questionsCrackedPerDifficulty ?? {},
+      questionsCrackedPerTag: response.questionsCrackedPerTag ?? {},
+      totalQuestionsCracked: response.totalQuestionsCracked ?? 0,
+      incrementalQuestionsCrackedPerDay: asDayStatistics(response.incrementalQuestionsCrackedPerDay),
+    };
   }
 }

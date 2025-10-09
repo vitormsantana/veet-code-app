@@ -38,6 +38,11 @@
       <td mat-cell *matCellDef="let question">{{ question.neededHelp ? 'Yes' : 'No' }}</td>
     </ng-container>
 
+    <ng-container matColumnDef="observation">
+      <th mat-header-cell *matHeaderCellDef>Observation</th>
+      <td mat-cell *matCellDef="let question">{{ question.observation || '—' }}</td>
+    </ng-container>
+
     <!-- Table Header and Rows -->
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>

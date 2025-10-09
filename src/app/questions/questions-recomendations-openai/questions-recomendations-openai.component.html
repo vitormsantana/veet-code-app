@@ -1,33 +1,26 @@
 <div class="recommendations-container">
-  <!-- Loading State -->
+  <!-- Loading -->
   <div *ngIf="isLoading" class="loading">
     <p>Loading recommendations...</p>
     <div class="spinner"></div>
   </div>
 
-  <!-- Error State -->
+  <!-- Error -->
   <div *ngIf="error" class="error">
     <p>{{ error }}</p>
   </div>
 
-  <!-- Recommendations Block -->
-  <div *ngIf="!isLoading && recommendations">
-    <div class="recommendations-table">
-      <table>
-        <thead>
-          <tr>
-            <th class="question-column">Recommended Questions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td class="question-cell">
-              <p>{{ recommendations }}</p>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+  <!-- Rendered Recommendations -->
+  <div *ngIf="!isLoading && recommendationsHtml" class="recommendations-table">
+    <table>
+      <thead>
+        <tr>
+          <th>Category</th>
+          <th>Question</th>
+          <th>Reason</th>
+        </tr>
+      </thead>
+      <tbody [innerHTML]="recommendationsHtml"></tbody>
+    </table>
   </div>
 </div>
-

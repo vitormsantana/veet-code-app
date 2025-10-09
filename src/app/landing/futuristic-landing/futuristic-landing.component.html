@@ -1,0 +1,49 @@
+<div class="landing">
+  <div class="floating-sphere" aria-hidden="true">
+    <div class="sphere-halo"></div>
+    <canvas #networkCanvas class="network-canvas" aria-hidden="true"></canvas>
+  </div>
+
+  <header class="hero">
+    <div class="hero__content">
+      <h1>Hammocker Rhythm</h1>
+      <p>
+        Move through focused study bursts and unhurried hammock resets. Track your cycle, learn deeply,
+        and recharge fully before the next breakthrough.
+      </p>
+      <div class="hero__actions">
+        <a routerLink="/questions" mat-raised-button color="primary" class="cta">Enter Questions Hub</a>
+        <a routerLink="/studies" mat-stroked-button color="primary" class="cta-secondary">Track Studies</a>
+      </div>
+    </div>
+  </header>
+
+  <section class="insights">
+    <div class="insight-card">
+      <h2>Adaptive Insights</h2>
+      <p>Real-time statistics reveal when to push harder and when to drift into hammock time to recover.</p>
+    </div>
+    <div class="insight-card">
+      <h2>Focus Lanes</h2>
+      <p>Structured plans pair intense study bursts with deliberate rest so your momentum never frays.</p>
+    </div>
+    <div class="insight-card">
+      <h2>AI Collaborator</h2>
+      <p>Tap our recommendation engine for curated challenges and guided cooldowns between deep-work sessions.</p>
+    </div>
+  </section>
+
+  <section class="data-stream">
+    <div class="stream-header">
+      <h3>Signal Stream</h3>
+      <p>Snapshots of your study/rest rhythm, rendered as kinetic lightwaves.</p>
+    </div>
+    <div class="stream-chart">
+      <div class="wave" *ngFor="let wave of [1,2,3,4]"></div>
+    </div>
+  </section>
+
+  <footer class="footnote">
+    <p>Hammocker &mdash; study hard, swing easy, return renewed.</p>
+  </footer>
+</div>

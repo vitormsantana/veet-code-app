@@ -1,22 +1,52 @@
-<div class="content-container">
+<div class="questions-page">
+  <header class="questions-hero">
+    <div class="questions-hero__content">
+      <h1>Questions Orbit</h1>
+      <p>
+        Launch new prompts, map AI recommendations, and track your study signals in one neon-lit control room.
+      </p>
+      <button mat-raised-button class="return-home-button" routerLink="/">Return to Landing</button>
+    </div>
+    <div class="questions-hero__accent"></div>
+  </header>
 
-  <div class="openai-questions-recommendation-container">
-    <app-questions-recomendations-openai></app-questions-recomendations-openai>
-  </div>
+  <section class="module-wide module-wide--top">
+    <article class="module-card module-card--stats">
+      <div class="module-card__header module-card__header--inline">
+        <h2>Signal Stats</h2>
+        <span class="module-card__sub">Dynamic telemetry of your questioning cadence.</span>
+      </div>
+      <app-questions-stats class="card-content card-content--stats"></app-questions-stats>
+    </article>
+  </section>
 
-  <div class="question-container">
-    <app-question></app-question>
-  </div>
+  <section class="module-grid">
+    <article class="module-card module-card--form">
+      <div class="module-card__header">
+        <h2>Craft A Question</h2>
+        <span class="module-card__sub">Compose, refine, and queue fresh challenges.</span>
+      </div>
+      <app-question class="card-content"></app-question>
+    </article>
 
-  <div class="table-container">
-    <app-questions-table></app-questions-table>
-  </div>
+    <article class="module-card module-card--table">
+      <div class="module-card__header">
+        <h2>Active Queue</h2>
+        <span class="module-card__sub">Every question, status, and timestamp at a glance.</span>
+      </div>
+      <app-questions-table class="card-content"></app-questions-table>
+    </article>
 
-  <div class="stats-container">
-    <app-questions-stats></app-questions-stats>
-  </div>
+    <article class="module-card module-card--recommendations">
+      <div class="module-card__header">
+        <h2>Neon Suggestions</h2>
+        <span class="module-card__sub">AI-curated prompts tuned to your focus lane.</span>
+      </div>
+      <app-questions-recomendations-openai class="card-content"></app-questions-recomendations-openai>
+    </article>
+  </section>
 
-  <div class="navigation-container">
-   <button mat-raised-button class="return-home-button" routerLink="/">Return to Home</button>
-  </div>
+  <section class="module-wide">
+    <div class="module-footer"></div>
+  </section>
 </div>

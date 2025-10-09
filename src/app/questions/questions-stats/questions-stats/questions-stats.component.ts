@@ -1,5 +1,8 @@
-import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, OnDestroy } from '@angular/core';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { QuestionsStatsService, Statistics } from '../questions-stats.service';
+import { QuestionsRefreshService } from '../../questions-refresh.service';
 import { Chart } from 'chart.js'; // Ensure Chart.js is imported
 
 declare global {
@@ -15,7 +18,7 @@ declare global {
   standalone: false,
 })
 
-export class QuestionsStatsComponent implements OnInit, AfterViewInit {
+export class QuestionsStatsComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('myChart') chartCanvas!: ElementRef<HTMLCanvasElement>;
   @ViewChild('incrementalChart') incrementalChartCanvas!: ElementRef<HTMLCanvasElement>;
   @ViewChild('difficultyChart') difficultyChartCanvas!: ElementRef<HTMLCanvasElement>;
@@ -36,48 +39,65 @@ export class QuestionsStatsComponent implements OnInit, AfterViewInit {
     scales: {
       x: {
         beginAtZero: true,
-        grid: { color: 'rgba(255, 255, 255, 0.2)' }, // White grid
+        grid: { color: 'rgba(255, 255, 255, 0.12)' },
         title: { color: 'white' },
+        ticks: { color: 'rgba(230, 235, 255, 0.85)' },
       },
       y: {
         beginAtZero: true,
-        grid: { color: 'rgba(255, 255, 255, 0.2)' }, // White grid
+        grid: { color: 'rgba(255, 255, 255, 0.12)' },
         title: { color: 'white' },
+        ticks: { color: 'rgba(230, 235, 255, 0.85)' },
       },
     },
     plugins: {
       legend: {
-        labels: { color: 'white', font: { size: 14 } },
+        labels: { color: 'rgba(230, 235, 255, 0.85)', font: { size: 14 } },
       },
     },
   };
 
-  private isChartInitialized = false;
-  private isIncrementalChartInitialized = false;
-  private isDifficultyChartInitialized = false;
-  private isTagChartInitialized = false;
+  private readonly destroy$ = new Subject<void>();
+  private chartInstance: Chart | null = null;
+  private incrementalChartInstance: Chart | null = null;
+  private difficultyChartInstance: Chart | null = null;
+  private tagChartInstance: Chart | null = null;
 
-  constructor(private questionsStatsService: QuestionsStatsService) {}
+  constructor(
+    private questionsStatsService: QuestionsStatsService,
+    private questionsRefreshService: QuestionsRefreshService
+  ) {}
 
   ngOnInit(): void {
     this.fetchStatistics();
+    this.questionsRefreshService.refresh$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.fetchStatistics();
+      });
   }
 
   ngAfterViewInit(): void {
     if (this.statistics && !this.isLoading) {
-      if (!this.isChartInitialized) {
+      if (!this.chartInstance) {
         this.initializeChart();
       }
-      if (!this.isIncrementalChartInitialized) {
+      if (!this.incrementalChartInstance) {
         this.initializeIncrementalChart();
       }
-      if (!this.isDifficultyChartInitialized) {
+      if (!this.difficultyChartInstance) {
         this.initializeDifficultyChart();
       }
-      if (!this.isTagChartInitialized) {
+      if (!this.tagChartInstance) {
         this.initializeTagChart();
       }
     }
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+    this.destroyCharts();
   }
 
   fetchStatistics(): void {
@@ -136,10 +156,10 @@ export class QuestionsStatsComponent implements OnInit, AfterViewInit {
             color: 'white',
           },
           grid: {
-            color: 'rgba(255, 255, 255, 0.2)',
+            color: 'rgba(255, 255, 255, 0.12)',
           },
           ticks: {
-            color: 'white',
+            color: 'rgba(230, 235, 255, 0.85)',
           },
         },
         y: {
@@ -149,10 +169,10 @@ export class QuestionsStatsComponent implements OnInit, AfterViewInit {
             color: 'white',
           },
           grid: {
-            color: 'rgba(255, 255, 255, 0.2)',
+            color: 'rgba(255, 255, 255, 0.12)',
           },
           ticks: {
-            color: 'white',
+            color: 'rgba(230, 235, 255, 0.85)',
           },
           beginAtZero: true,
         },
@@ -160,14 +180,18 @@ export class QuestionsStatsComponent implements OnInit, AfterViewInit {
       plugins: {
         legend: {
           labels: {
-            color: 'white',
+            color: 'rgba(230, 235, 255, 0.85)',
             font: { size: 14 },
           },
         },
       },
     };
 
-    if (!this.isChartInitialized) {
+    if (this.chartInstance) {
+      this.chartInstance.data = this.chartData;
+      this.chartInstance.options = this.chartOptions;
+      this.chartInstance.update();
+    } else if (this.chartCanvas) {
       this.initializeChart();
     }
   }
@@ -187,14 +211,19 @@ export class QuestionsStatsComponent implements OnInit, AfterViewInit {
         {
           label: 'Incremental Cracked Questions Per Day',
           data,
-          backgroundColor: '#A17C6B',
-          borderColor: '#ffffff',
+          backgroundColor: 'rgba(0, 255, 214, 0.35)',
+          borderColor: 'rgba(255, 255, 255, 0.9)',
           borderWidth: 2,
+          hoverBackgroundColor: 'rgba(255, 255, 255, 0.35)',
+          hoverBorderColor: 'rgba(255, 255, 255, 0.95)',
         },
       ],
     };
 
-    if (!this.isIncrementalChartInitialized) {
+    if (this.incrementalChartInstance) {
+      this.incrementalChartInstance.data = this.incrementalChartData;
+      this.incrementalChartInstance.update();
+    } else if (this.incrementalChartCanvas) {
       this.initializeIncrementalChart();
     }
   }
@@ -213,12 +242,25 @@ export class QuestionsStatsComponent implements OnInit, AfterViewInit {
       datasets: [
         {
           data,
-          backgroundColor: ['#2B3D41', '#FF3333', '#A17C6B'],
+          backgroundColor: [
+            'rgba(255, 255, 255, 0.85)',
+            'rgba(122, 134, 150, 0.9)',
+            'rgba(0, 255, 214, 0.55)',
+          ],
+          borderColor: [
+            'rgba(255, 255, 255, 0.9)',
+            'rgba(180, 192, 210, 0.6)',
+            'rgba(0, 255, 214, 0.9)',
+          ],
+          borderWidth: 2,
         },
       ],
     };
 
-    if (!this.isDifficultyChartInitialized) {
+    if (this.difficultyChartInstance) {
+      this.difficultyChartInstance.data = this.difficultyChartData;
+      this.difficultyChartInstance.update();
+    } else if (this.difficultyChartCanvas) {
       this.initializeDifficultyChart();
     }
   }
@@ -237,18 +279,17 @@ export class QuestionsStatsComponent implements OnInit, AfterViewInit {
       datasets: [
         {
           data,
-          backgroundColor: [
-            '#2B3D41',
-            '#A17C6B',
-            '#0a0908',
-            '#3e4f52',
-            '#779fa1',
-          ],
+          backgroundColor: [],
         },
       ],
     };
 
-    if (!this.isTagChartInitialized) {
+    this.applyTagChartColors();
+
+    if (this.tagChartInstance) {
+      this.tagChartInstance.data = this.tagChartData;
+      this.tagChartInstance.update();
+    } else if (this.tagChartCanvas) {
       this.initializeTagChart();
     }
   }
@@ -256,71 +297,70 @@ export class QuestionsStatsComponent implements OnInit, AfterViewInit {
   initializeChart(): void {
     const ctx = this.chartCanvas.nativeElement;
     if (this.chartData && this.chartOptions) {
-      window.myChart = new Chart(ctx, {
+      this.chartInstance = new Chart(ctx, {
         type: 'line',
         data: this.chartData,
         options: this.chartOptions,
       });
-      this.isChartInitialized = true;
+      window.myChart = this.chartInstance;
     }
   }
 
   initializeIncrementalChart(): void {
-  const ctx = this.incrementalChartCanvas.nativeElement;
-  if (this.incrementalChartData) {
-    new Chart(ctx, {
-      type: 'bar', // Bar chart
-      data: this.incrementalChartData,
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-          x: {
-            title: {
-              display: true,
-              text: 'Date',
-              color: 'white'
+    const ctx = this.incrementalChartCanvas.nativeElement;
+    if (this.incrementalChartData) {
+      this.incrementalChartInstance = new Chart(ctx, {
+        type: 'bar', // Bar chart
+        data: this.incrementalChartData,
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: {
+              title: {
+                display: true,
+                text: 'Date',
+                color: 'white'
+              },
+              grid: {
+                color: 'rgba(255, 255, 255, 0.12)',
+              },
+              ticks: {
+                color: 'rgba(230, 235, 255, 0.85)',
+              },
             },
-            grid: {
-              color: 'rgba(255, 255, 255, 0.2)', // White grid lines
-            },
-            ticks: {
-              color: 'white', // White labels on x-axis
+            y: {
+              title: {
+                display: true,
+                text: 'Questions Cracked',
+                color: 'white'
+              },
+              grid: {
+                color: 'rgba(255, 255, 255, 0.12)',
+              },
+              ticks: {
+                color: 'rgba(230, 235, 255, 0.85)',
+              },
+              beginAtZero: true,
             },
           },
-          y: {
-            title: {
-              display: true,
-              text: 'Questions Cracked',
-              color: 'white'
+          plugins: {
+            legend: {
+              labels: {
+                color: 'rgba(230, 235, 255, 0.85)',
+                font: { size: 14 },
+              },
             },
-            grid: {
-              color: 'rgba(255, 255, 255, 0.2)', // White grid lines
-            },
-            ticks: {
-              color: 'white', // White labels on y-axis
-            },
-            beginAtZero: true,
           },
         },
-        plugins: {
-          legend: {
-            labels: {
-              color: 'white',
-              font: { size: 14 },
-            },
-          },
-        },
-      },
-    });
-    this.isIncrementalChartInitialized = true;
+      });
+    }
   }
-}
 
   initializeDifficultyChart(): void {
     const ctx = this.difficultyChartCanvas.nativeElement;
     if (this.difficultyChartData) {
-      new Chart(ctx, {
+      this.difficultyChartInstance = new Chart(ctx, {
         type: 'pie',
         data: this.difficultyChartData,
         options: {
@@ -328,57 +368,92 @@ export class QuestionsStatsComponent implements OnInit, AfterViewInit {
           maintainAspectRatio: false,
           plugins: {
             legend: {
-              labels: { color: 'white' },
+              labels: { color: 'rgba(230, 235, 255, 0.85)' },
             },
           },
         },
       });
-      this.isDifficultyChartInitialized = true;
     }
   }
 
   initializeTagChart(): void {
-  const ctx = this.tagChartCanvas.nativeElement;
-  if (this.tagChartData) {
-    new Chart(ctx, {
-      type: 'doughnut',
-      data: this.tagChartData,
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        cutout: '75%',
-        plugins: {
-          title: {
-            display: true,
-            text: 'Times That Each Tag Appeared',
-            color: 'white',
-            font: { size: 16, weight: 'bold' },
-          },
-          tooltip: {
-            callbacks: {
-              label: (tooltipItem) => {
-                const index = tooltipItem.dataIndex;
-                const label = this.tagChartData.labels[index];
-                const value = this.tagChartData.datasets[0].data[index];
-                return `${label}: ${value}`;
+    const ctx = this.tagChartCanvas.nativeElement;
+    if (this.tagChartData) {
+      this.applyTagChartColors();
+      this.tagChartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: this.tagChartData,
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '75%',
+          plugins: {
+            title: {
+              display: true,
+              text: 'Times That Each Tag Appeared',
+              color: 'white',
+              font: { size: 16, weight: 'bold' },
+            },
+            tooltip: {
+              callbacks: {
+                label: (tooltipItem) => {
+                  const index = tooltipItem.dataIndex;
+                  const label = this.tagChartData.labels[index];
+                  const value = this.tagChartData.datasets[0].data[index];
+                  return `${label}: ${value}`;
+                },
               },
             },
-          },
-          legend: {
-            display: false,
+            legend: {
+              display: false,
+            },
           },
         },
-      },
-    });
-    this.isTagChartInitialized = true;
+      });
+    }
   }
-  // Update the colors to more serious shades
-  this.tagChartData.datasets[0].backgroundColor = [
-    '#2B3D41',  // Darker greyish blue
-    '#A17C6B',  // Muted brown
-    '#0a0908',  // Strong red
-    '#3e4f52',  // Soft green
-    '#779fa1',  // Strong blue
-  ];
-}
+
+  private applyTagChartColors(): void {
+    if (!this.tagChartData?.datasets?.length) {
+      return;
+    }
+
+    const palette = [
+      'rgba(255, 255, 255, 0.85)',
+      'rgba(136, 146, 164, 0.85)',
+      'rgba(88, 96, 112, 0.85)',
+      'rgba(0, 255, 214, 0.55)',
+      'rgba(64, 74, 94, 0.85)',
+      'rgba(182, 190, 204, 0.7)',
+      'rgba(42, 46, 60, 0.9)',
+    ];
+
+    this.tagChartData.datasets[0].backgroundColor = this.tagChartData.labels.map(
+      (_: unknown, index: number) => palette[index % palette.length]
+    );
+    this.tagChartData.datasets[0].borderColor = this.tagChartData.labels.map(
+      (_: unknown, index: number) =>
+        index % palette.length === 3 ? 'rgba(0, 255, 214, 0.9)' : 'rgba(255, 255, 255, 0.65)'
+    );
+    this.tagChartData.datasets[0].borderWidth = 2;
+  }
+
+  private destroyCharts(): void {
+    if (this.chartInstance) {
+      this.chartInstance.destroy();
+      this.chartInstance = null;
+    }
+    if (this.incrementalChartInstance) {
+      this.incrementalChartInstance.destroy();
+      this.incrementalChartInstance = null;
+    }
+    if (this.difficultyChartInstance) {
+      this.difficultyChartInstance.destroy();
+      this.difficultyChartInstance = null;
+    }
+    if (this.tagChartInstance) {
+      this.tagChartInstance.destroy();
+      this.tagChartInstance = null;
+    }
+  }
 }
