@@ -6,11 +6,13 @@ import { HomeComponent } from './home/home.component';
 import { LoginComponent } from './auth/login/login.component';
 import { AuthGuard } from './auth/auth.guard';
 import { FuturisticLandingComponent } from './landing/futuristic-landing/futuristic-landing.component';
+import { ProfileQuestionnaireComponent } from './profile/profile-questionnaire/profile-questionnaire.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'landing', component: FuturisticLandingComponent },
   { path: 'questions', component: QuestionsPageComponent, canActivate: [AuthGuard] },
+  { path: 'profile', component: ProfileQuestionnaireComponent, canActivate: [AuthGuard] },
   { path: 'studies', component: StudiesPageComponent, canActivate: [AuthGuard] },
   { path: 'login', component: LoginComponent },
 ];

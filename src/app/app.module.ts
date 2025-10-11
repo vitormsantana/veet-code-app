@@ -5,9 +5,8 @@ import { AppComponent } from './app.component';
 import { QuestionComponent } from './questions/question/question.component';
 import { QuestionsTableComponent } from './questions/questions-table/questions-table.component';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import { ReactiveFormsModule } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
@@ -34,6 +33,8 @@ import { QuestionsRecomendationsOpenaiComponent } from './questions/questions-re
 import { LoginComponent } from './auth/login/login.component';
 import { AuthInterceptor } from './auth/auth.interceptor';
 import { FuturisticLandingComponent } from './landing/futuristic-landing/futuristic-landing.component';
+import { ProfileQuestionnaireComponent } from './profile/profile-questionnaire/profile-questionnaire.component';
+import { MatTabsModule } from '@angular/material/tabs'; // ✅ NEW IMPORT
 
 @NgModule({
   declarations: [
@@ -50,26 +51,30 @@ import { FuturisticLandingComponent } from './landing/futuristic-landing/futuris
     StudiesStatsPerThemeComponent,
     QuestionsRecomendationsOpenaiComponent,
     LoginComponent,
-    FuturisticLandingComponent
+    FuturisticLandingComponent,
+    ProfileQuestionnaireComponent,
   ],
   imports: [
     BrowserModule,
     ChartModule,
     AppRoutingModule,
     FormsModule,
+    ReactiveFormsModule,
+    HttpClientModule,
+    RouterModule,
+    // ✅ Material Modules
     MatTableModule,
     MatPaginatorModule,
-    MatExpansionModule,
     MatSortModule,
+    MatExpansionModule,
     MatButtonModule,
     MatIconModule,
-    HttpClientModule,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
-    MatCheckboxModule,
-    ReactiveFormsModule,
     MatSnackBarModule,
+    MatCheckboxModule,
+    MatTabsModule, // ✅ add this for <mat-tab-group>
   ],
   providers: [
     provideAnimationsAsync(),
@@ -77,9 +82,9 @@ import { FuturisticLandingComponent } from './landing/futuristic-landing/futuris
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,
-      multi: true
-    }
+      multi: true,
+    },
   ],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}
