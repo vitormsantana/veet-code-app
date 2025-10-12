@@ -5,11 +5,13 @@ import { of } from 'rxjs';
 import { QuestionsStatsComponent } from './questions-stats.component';
 import { QuestionsStatsService, Statistics } from '../questions-stats.service';
 import { QuestionsRefreshService } from '../../questions-refresh.service';
+import { UserMetricsService } from '../../user-metrics.service';
 
 describe('QuestionsStatsComponent', () => {
   let component: QuestionsStatsComponent;
   let fixture: ComponentFixture<QuestionsStatsComponent>;
   let statsService: jasmine.SpyObj<QuestionsStatsService>;
+  let metricsService: jasmine.SpyObj<UserMetricsService>;
 
   const mockStats: Statistics = {
     questionsCrackedPerDay: [],
@@ -22,11 +24,14 @@ describe('QuestionsStatsComponent', () => {
   beforeEach(async () => {
     statsService = jasmine.createSpyObj<QuestionsStatsService>('QuestionsStatsService', ['getStatistics']);
     statsService.getStatistics.and.returnValue(of(mockStats));
+    metricsService = jasmine.createSpyObj<UserMetricsService>('UserMetricsService', ['getLatestMetrics']);
+    metricsService.getLatestMetrics.and.returnValue(of(null));
 
     await TestBed.configureTestingModule({
       declarations: [QuestionsStatsComponent],
       providers: [
         { provide: QuestionsStatsService, useValue: statsService },
+        { provide: UserMetricsService, useValue: metricsService },
         QuestionsRefreshService
       ],
       schemas: [NO_ERRORS_SCHEMA]
@@ -40,5 +45,7 @@ describe('QuestionsStatsComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+    expect(statsService.getStatistics).toHaveBeenCalled();
+    expect(metricsService.getLatestMetrics).toHaveBeenCalled();
   });
 });

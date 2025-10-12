@@ -72,23 +72,43 @@ export class QuestionsRecomendationsOpenaiComponent implements OnInit, OnDestroy
       return { intro: [], rows: [] };
     }
 
-    let body = text
-      .replace(/^###\s*Personalized\s+Recommendations\s*/i, '')
-      .trim();
+    let body = text.replace(/\r\n/g, '\n').trim();
+    body = body.replace(/^###\s*Personalized\s+Recommendations\s*/i, '').trim();
 
     const introLines: string[] = [];
-    const introRegex =
-      /\*\*Intro[^\*]*\*\*:\s*([\s\S]*?)(?=\n\s*\*\*Suggested Questions\*\*|\n\s*1\.)/i;
-    const introMatch = body.match(introRegex);
-    if (introMatch) {
-      introLines.push(
-        ...introMatch[1]
-          .trim()
-          .split(/\n+/)
-          .map((line) => this.stripFormatting(line))
-          .filter(Boolean)
-      );
-      body = body.replace(introRegex, '').trim();
+    const summaryRegex =
+      /\*\*Progress\s+Summary[^\*]*\*\*:\s*([\s\S]*?)(?=\n\s*\*\*Suggested Questions\*\*|\n\s*\d+\.\s|$)/i;
+    const summaryMatch = body.match(summaryRegex);
+
+    if (summaryMatch) {
+      const captured = summaryMatch[1]
+        .trim()
+        .split(/\n+/)
+        .map((line) => this.stripFormatting(line))
+        .map((line) => line.replace(/\s{2,}/g, ' '))
+        .filter(Boolean);
+
+      if (captured.length) {
+        introLines.push(...captured);
+      }
+
+      body = body.replace(summaryRegex, '').trim();
+    } else {
+      // Backwards compatibility for older "Intro" label
+      const legacyIntroRegex =
+        /\*\*Intro[^\*]*\*\*:\s*([\s\S]*?)(?=\n\s*\*\*Suggested Questions\*\*|\n\s*\d+\.\s|$)/i;
+      const legacyMatch = body.match(legacyIntroRegex);
+      if (legacyMatch) {
+        introLines.push(
+          ...legacyMatch[1]
+            .trim()
+            .split(/\n+/)
+            .map((line) => this.stripFormatting(line))
+            .map((line) => line.replace(/\s{2,}/g, ' '))
+            .filter(Boolean)
+        );
+        body = body.replace(legacyIntroRegex, '').trim();
+      }
     }
 
     body = body.replace(/\*\*Suggested Questions\*\*/i, '').trim();

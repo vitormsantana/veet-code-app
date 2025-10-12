@@ -61,6 +61,7 @@ describe('QuestionComponent', () => {
       tags: ['Arrays'],
       minutesTaken: 15,
       neededHelp: false,
+      crackedExercise: 'completed',
       observation: 'Revisit binary search approach.'
     });
 
@@ -71,11 +72,21 @@ describe('QuestionComponent', () => {
     expect(req.request.method).toBe('POST');
     req.flush({ message: 'ok' });
 
+    const metricsReq = httpMock.expectOne(/create_user_metrics$/);
+    expect(metricsReq.request.method).toBe('POST');
+    expect(metricsReq.request.body).toEqual(jasmine.objectContaining({
+      short_window_days: 7,
+      long_window_days: 30
+    }));
+    expect(typeof metricsReq.request.body.date).toBe('string');
+    expect(Date.parse(metricsReq.request.body.date)).not.toBeNaN();
+    metricsReq.flush({ message: 'metrics updated' });
+
     tick();
 
     expect(refreshService.triggerRefresh).toHaveBeenCalled();
     expect(snackBar.open).toHaveBeenCalledWith(
-      'Two Sum (Easy) • 05/10/2025 • 15 min • Help: No • Observation: Revisit binary search approach.',
+      'Two Sum (Easy) • 05/10/2025 • 15 min • Help: No • Status: Completed • Observation: Revisit binary search approach.',
       'Dismiss',
       jasmine.objectContaining({
         duration: 5000,

@@ -31,7 +31,7 @@
 <mat-form-field appearance="fill" class="form-grid__full">
 <mat-label>Tags</mat-label>
 <mat-select formControlName="tags" multiple="" required="">
-<mat-option *ngfor="let tag of availableTags" [value]="tag">{{ tag }}</mat-option>
+<mat-option *ngFor="let tag of availableTags" [value]="tag">{{ tag }}</mat-option>
 </mat-select>
 </mat-form-field>
 <mat-form-field appearance="fill" class="form-grid__full">

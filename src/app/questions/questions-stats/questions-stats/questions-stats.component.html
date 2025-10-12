@@ -1,3 +1,74 @@
+<section class="metrics-section">
+  <div *ngIf="isMetricsLoading" class="metrics-message">Loading user metrics...</div>
+  <div *ngIf="metricsErrorMessage" class="metrics-message metrics-message--error">{{ metricsErrorMessage }}</div>
+
+  <ng-container *ngIf="!isMetricsLoading && !metricsErrorMessage">
+    <div *ngIf="latestMetrics as metrics; else noMetrics">
+      <header class="metrics-header">
+        <div>
+          <h3>Latest Performance Metrics</h3>
+          <span class="metrics-header__timestamp">Calculated {{ metrics.calculatedAtUtc | date:'medium' }}</span>
+        </div>
+        <span class="metrics-header__window">
+          Windows: {{ metrics.shortWindowDays }}d / {{ metrics.longWindowDays }}d
+        </span>
+      </header>
+
+      <div class="metrics-grid">
+        <article class="metric-card">
+          <span class="metric-card__label">Active Days ({{ metrics.longWindowDays }}d)</span>
+          <span class="metric-card__value">{{ getActiveDays(metrics) }} days</span>
+          <small class="metric-card__hint">
+            Logged exercises on {{ metrics.consistencyRate | percent:'1.0-0' }} of the last {{ metrics.longWindowDays }} days.
+          </small>
+        </article>
+        <article class="metric-card">
+          <span class="metric-card__label">Total Questions Analyzed</span>
+          <span class="metric-card__value">{{ metrics.totalQuestionsAnalyzed }}</span>
+        </article>
+        <article class="metric-card">
+          <span class="metric-card__label">Avg Solved ({{ metrics.shortWindowDays }}d)</span>
+          <span class="metric-card__value">{{ metrics.avgSolvedLastShortDays | number:'1.0-2' }}</span>
+        </article>
+        <article class="metric-card">
+          <span class="metric-card__label">Avg Solved ({{ metrics.longWindowDays }}d)</span>
+          <span class="metric-card__value">{{ metrics.avgSolvedLastLongDays | number:'1.0-2' }}</span>
+        </article>
+        <article class="metric-card">
+          <span class="metric-card__label">Avg Failed ({{ metrics.shortWindowDays }}d)</span>
+          <span class="metric-card__value">{{ metrics.avgFailedLastShortDays | number:'1.0-2' }}</span>
+        </article>
+        <article class="metric-card">
+          <span class="metric-card__label">Tried ({{ metrics.shortWindowDays }}d)</span>
+          <span class="metric-card__value">{{ metrics.exercisesTriedLastShortWindow }}</span>
+        </article>
+        <article class="metric-card">
+          <span class="metric-card__label">Tried ({{ metrics.longWindowDays }}d)</span>
+          <span class="metric-card__value">{{ metrics.exercisesTriedLastLongWindow }}</span>
+        </article>
+        <article class="metric-card">
+          <span class="metric-card__label">Days Since Last Activity</span>
+          <span class="metric-card__value">{{ metrics.lastActivityDaysAgo }}</span>
+        </article>
+      </div>
+
+      <section class="metrics-tags" *ngIf="metrics.avgMinutesPerTag | keyvalue:tagValueDesc as avgMinutesEntries">
+        <h4>Average Minutes per Tag</h4>
+        <div class="metrics-tags__grid">
+          <div class="metrics-tags__item" *ngFor="let entry of avgMinutesEntries | slice:0:6">
+            <span class="metrics-tags__name">{{ entry.key }}</span>
+            <span class="metrics-tags__value">{{ entry.value | number:'1.0-1' }} min</span>
+          </div>
+        </div>
+      </section>
+    </div>
+  </ng-container>
+
+  <ng-template #noMetrics>
+    <div class="metrics-message">No metrics available yet. Log new exercises to generate insights.</div>
+  </ng-template>
+</section>
+
 <div class="charts-container">
   <div class="chart-container">
     <canvas #myChart></canvas>

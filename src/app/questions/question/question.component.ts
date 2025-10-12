@@ -89,6 +89,7 @@ export class QuestionComponent {
       next: (response: any) => {
         this.questionsRefreshService.triggerRefresh();
         this.showSubmissionNotification(payload);
+        this.triggerMetricsRecalculation(headers);
       },
       error: (error) => {
         console.error('Error:', error);
@@ -137,6 +138,21 @@ export class QuestionComponent {
       verticalPosition: 'top'
     });
   }
+
+  private triggerMetricsRecalculation(headers: HttpHeaders): void {
+    const metricsUrl = `${this.apiBaseUrl}/create_user_metrics`;
+    const metricsPayload: MetricsRequestPayload = {
+      date: new Date().toISOString(),
+      short_window_days: 7,
+      long_window_days: 30
+    };
+
+    this.http.post(metricsUrl, metricsPayload, { headers }).subscribe({
+      error: (error) => {
+        console.error('Failed to update user metrics:', error);
+      }
+    });
+  }
 }
 
 interface SubmissionPayload {
@@ -148,4 +164,10 @@ interface SubmissionPayload {
   needed_help: boolean;
   cracked_exercise: boolean;
   obs: string;
+}
+
+interface MetricsRequestPayload {
+  date: string;
+  short_window_days: number;
+  long_window_days: number;
 }

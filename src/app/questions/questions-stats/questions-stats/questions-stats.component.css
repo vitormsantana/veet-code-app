@@ -1,3 +1,123 @@
+.metrics-section {
+  margin-bottom: clamp(1.5rem, 3vw, 2.75rem);
+  padding: clamp(1.25rem, 2vw, 2rem);
+  border-radius: 1.1rem;
+  background: linear-gradient(165deg, rgba(6, 7, 12, 0.92), rgba(14, 16, 24, 0.95));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 18px 46px rgba(0, 0, 0, 0.45);
+  color: rgba(240, 244, 255, 0.95);
+}
+
+.metrics-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1.5rem;
+  margin-bottom: clamp(1.25rem, 2.5vw, 2rem);
+}
+
+.metrics-header h3 {
+  margin: 0 0 0.35rem;
+  font-size: clamp(1.1rem, 2.5vw, 1.45rem);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.metrics-header__timestamp {
+  font-size: 0.85rem;
+  color: rgba(224, 230, 255, 0.68);
+}
+
+.metrics-header__window {
+  font-size: 0.85rem;
+  color: rgba(224, 230, 255, 0.78);
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  align-self: center;
+}
+
+.metrics-grid {
+  display: grid;
+  gap: clamp(0.85rem, 2vw, 1.5rem);
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  margin-bottom: clamp(1.5rem, 3vw, 2rem);
+}
+
+.metric-card {
+  padding: clamp(0.85rem, 2vw, 1.5rem);
+  border-radius: 0.95rem;
+  background: rgba(16, 20, 32, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.metric-card__hint {
+  font-size: 0.75rem;
+  color: rgba(210, 220, 255, 0.6);
+  line-height: 1.35;
+}
+
+.metric-card__label {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(210, 220, 255, 0.65);
+}
+
+.metric-card__value {
+  font-size: clamp(1.1rem, 2.8vw, 1.6rem);
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.97);
+}
+
+.metrics-tags h4 {
+  margin: 0 0 0.85rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: rgba(235, 240, 255, 0.9);
+}
+
+.metrics-tags__grid {
+  display: grid;
+  gap: 0.65rem;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+}
+
+.metrics-tags__item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.65rem 0.75rem;
+  border-radius: 0.75rem;
+  background: rgba(20, 24, 38, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 0.9rem;
+}
+
+.metrics-tags__name {
+  color: rgba(220, 226, 255, 0.85);
+  font-weight: 500;
+}
+
+.metrics-tags__value {
+  color: rgba(255, 255, 255, 0.95);
+  font-variant-numeric: tabular-nums;
+}
+
+.metrics-message {
+  font-size: 0.9rem;
+  color: rgba(224, 230, 255, 0.75);
+}
+
+.metrics-message--error {
+  color: #f9a8d4;
+}
+
 .charts-container {
   display: grid;
   gap: clamp(1.5rem, 3vw, 2.5rem);

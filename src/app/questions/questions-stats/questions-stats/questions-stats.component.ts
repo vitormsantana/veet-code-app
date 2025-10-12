@@ -1,7 +1,9 @@
 import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, OnDestroy } from '@angular/core';
+import { KeyValue } from '@angular/common';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { QuestionsStatsService, Statistics } from '../questions-stats.service';
+import { UserMetricsService, UserMetrics } from '../../user-metrics.service';
 import { QuestionsRefreshService } from '../../questions-refresh.service';
 import { Chart } from 'chart.js'; // Ensure Chart.js is imported
 
@@ -27,6 +29,10 @@ export class QuestionsStatsComponent implements OnInit, AfterViewInit, OnDestroy
   statistics: Statistics | null = null;
   isLoading = true;
   errorMessage: string | null = null;
+
+  latestMetrics: UserMetrics | null = null;
+  isMetricsLoading = true;
+  metricsErrorMessage: string | null = null;
 
   chartData: any = { labels: [], datasets: [] };
   incrementalChartData: any = { labels: [], datasets: [] };
@@ -62,18 +68,28 @@ export class QuestionsStatsComponent implements OnInit, AfterViewInit, OnDestroy
   private incrementalChartInstance: Chart | null = null;
   private difficultyChartInstance: Chart | null = null;
   private tagChartInstance: Chart | null = null;
+  readonly tagValueDesc = (a: KeyValue<string, number>, b: KeyValue<string, number>): number => {
+    const valA = typeof a.value === 'number' ? a.value : Number(a.value ?? 0);
+    const valB = typeof b.value === 'number' ? b.value : Number(b.value ?? 0);
+    const safeA = Number.isFinite(valA) ? valA : 0;
+    const safeB = Number.isFinite(valB) ? valB : 0;
+    return safeB - safeA;
+  };
 
   constructor(
     private questionsStatsService: QuestionsStatsService,
-    private questionsRefreshService: QuestionsRefreshService
+    private questionsRefreshService: QuestionsRefreshService,
+    private userMetricsService: UserMetricsService
   ) {}
 
   ngOnInit(): void {
     this.fetchStatistics();
+    this.fetchUserMetrics();
     this.questionsRefreshService.refresh$
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
         this.fetchStatistics();
+        this.fetchUserMetrics();
       });
   }
 
@@ -104,20 +120,52 @@ export class QuestionsStatsComponent implements OnInit, AfterViewInit, OnDestroy
     this.isLoading = true;
     this.errorMessage = null;
 
-    this.questionsStatsService.getStatistics().subscribe(
-      (data) => {
-        this.statistics = data;
-        this.isLoading = false;
-        this.updateChartData();
-        this.updateIncrementalChartData();
-        this.updateDifficultyChartData();
-        this.updateTagChartData();
-      },
-      (error) => {
-        this.errorMessage = 'Failed to load statistics. Please try again later.';
-        this.isLoading = false;
-      }
-    );
+    this.questionsStatsService.getStatistics()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(
+        (data) => {
+          this.statistics = data;
+          this.isLoading = false;
+          this.updateChartData();
+          this.updateIncrementalChartData();
+          this.updateDifficultyChartData();
+          this.updateTagChartData();
+        },
+        () => {
+          this.errorMessage = 'Failed to load statistics. Please try again later.';
+          this.isLoading = false;
+        }
+      );
+  }
+
+  fetchUserMetrics(): void {
+    this.isMetricsLoading = true;
+    this.metricsErrorMessage = null;
+
+    this.userMetricsService.getLatestMetrics()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(
+        (metric) => {
+          this.latestMetrics = metric;
+          this.isMetricsLoading = false;
+        },
+        () => {
+          this.latestMetrics = null;
+          this.metricsErrorMessage = 'Failed to load user metrics.';
+          this.isMetricsLoading = false;
+        }
+      );
+  }
+
+  getActiveDays(metrics: UserMetrics | null): number {
+    if (!metrics) {
+      return 0;
+    }
+    const rawDays = metrics.consistencyRate * metrics.longWindowDays;
+    if (!Number.isFinite(rawDays)) {
+      return 0;
+    }
+    return Math.round(rawDays);
   }
 
   updateChartData(): void {
