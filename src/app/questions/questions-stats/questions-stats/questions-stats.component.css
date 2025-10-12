@@ -1,13 +1,24 @@
+:host {
+  --qs-surface: var(--qp-card-overlay, rgba(250, 250, 250, 0.85));
+  --qs-border: var(--qp-border, rgba(24, 24, 24, 0.12));
+  --qs-border-strong: var(--qp-border-strong, rgba(24, 24, 24, 0.2));
+  --qs-text-primary: var(--qp-text-primary, #0c0c0c);
+  --qs-text-secondary: var(--qp-text-secondary, rgba(36, 36, 36, 0.72));
+  --qs-text-muted: var(--qp-text-muted, rgba(44, 44, 44, 0.55));
+  --qs-glow: var(--qp-card-glow, rgba(0, 0, 0, 0.18));
+  display: block;
+}
+
 .metrics-section {
   margin-bottom: clamp(1.5rem, 3vw, 2.75rem);
   padding: clamp(1.25rem, 2vw, 2rem);
   border-radius: 1.1rem;
-  background: linear-gradient(165deg, rgba(6, 7, 12, 0.92), rgba(14, 16, 24, 0.95));
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--qs-surface);
+  border: 1px solid var(--qs-border);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.05),
-    0 18px 46px rgba(0, 0, 0, 0.45);
-  color: rgba(240, 244, 255, 0.95);
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 18px 46px var(--qs-glow);
+  color: var(--qs-text-primary);
 }
 
 .metrics-header {
@@ -27,15 +38,16 @@
 
 .metrics-header__timestamp {
   font-size: 0.85rem;
-  color: rgba(224, 230, 255, 0.68);
+  color: var(--qs-text-muted);
 }
 
 .metrics-header__window {
   font-size: 0.85rem;
-  color: rgba(224, 230, 255, 0.78);
+  color: var(--qs-text-secondary);
   padding: 0.35rem 0.65rem;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--qs-border);
+  background: transparent;
   align-self: center;
 }
 
@@ -49,16 +61,17 @@
 .metric-card {
   padding: clamp(0.85rem, 2vw, 1.5rem);
   border-radius: 0.95rem;
-  background: rgba(16, 20, 32, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--qs-surface);
+  border: 1px solid var(--qs-border);
   display: flex;
   flex-direction: column;
   gap: 0.45rem;
+  box-shadow: 0 16px 34px var(--qs-glow);
 }
 
 .metric-card__hint {
   font-size: 0.75rem;
-  color: rgba(210, 220, 255, 0.6);
+  color: var(--qs-text-muted);
   line-height: 1.35;
 }
 
@@ -66,20 +79,20 @@
   font-size: 0.85rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: rgba(210, 220, 255, 0.65);
+  color: var(--qs-text-secondary);
 }
 
 .metric-card__value {
   font-size: clamp(1.1rem, 2.8vw, 1.6rem);
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.97);
+  color: var(--qs-text-primary);
 }
 
 .metrics-tags h4 {
   margin: 0 0 0.85rem;
   font-size: 1rem;
   font-weight: 600;
-  color: rgba(235, 240, 255, 0.9);
+  color: var(--qs-text-primary);
 }
 
 .metrics-tags__grid {
@@ -94,24 +107,25 @@
   align-items: center;
   padding: 0.65rem 0.75rem;
   border-radius: 0.75rem;
-  background: rgba(20, 24, 38, 0.75);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--qs-surface);
+  border: 1px solid var(--qs-border);
   font-size: 0.9rem;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
 }
 
 .metrics-tags__name {
-  color: rgba(220, 226, 255, 0.85);
+  color: var(--qs-text-secondary);
   font-weight: 500;
 }
 
 .metrics-tags__value {
-  color: rgba(255, 255, 255, 0.95);
+  color: var(--qs-text-primary);
   font-variant-numeric: tabular-nums;
 }
 
 .metrics-message {
   font-size: 0.9rem;
-  color: rgba(224, 230, 255, 0.75);
+  color: var(--qs-text-secondary);
 }
 
 .metrics-message--error {
@@ -130,11 +144,11 @@
   height: clamp(220px, 34vw, 320px);
   padding: 1.25rem;
   border-radius: 1.1rem;
-  background: linear-gradient(160deg, rgba(5, 5, 5, 0.85), rgba(10, 12, 18, 0.92));
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--qs-surface);
+  border: 1px solid var(--qs-border);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.06),
-    0 18px 46px rgba(0, 0, 0, 0.45);
+    0 18px 46px var(--qs-glow);
 }
 
 canvas {

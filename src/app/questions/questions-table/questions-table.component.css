@@ -1,14 +1,41 @@
+:host {
+  --qt-surface: var(--qp-body-bg, #ffffff);
+  --qt-border: var(--qp-border, rgba(24, 24, 24, 0.16));
+  --qt-border-strong: var(--qp-border-strong, rgba(24, 24, 24, 0.28));
+  --qt-text-primary: var(--qp-text-primary, #0d0d0d);
+  --qt-text-secondary: var(--qp-text-secondary, rgba(36, 36, 36, 0.72));
+  --qt-text-muted: var(--qp-text-muted, rgba(48, 48, 48, 0.5));
+  --qt-glow: var(--qp-card-glow, rgba(0, 0, 0, 0.2));
+  --qt-row-even: rgba(255, 255, 255, 0.96);
+  --qt-row-odd: rgba(248, 248, 248, 0.96);
+  --qt-row-hover: rgba(236, 236, 236, 0.96);
+  display: block;
+}
+
+:host-context(.dark-mode),
+:host-context(.dark-theme) {
+  --qt-border: rgba(255, 255, 255, 0.24);
+  --qt-border-strong: rgba(255, 255, 255, 0.45);
+  --qt-text-primary: rgba(247, 247, 247, 0.95);
+  --qt-text-secondary: rgba(230, 230, 230, 0.82);
+  --qt-text-muted: rgba(208, 208, 208, 0.6);
+  --qt-surface: rgba(20, 20, 20, 0.96);
+  --qt-row-even: rgba(28, 28, 28, 0.96);
+  --qt-row-odd: rgba(24, 24, 24, 0.96);
+  --qt-row-hover: rgba(40, 40, 40, 0.96);
+}
+
 .questions-table-container {
   position: relative;
   max-height: clamp(24rem, 32vw, 30rem);
   overflow: auto;
   border-radius: 1rem;
-  background: linear-gradient(150deg, rgba(8, 12, 20, 0.6), rgba(15, 20, 28, 0.35));
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: var(--qt-surface);
+  border: 1px solid var(--qt-border);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    0 18px 46px rgba(0, 0, 0, 0.4);
-  color: rgba(245, 248, 255, 0.92);
+    0 18px 46px var(--qt-glow);
+  color: var(--qt-text-primary);
 }
 
 .status {
@@ -16,17 +43,18 @@
   font-size: 0.92rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: rgba(220, 230, 255, 0.75);
+  color: var(--qt-text-muted);
 }
 
 .status.error {
-  color: rgba(255, 120, 120, 0.88);
+  color: rgba(220, 60, 80, 0.88);
 }
 
 .questions-table-container table {
   width: 100%;
   border-collapse: collapse;
   table-layout: fixed;
+  background-color: var(--qt-surface);
 }
 
 .questions-table-container th,
@@ -46,36 +74,67 @@
   text-transform: uppercase;
   letter-spacing: 0.1em;
   font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.92);
-  background: rgba(18, 28, 40, 0.92);
-  box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.12);
+  color: var(--qt-text-primary);
+  background: var(--qt-surface);
+  box-shadow: inset 0 -1px 0 var(--qt-border);
 }
 
 .questions-table-container td {
-  color: rgba(235, 240, 255, 0.86);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--qt-text-primary);
+  border-bottom: 1px solid var(--qt-border);
 }
 
-.questions-table-container tr:nth-child(even) td {
-  background: rgba(12, 18, 28, 0.45);
+.questions-table-container tbody tr {
+  background-color: var(--qt-row-odd);
 }
 
-.questions-table-container tr:nth-child(odd) td {
-  background: rgba(6, 10, 16, 0.4);
+.questions-table-container tbody tr:nth-child(even) {
+  background-color: var(--qt-row-even);
+}
+
+.questions-table-container tbody tr:nth-child(even) td,
+.questions-table-container tbody tr:nth-child(odd) td {
+  background-color: transparent;
 }
 
 .questions-table-container tr:hover td {
-  background: rgba(36, 60, 90, 0.55);
-  color: rgba(255, 255, 255, 0.98);
+  background-color: var(--qt-row-hover);
+  color: var(--qt-text-primary);
   transition: background 180ms ease, color 180ms ease;
 }
 
 :host ::ng-deep .mat-sort-header-arrow {
-  color: rgba(0, 255, 214, 0.65);
+  color: var(--qt-text-secondary);
 }
 
 :host ::ng-deep .mat-mdc-table .mdc-data-table__header-row {
   background: transparent;
+}
+
+:host-context(.dark-mode) ::ng-deep .mat-mdc-table,
+:host-context(.dark-theme) ::ng-deep .mat-mdc-table {
+  background-color: transparent !important;
+  color: var(--qt-text-primary);
+}
+
+:host-context(.dark-mode) ::ng-deep .mat-mdc-table .mdc-data-table__header-row,
+:host-context(.dark-theme) ::ng-deep .mat-mdc-table .mdc-data-table__header-row {
+  background-color: transparent !important;
+  color: var(--qt-text-primary);
+}
+
+:host-context(.dark-mode) ::ng-deep .mat-mdc-table .mdc-data-table__row,
+:host-context(.dark-theme) ::ng-deep .mat-mdc-table .mdc-data-table__row {
+  background-color: transparent !important;
+  color: inherit;
+}
+
+:host-context(.dark-mode) ::ng-deep .mat-mdc-table .mdc-data-table__header-cell,
+:host-context(.dark-theme) ::ng-deep .mat-mdc-table .mdc-data-table__header-cell,
+:host-context(.dark-mode) ::ng-deep .mat-mdc-table .mdc-data-table__cell,
+:host-context(.dark-theme) ::ng-deep .mat-mdc-table .mdc-data-table__cell {
+  background-color: transparent !important;
+  color: var(--qt-text-primary);
 }
 
 .questions-table-container::-webkit-scrollbar {
@@ -83,11 +142,11 @@
 }
 
 .questions-table-container::-webkit-scrollbar-track {
-  background: rgba(6, 8, 12, 0.4);
+  background: rgba(0, 0, 0, 0.08);
   border-radius: 999px;
 }
 
 .questions-table-container::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, rgba(80, 160, 255, 0.4), rgba(0, 255, 214, 0.35));
+  background: rgba(0, 0, 0, 0.2);
   border-radius: 999px;
 }
