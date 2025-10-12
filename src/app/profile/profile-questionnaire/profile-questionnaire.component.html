@@ -1,152 +1,185 @@
-<mat-tab-group>
-  <!-- TAB 1: Questionnaire -->
-  <mat-tab label="Fill Questionnaire">
-    <div class="profile-questionnaire" [class.loading]="isLoading">
-      <header class="profile-questionnaire__header">
-        <h1>Profile Questionnaire</h1>
-        <p>Tell us about your interview goals and experience so we can tailor recommendations that match your path.</p>
-      </header>
+<div class="profile-questionnaire" [class.loading]="isLoading">
+  <header class="profile-questionnaire__header">
+    <h1>Profile Questionnaire</h1>
+    <p>
+      Tell us about your interview goals and experience so we can tailor recommendations that match your path.
+    </p>
+  </header>
 
-      <section class="profile-questionnaire__content">
-        <!-- Button to toggle form visibility -->
-        <div *ngIf="!showForm">
-          <p>Do you want to fill the questionnaire?</p>
-          <button mat-raised-button color="primary" (click)="toggleForm(true)">Yes</button>
-          <button mat-raised-button color="warn" (click)="toggleForm(false)">No</button>
+  <section class="profile-questionnaire__tabs-container">
+    <nav class="profile-questionnaire__tabbar">
+      <button
+        type="button"
+        class="tabbar__button"
+        [class.tabbar__button--active]="activeTab === 'form'"
+        (click)="setActiveTab('form')"
+      >
+        Fill Questionnaire
+      </button>
+      <button
+        type="button"
+        class="tabbar__button"
+        [class.tabbar__button--active]="activeTab === 'profile'"
+        (click)="setActiveTab('profile')"
+      >
+        View Current Profile
+      </button>
+    </nav>
+
+    <section class="tab-content" *ngIf="activeTab === 'form'">
+      <form [formGroup]="questionnaireForm" (ngSubmit)="submit()">
+        <div class="form-grid">
+          <mat-form-field appearance="fill">
+            <mat-label>User ID</mat-label>
+            <input matInput formControlName="user_id" readonly />
+          </mat-form-field>
+
+          <mat-form-field appearance="fill">
+            <mat-label>Target Company</mat-label>
+            <mat-select formControlName="target_company" (selectionChange)="onCompanySelectionChange($event)">
+              <mat-option *ngFor="let company of predefinedCompanies" [value]="company">{{ company }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field *ngIf="isOtherCompanySelected" appearance="fill">
+            <mat-label>Other Company</mat-label>
+            <input matInput formControlName="other_company" placeholder="Type the company name" />
+          </mat-form-field>
+
+          <mat-form-field appearance="fill">
+            <mat-label>Desired Role</mat-label>
+            <input matInput formControlName="desired_role" placeholder="Backend Engineer, SDE II, ..." />
+          </mat-form-field>
+
+          <mat-form-field appearance="fill">
+            <mat-label>Desired Level</mat-label>
+            <input matInput formControlName="desired_level" placeholder="L4, Mid/Senior, IC4" />
+          </mat-form-field>
+
+          <mat-form-field appearance="fill">
+            <mat-label>Years of Experience</mat-label>
+            <input matInput type="number" formControlName="years_of_experience" min="0" />
+          </mat-form-field>
+
+          <mat-form-field appearance="fill">
+            <mat-label>Main Stack</mat-label>
+            <input matInput formControlName="main_stack" placeholder="Node.js, Java, React, ..." />
+          </mat-form-field>
+
+          <mat-form-field appearance="fill">
+            <mat-label>LeetCode Experience</mat-label>
+            <mat-select formControlName="leetcode_experience">
+              <mat-option value="not-familiar">Not Familiar</mat-option>
+              <mat-option value="beginner">Beginner - Just starting with coding challenges, solving easy problems.</mat-option>
+              <mat-option value="casual-solver">Casual Solver - Occasionally solves problems, mostly easy and some medium.</mat-option>
+              <mat-option value="intermediate">Intermediate - Regularly solves problems, comfortable with medium-level challenges.</mat-option>
+              <mat-option value="advanced">Advanced - Frequently solves problems, including hard-level challenges.</mat-option>
+              <mat-option value="expert">Expert - Mastery of problem-solving, consistently solves hard problems and participates in contests.</mat-option>
+              <mat-option value="competitive-programmer">Competitive Programmer - Actively participates in coding competitions and ranks well.</mat-option>
+              <mat-option value="problem-setter">Problem Setter - Creates problems for platforms like LeetCode or similar.</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill">
+            <mat-label>Interview Experience</mat-label>
+            <mat-select formControlName="interview_experience">
+              <mat-option value="first-timer">First-timer</mat-option>
+              <mat-option value="some-experience">Some experience</mat-option>
+              <mat-option value="frequent">Frequent interviewer</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill">
+            <mat-label>Country Target</mat-label>
+            <input matInput formControlName="country_target" placeholder="USA, Brazil, Germany, ..." />
+          </mat-form-field>
+
+          <mat-form-field appearance="fill">
+            <mat-label>Scheduled Interview</mat-label>
+            <input matInput formControlName="scheduled_interview" placeholder="Company / Date" />
+          </mat-form-field>
         </div>
 
-        <!-- Form appears only when showForm is true -->
-        <form *ngIf="showForm" [formGroup]="questionnaireForm" (ngSubmit)="submit()">
-          <div class="form-grid">
-            <mat-form-field appearance="fill">
-              <mat-label>User ID</mat-label>
-              <input matInput formControlName="user_id" readonly />
-            </mat-form-field>
-
-            <mat-form-field appearance="fill">
-              <mat-label>Target Company</mat-label>
-              <mat-select formControlName="target_company" (selectionChange)="onCompanySelectionChange($event)">
-                <mat-option *ngFor="let company of predefinedcompanies" [value]="company">{{ company }}</mat-option>
-              </mat-select>
-            </mat-form-field>
-
-            <mat-form-field *ngIf="isOtherCompanySelected" appearance="fill">
-              <mat-label>Other Company</mat-label>
-              <input matInput formControlName="other_company" placeholder="Type the company name" />
-            </mat-form-field>
-
-            <mat-form-field appearance="fill">
-              <mat-label>Desired Role</mat-label>
-              <input matInput formControlName="desired_role" placeholder="Backend Engineer, SDE II, ..." />
-            </mat-form-field>
-
-            <mat-form-field appearance="fill">
-              <mat-label>Desired Level</mat-label>
-              <input matInput formControlName="desired_level" placeholder="L4, Mid/Senior, IC4" />
-            </mat-form-field>
-
-            <mat-form-field appearance="fill">
-              <mat-label>Years of Experience</mat-label>
-              <input matInput type="number" formControlName="years_of_experience" min="0" />
-            </mat-form-field>
-
-            <mat-form-field appearance="fill">
-              <mat-label>Main Stack</mat-label>
-              <input matInput formControlName="main_stack" placeholder="Node.js, Java, React, ..." />
-            </mat-form-field>
-
-            <mat-form-field appearance="fill">
-              <mat-label>LeetCode Experience</mat-label>
-              <mat-select formControlName="leetcode_experience">
-                <mat-option value="not-familiar">Not Familiar</mat-option>
-                <mat-option value="beginner">Beginner - Just starting with coding challenges, solving easy problems.</mat-option>
-                <mat-option value="casual-solver">Casual Solver - Occasionally solves problems, mostly easy and some medium.</mat-option>
-                <mat-option value="intermediate">Intermediate - Regularly solves problems, comfortable with medium-level challenges.</mat-option>
-                <mat-option value="advanced">Advanced - Frequently solves problems, including hard-level challenges.</mat-option>
-                <mat-option value="expert">Expert - Mastery of problem-solving, consistently solves hard problems and participates in contests.</mat-option>
-                <mat-option value="competitive-programmer">Competitive Programmer - Actively participates in coding competitions and ranks well.</mat-option>
-                <mat-option value="problem-setter">Problem Setter - Creates problems for platforms like LeetCode or similar.</mat-option>
-              </mat-select>
-            </mat-form-field>
-
-            <mat-form-field appearance="fill">
-              <mat-label>Interview Experience</mat-label>
-              <mat-select formControlName="interview_experience">
-                <mat-option value="first-timer">First-timer</mat-option>
-                <mat-option value="some-experience">Some experience</mat-option>
-                <mat-option value="frequent">Frequent interviewer</mat-option>
-              </mat-select>
-            </mat-form-field>
-
-            <mat-form-field appearance="fill">
-              <mat-label>Country Target</mat-label>
-              <input matInput formControlName="country_target" placeholder="USA, Brazil, Germany, ..." />
-            </mat-form-field>
-
-            <mat-form-field appearance="fill">
-              <mat-label>Scheduled Interview</mat-label>
-              <input matInput formControlName="scheduled_interview" placeholder="Company / Date" />
-            </mat-form-field>
-          </div>
-
-          <section class="topics-section">
-            <h2>Topics Familiarity</h2>
-            <p>Select the areas you feel comfortable with.</p>
-            <div class="topics-grid">
-              <button
-                type="button"
-                class="topic-chip"
-                [class.topic-chip--selected]="isTopicSelected(topic)"
-                *ngFor="let topic of topicsOptions"
-                (click)="toggleTopic(topic)"
-              >
-                {{ topic }}
-              </button>
-            </div>
-          </section>
-
-          <div class="actions">
-            <button mat-raised-button color="primary" type="submit" [disabled]="isLoading">
-              {{ isLoading ? 'Saving...' : 'Save Profile' }}
+        <section class="topics-section">
+          <h2>Topics Familiarity</h2>
+          <p>Select the areas you feel comfortable with.</p>
+          <div class="topics-grid">
+            <button
+              type="button"
+              class="topic-chip"
+              [class.topic-chip--selected]="isTopicSelected(topic)"
+              *ngFor="let topic of topicsOptions"
+              (click)="toggleTopic(topic)"
+            >
+              {{ topic }}
             </button>
           </div>
-        </form>
-      </section>
-    </div>
-  </mat-tab>
+        </section>
 
-  <!-- TAB 2: Current Profile Info -->
-  <mat-tab label="View Current Profile">
-    <div class="profile-view" *ngIf="currentProfile; else noProfile">
-      <h2>Current Profile Information</h2>
-      <table class="profile-table">
-        <tr><th>User ID</th><td>{{ currentProfile.user_id }}</td></tr>
-        <tr><th>Target Company</th><td>{{ currentProfile.target_company }}</td></tr>
-        <tr><th>Desired Role</th><td>{{ currentProfile.desired_role }}</td></tr>
-        <tr><th>Desired Level</th><td>{{ currentProfile.desired_level }}</td></tr>
-        <tr><th>Years of Experience</th><td>{{ currentProfile.years_of_experience }}</td></tr>
-        <tr><th>Main Stack</th><td>{{ currentProfile.main_stack }}</td></tr>
-        <tr><th>LeetCode Experience</th><td>{{ currentProfile.leetcode_experience }}</td></tr>
-        <tr><th>Interview Experience</th><td>{{ currentProfile.interview_experience }}</td></tr>
-        <tr><th>Country Target</th><td>{{ currentProfile.country_target }}</td></tr>
-        <tr><th>Scheduled Interview</th><td>{{ currentProfile.scheduled_interview }}</td></tr>
-        <tr><th>Topics Familiarity</th>
-          <td>
-            <ul>
-              <li *ngFor="let topic of deserializeTopics(currentProfile.topics_familiarity)">
-                {{ topic }}
-              </li>
-            </ul>
-          </td>
-        </tr>
-        <tr><th>Profile Last Updated</th><td>{{ currentProfile.profile_last_updated | date:'medium' }}</td></tr>
-      </table>
-    </div>
+        <div class="actions">
+          <button mat-raised-button color="primary" type="submit" [disabled]="isLoading">
+            {{ isLoading ? 'Saving...' : 'Save Profile' }}
+          </button>
+        </div>
+      </form>
+    </section>
 
-    <ng-template #noProfile>
-      <p class="no-profile-msg">
-        No profile information found. Please complete the questionnaire first.
-      </p>
-    </ng-template>
-  </mat-tab>
-</mat-tab-group>
+    <section class="tab-content" *ngIf="activeTab === 'profile'">
+      <div class="profile-overview" *ngIf="currentProfile; else noProfile">
+        <dl>
+          <div class="profile-overview__row">
+            <dt>Target Company</dt>
+            <dd>{{ currentProfile.target_company }}</dd>
+          </div>
+          <div class="profile-overview__row">
+            <dt>Desired Role</dt>
+            <dd>{{ currentProfile.desired_role }}</dd>
+          </div>
+          <div class="profile-overview__row">
+            <dt>Desired Level</dt>
+            <dd>{{ currentProfile.desired_level }}</dd>
+          </div>
+          <div class="profile-overview__row">
+            <dt>Years of Experience</dt>
+            <dd>{{ currentProfile.years_of_experience }}</dd>
+          </div>
+          <div class="profile-overview__row">
+            <dt>Main Stack</dt>
+            <dd>{{ currentProfile.main_stack }}</dd>
+          </div>
+          <div class="profile-overview__row">
+            <dt>LeetCode Experience</dt>
+            <dd>{{ currentProfile.leetcode_experience }}</dd>
+          </div>
+          <div class="profile-overview__row">
+            <dt>Interview Experience</dt>
+            <dd>{{ currentProfile.interview_experience }}</dd>
+          </div>
+          <div class="profile-overview__row">
+            <dt>Country Target</dt>
+            <dd>{{ currentProfile.country_target }}</dd>
+          </div>
+          <div class="profile-overview__row">
+            <dt>Scheduled Interview</dt>
+            <dd>{{ currentProfile.scheduled_interview || 'N/A' }}</dd>
+          </div>
+          <div class="profile-overview__row">
+            <dt>Topics Familiarity</dt>
+            <dd>
+              <span class="topic-pill" *ngFor="let topic of currentTopics">{{ topic }}</span>
+            </dd>
+          </div>
+          <div class="profile-overview__row">
+            <dt>Last Updated</dt>
+            <dd>{{ currentProfile.profile_last_updated | date: 'medium' }}</dd>
+          </div>
+        </dl>
+      </div>
+      <ng-template #noProfile>
+        <div class="profile-overview__empty">
+          <p>No profile data saved yet. Fill in the questionnaire to get started.</p>
+        </div>
+      </ng-template>
+    </section>
+  </section>
+</div>

@@ -38,6 +38,40 @@
   grid-column: 1 / -1;
 }
 
+.completion-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-top: 0.2rem;
+}
+
+.completion-section__label {
+  font-size: 0.95rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(210, 225, 255, 0.75);
+}
+
+.completion-toggle {
+  display: inline-flex;
+  background: rgba(12, 20, 30, 0.55);
+  border-radius: 999px;
+  border: 1px solid rgba(0, 225, 255, 0.3);
+}
+
+.completion-toggle ::ng-deep .mat-button-toggle {
+  color: rgba(230, 235, 255, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border-radius: 999px;
+  transition: background 160ms ease, color 160ms ease;
+}
+
+.completion-toggle ::ng-deep .mat-button-toggle-checked {
+  background: linear-gradient(120deg, rgba(0, 225, 255, 0.24), rgba(110, 150, 255, 0.28));
+  color: rgba(255, 255, 255, 0.95);
+}
+
 mat-form-field {
   width: 100%;
   --mat-filled-field-background-color: rgba(12, 20, 30, 0.55);

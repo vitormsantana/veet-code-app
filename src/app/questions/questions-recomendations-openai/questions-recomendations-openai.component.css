@@ -52,6 +52,33 @@
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
+.recommendations-intro {
+  margin-top: 0.5rem;
+  margin-bottom: 0.8rem;
+  padding: 0.9rem 1.1rem;
+  border-radius: 0.85rem;
+  background: rgba(18, 24, 36, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(230, 236, 255, 0.85);
+  line-height: 1.6;
+}
+
+.recommendations-intro h3 {
+  margin: 0 0 0.6rem;
+  font-size: 1rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.recommendations-intro p {
+  margin: 0 0 0.6rem;
+}
+
+.recommendations-intro p:last-child {
+  margin-bottom: 0;
+}
+
 .recommendations-table table {
   width: 100%;
   min-width: 720px;
@@ -97,16 +124,24 @@
 }
 
 .recommendations-table .col-category {
-  width: 28%;
-  max-width: 28%;
+  width: 18%;
+  max-width: 18%;
 }
 
 .recommendations-table .col-question {
-  width: 32%;
+  width: 36%;
 }
 
 .recommendations-table .col-reason {
-  width: 56%;
+  width: 38%;
+}
+
+.recommendations-table .col-index {
+  width: 8%;
+  max-width: 8%;
+  text-align: center;
+  font-weight: 600;
+  color: rgba(0, 245, 214, 0.85);
 }
 
 .recommendations-table::-webkit-scrollbar {

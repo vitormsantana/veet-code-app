@@ -1,59 +1,58 @@
 <div class="question-shell">
-  <header class="question-shell__header">
-    <h2>Log a Cracked Challenge</h2>
-    <span class="question-shell__sub">Document the solve, capture the signal, and keep the streak lit.</span>
-  </header>
-
-  <form class="question-form" [formGroup]="questionForm" (ngSubmit)="submitForm()">
-    <div class="form-grid">
-      <mat-form-field appearance="fill">
-        <mat-label>Question Name</mat-label>
-        <input matInput formControlName="name" required />
-        <mat-error *ngIf="questionForm.controls['name'].hasError('required')">This field is required.</mat-error>
-      </mat-form-field>
-
-      <mat-form-field appearance="fill">
-        <mat-label>Difficulty</mat-label>
-        <mat-select formControlName="difficulty">
-          <mat-option value="Easy">Easy</mat-option>
-          <mat-option value="Medium">Medium</mat-option>
-          <mat-option value="Hard">Hard</mat-option>
-        </mat-select>
-      </mat-form-field>
-
-      <mat-form-field appearance="fill">
-        <mat-label>Cracked On</mat-label>
-        <input matInput formControlName="date" type="date" required />
-      </mat-form-field>
-
-      <mat-form-field appearance="fill">
-        <mat-label>Minutes To Solve</mat-label>
-        <input matInput type="number" formControlName="minutesTaken" min="1" required />
-        <mat-error *ngIf="questionForm.controls['minutesTaken'].hasError('required')">Enter the time spent in minutes.</mat-error>
-        <mat-error *ngIf="questionForm.controls['minutesTaken'].hasError('min')">Minutes must be greater than zero.</mat-error>
-      </mat-form-field>
-
-      <mat-form-field appearance="fill" class="form-grid__full">
-        <mat-label>Tags</mat-label>
-        <mat-select formControlName="tags" multiple required>
-          <mat-option *ngFor="let tag of availableTags" [value]="tag">{{ tag }}</mat-option>
-        </mat-select>
-      </mat-form-field>
-
-      <mat-form-field appearance="fill" class="form-grid__full">
-        <mat-label>Observations (optional)</mat-label>
-        <textarea matInput formControlName="observation" rows="3"></textarea>
-        <mat-hint align="end">{{ questionForm.controls['observation'].value?.length || 0 }}/1000</mat-hint>
-        <mat-error *ngIf="questionForm.controls['observation'].hasError('maxlength')">
+<header class="question-shell__header">
+<h2>Log a Cracked Challenge</h2>
+<span class="question-shell__sub">Document the solve, capture the signal, and keep the streak lit.</span>
+</header>
+<form (ngSubmit)="submitForm()" [formGroup]="questionForm" class="question-form">
+<div class="form-grid">
+<mat-form-field appearance="fill">
+<mat-label>Question Name</mat-label>
+<input formControlName="name" matInput="" required=""/>
+<mat-error *ngIf="questionForm.controls['name'].hasError('required')">This field is required.</mat-error>
+</mat-form-field>
+<mat-form-field appearance="fill">
+<mat-label>Difficulty</mat-label>
+<mat-select formControlName="difficulty">
+<mat-option value="Easy">Easy</mat-option>
+<mat-option value="Medium">Medium</mat-option>
+<mat-option value="Hard">Hard</mat-option>
+</mat-select>
+</mat-form-field>
+<mat-form-field appearance="fill">
+<mat-label>Scheduled Date</mat-label>
+<input formControlName="date" matInput="" required="" type="date"/>
+</mat-form-field>
+<mat-form-field appearance="fill">
+<mat-label>Minutes To Solve</mat-label>
+<input formControlName="minutesTaken" matInput="" min="1" required="" type="number"/>
+<mat-error *ngIf="questionForm.controls['minutesTaken'].hasError('required')">Enter the time spent in minutes.</mat-error>
+<mat-error *ngIf="questionForm.controls['minutesTaken'].hasError('min')">Minutes must be greater than zero.</mat-error>
+</mat-form-field>
+<mat-form-field appearance="fill" class="form-grid__full">
+<mat-label>Tags</mat-label>
+<mat-select formControlName="tags" multiple="" required="">
+<mat-option *ngfor="let tag of availableTags" [value]="tag">{{ tag }}</mat-option>
+</mat-select>
+</mat-form-field>
+<mat-form-field appearance="fill" class="form-grid__full">
+<mat-label>Observations (optional)</mat-label>
+<textarea formControlName="observation" matInput="" rows="3"></textarea>
+<mat-hint align="end">{{ questionForm.controls['observation'].value?.length || 0 }}/1000</mat-hint>
+<mat-error *ngIf="questionForm.controls['observation'].hasError('maxlength')">
           Observations must be at most 1000 characters.
         </mat-error>
-      </mat-form-field>
-    </div>
-
-    <mat-checkbox formControlName="neededHelp" class="needed-help-checkbox">
+</mat-form-field>
+</div>
+<section class="completion-section">
+<label class="completion-section__label">Exercise Outcome</label>
+<mat-button-toggle-group aria-label="Exercise completion status" class="completion-toggle" formControlName="crackedExercise" name="crackedExercise">
+<mat-button-toggle value="completed">Completed</mat-button-toggle>
+<mat-button-toggle value="gave_up">Gave up</mat-button-toggle>
+</mat-button-toggle-group>
+</section>
+<mat-checkbox class="needed-help-checkbox" formControlName="neededHelp">
       I tapped assistance to finish this question
     </mat-checkbox>
-
-    <button mat-raised-button type="submit" [disabled]="questionForm.invalid">Add Question</button>
-  </form>
+<button [disabled]="questionForm.invalid" mat-raised-button="" type="submit">Add Question</button>
+</form>
 </div>

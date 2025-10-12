@@ -35,6 +35,7 @@ export class QuestionComponent {
       tags: new FormControl([], Validators.required),
       minutesTaken: new FormControl<number | null>(null, [Validators.required, Validators.min(1)]),
       neededHelp: new FormControl(false),
+      crackedExercise: new FormControl<'completed' | 'gave_up'>('completed', Validators.required),
       observation: new FormControl('', Validators.maxLength(1000))
     });
   }
@@ -52,10 +53,20 @@ export class QuestionComponent {
       return;
     }
 
-    const formValue = this.questionForm.value;
+    const formValue = this.questionForm.value as {
+      name: string;
+      difficulty: string;
+      date: string;
+      tags: string[];
+      minutesTaken: number;
+      neededHelp: boolean;
+      crackedExercise: 'completed' | 'gave_up';
+      observation: string;
+    };
     const formattedDate = this.formatDate(formValue.date as string);
     const minutesTaken = Number(formValue.minutesTaken);
     const observation = typeof formValue.observation === 'string' ? formValue.observation.trim() : '';
+    const crackedExercise = formValue.crackedExercise === 'completed';
 
     const payload: SubmissionPayload = {
       name: formValue.name,
@@ -64,6 +75,7 @@ export class QuestionComponent {
       tags: Array.isArray(formValue.tags) ? formValue.tags : [],
       minutes_taken: minutesTaken,
       needed_help: !!formValue.neededHelp,
+      cracked_exercise: crackedExercise,
       obs: observation
     };
 
@@ -98,7 +110,8 @@ export class QuestionComponent {
   private showSubmissionNotification(payload: SubmissionPayload): void {
     const minutes = payload.minutes_taken ? `${payload.minutes_taken} min` : '—';
     const help = payload.needed_help ? 'Help: Yes' : 'Help: No';
-    const details = [payload.date || 'Date: —', minutes, help].join(' • ');
+    const status = payload.cracked_exercise ? 'Completed' : 'Gave up';
+    const details = [payload.date || 'Date: —', minutes, help, `Status: ${status}`].join(' • ');
     const observationDetail = payload.obs ? `Observation: ${payload.obs}` : 'Observation: —';
     const message = `${payload.name} (${payload.difficulty}) • ${details} • ${observationDetail}`;
 
@@ -133,5 +146,6 @@ interface SubmissionPayload {
   tags: string[];
   minutes_taken: number;
   needed_help: boolean;
+  cracked_exercise: boolean;
   obs: string;
 }

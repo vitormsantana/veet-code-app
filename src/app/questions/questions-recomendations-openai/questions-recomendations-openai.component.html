@@ -11,15 +11,22 @@
   </div>
 
   <!-- Rendered Recommendations -->
+  <div *ngIf="!isLoading && recommendationsIntro.length" class="recommendations-intro">
+    <h3>Personalized Summary</h3>
+    <p *ngFor="let line of recommendationsIntro">{{ line }}</p>
+  </div>
+
   <div *ngIf="!isLoading && parsedRecommendations.length" class="recommendations-table">
     <table>
       <colgroup>
+        <col class="col-index" />
         <col class="col-category" />
         <col class="col-question" />
         <col class="col-reason" />
       </colgroup>
       <thead>
         <tr>
+          <th>#</th>
           <th>Category</th>
           <th>Question</th>
           <th>Reason</th>
@@ -27,6 +34,7 @@
       </thead>
       <tbody>
         <tr *ngFor="let rec of parsedRecommendations">
+          <td class="col-index">{{ rec.index }}</td>
           <td class="col-category">{{ rec.category }}</td>
           <td class="col-question">{{ rec.question }}</td>
           <td class="col-reason">{{ rec.reason }}</td>

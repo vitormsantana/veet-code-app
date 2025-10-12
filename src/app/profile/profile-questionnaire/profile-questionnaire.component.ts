@@ -4,7 +4,6 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subject, takeUntil } from 'rxjs';
 import { ProfileQuestionnairePayload, ProfileQuestionnaireService } from './profile-questionnaire.service';
 import { AuthService } from '../../auth/auth.service';
-import { MatTabsModule } from '@angular/material/tabs';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -17,9 +16,9 @@ import { MatSelectModule } from '@angular/material/select';
   standalone: false,
 })
 export class ProfileQuestionnaireComponent implements OnInit, OnDestroy {
-  showForm = false; 
   questionnaireForm: FormGroup;
   isLoading = false;
+  activeTab: 'form' | 'profile' = 'form';
   private readonly destroy$ = new Subject<void>();
 
   readonly topicsOptions = [
@@ -42,6 +41,7 @@ export class ProfileQuestionnaireComponent implements OnInit, OnDestroy {
     this.questionnaireForm = this.fb.group({
       user_id: [{ value: '', disabled: true }, Validators.required],
       target_company: ['', Validators.required],
+      other_company: [''],
       desired_role: ['', Validators.required],
       desired_level: ['', Validators.required],
       years_of_experience: [0, [Validators.required, Validators.min(0)]],
@@ -110,10 +110,12 @@ export class ProfileQuestionnaireComponent implements OnInit, OnDestroy {
   }
 
   currentProfile: ProfileQuestionnairePayload | null = null;
+  predefinedCompanies = ['Amazon', 'Google', 'Microsoft', 'Meta', 'Netflix', 'Apple', 'NVIDIA', 'Uber', 'Other'];
+  isOtherCompanySelected = false;
 
   private loadExistingProfile(): void {
     this.isLoading = true;
-  
+
     this.profileService
       .fetchProfile()
       .pipe(takeUntil(this.destroy$))
@@ -123,10 +125,19 @@ export class ProfileQuestionnaireComponent implements OnInit, OnDestroy {
           if (profile) {
             this.currentProfile = profile;
             const { topics_familiarity, ...rest } = profile;
+            const topics = this.deserializeTopics(topics_familiarity);
+            const isPredefined = this.predefinedCompanies.includes(rest.target_company);
+            const isOther = !isPredefined;
+
             this.questionnaireForm.patchValue({
               ...rest,
-              topics_familiarity: this.deserializeTopics(topics_familiarity),
+              target_company: isOther ? 'Other' : rest.target_company,
+              other_company: isOther ? rest.target_company : '',
+              topics_familiarity: topics,
             });
+
+            this.isOtherCompanySelected = isOther;
+            this.activeTab = 'profile';
           }
         },
         error: () => {
@@ -139,9 +150,11 @@ export class ProfileQuestionnaireComponent implements OnInit, OnDestroy {
 
   private composePayload(): ProfileQuestionnairePayload {
     const raw = this.questionnaireForm.getRawValue();
+    const otherCompany = raw.other_company?.trim();
+    const targetCompany = raw.target_company === 'Other' && otherCompany ? otherCompany : raw.target_company;
     return {
       user_id: raw.user_id,
-      target_company: raw.target_company,
+      target_company: targetCompany,
       desired_role: raw.desired_role,
       desired_level: raw.desired_level,
       years_of_experience: Number(raw.years_of_experience ?? 0),
@@ -175,14 +188,23 @@ export class ProfileQuestionnaireComponent implements OnInit, OnDestroy {
     return topics.includes(topic);
   }
 
-  predefinedcompanies = ['Amazon', 'Google', 'Microsoft', 'Meta', 'Netflix', 'Apple', 'NVIDIA', 'Uber', 'Other'];
-  isOtherCompanySelected = false;
-
   onCompanySelectionChange(event: any): void {
+    const otherControl = this.questionnaireForm.get('other_company');
     this.isOtherCompanySelected = event.value === 'Other';
+    if (this.isOtherCompanySelected) {
+      otherControl?.setValidators([Validators.required]);
+    } else {
+      otherControl?.clearValidators();
+      otherControl?.setValue('');
+    }
+    otherControl?.updateValueAndValidity();
   }
 
-  toggleForm(show: boolean): void {
-    this.showForm = show;
+  setActiveTab(tab: 'form' | 'profile'): void {
+    this.activeTab = tab;
+  }
+
+  get currentTopics(): string[] {
+    return this.deserializeTopics(this.currentProfile?.topics_familiarity ?? []);
   }
 }
