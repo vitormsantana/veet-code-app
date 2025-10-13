@@ -237,7 +237,7 @@ export class QuestionComponent implements OnDestroy {
 
     this.isSubmittingFeedback = true;
 
-    const feedbackUrl = `${this.apiBaseUrl}/add_feedback_for_recomendation`;
+    const feedbackUrl = `${this.apiBaseUrl}/create_feedback_for_recomendation`;
 
     this.http.post(feedbackUrl, payload, { headers }).subscribe({
       next: () => {

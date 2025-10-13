@@ -137,7 +137,7 @@ describe('QuestionComponent', () => {
     component.submitFeedback();
     tick();
 
-    const feedbackReq = httpMock.expectOne(/add_feedback_for_recomendation$/);
+    const feedbackReq = httpMock.expectOne(/create_feedback_for_recomendation$/);
     expect(feedbackReq.request.method).toBe('POST');
     expect(feedbackReq.request.body).toEqual({
       recomendation_id: 'rec-123',
@@ -183,7 +183,7 @@ describe('QuestionComponent', () => {
         verticalPosition: 'top'
       })
     );
-    httpMock.expectNone(/add_feedback_for_recomendation$/);
+    httpMock.expectNone(/create_feedback_for_recomendation$/);
     expect(component.isSubmittingFeedback).toBeFalse();
   }));
 });
