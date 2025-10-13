@@ -1,22 +1,28 @@
 <div class="questions-page">
-  <header class="questions-hero">
-    <div class="questions-hero__content">
+  <div class="questions-toolbar">
+    <div class="questions-toolbar__copy">
       <h1>Questions Orbit</h1>
-      <p>
-        Launch new prompts, map AI recommendations, and track your study signals in one neon-lit control room.
-      </p>
-      <button mat-raised-button class="return-home-button" routerLink="/">Return to Landing</button>
+      <p>Launch new prompts, map AI recommendations, and track your study signals in one neon-lit control room.</p>
     </div>
-    <div class="questions-hero__recommendations">
-      <article class="module-card module-card--recommendations hero-recommendations">
-        <div class="module-card__header">
-          <h2>Neon Suggestions</h2>
-          <span class="module-card__sub">AI-curated prompts tuned to your focus lane.</span>
-        </div>
-        <app-questions-recomendations-openai class="card-content"></app-questions-recomendations-openai>
-      </article>
-    </div>
-    <div class="questions-hero__accent"></div>
+    <button mat-stroked-button class="return-home-button" routerLink="/">Return to Landing</button>
+  </div>
+
+  <header class="questions-hero">
+    <article class="module-card module-card--hero">
+      <div class="module-card__header">
+        <h2>Neon Suggestions</h2>
+        <span class="module-card__sub">AI-curated prompts tuned to your focus lane.</span>
+      </div>
+      <app-questions-recomendations-openai class="card-content"></app-questions-recomendations-openai>
+    </article>
+
+    <article class="module-card module-card--hero module-card--feedback">
+      <div class="module-card__header">
+        <h2>Recommendation Feedback</h2>
+        <span class="module-card__sub">Close the loop on the latest coaching pulse.</span>
+      </div>
+      <app-question-feedback class="card-content"></app-question-feedback>
+    </article>
   </header>
 
   <section class="module-wide module-wide--top">

@@ -1,0 +1,46 @@
+<section class="feedback-shell" role="region" aria-label="Recommendation feedback form">
+  <ng-container *ngIf="!isWaitingForRecommendation; else waitingForRecommendation">
+    <div class="feedback-container">
+      <div class="feedback-context">
+        <span class="feedback-context__label">Recommendation ID</span>
+        <code class="feedback-context__value">{{ latestRecommendationId }}</code>
+      </div>
+
+      <form (ngSubmit)="submitFeedback()" [formGroup]="feedbackForm" class="feedback-form">
+        <div class="feedback-grid">
+          <div class="feedback-choice">
+            <label class="feedback-choice__label">Overall Feedback</label>
+            <mat-button-toggle-group formControlName="feedbackValue" name="feedbackValue" class="feedback-toggle" aria-label="Recommendation feedback tone">
+              <mat-button-toggle *ngFor="let option of feedbackOptions" [value]="option.value">
+                {{ option.label }}
+              </mat-button-toggle>
+            </mat-button-toggle-group>
+            <div class="feedback-error" *ngIf="feedbackForm.controls['feedbackValue'].invalid && feedbackForm.controls['feedbackValue'].touched">
+              Select positive or negative feedback.
+            </div>
+          </div>
+        </div>
+
+        <mat-form-field appearance="fill" class="feedback-comment">
+          <mat-label>Comment (optional)</mat-label>
+          <textarea matInput formControlName="comment" rows="3" placeholder="Leave a quick note..."></textarea>
+          <mat-hint align="end">{{ feedbackForm.controls['comment'].value?.length || 0 }}/500</mat-hint>
+          <mat-error *ngIf="feedbackForm.controls['comment'].hasError('maxlength')">
+            Comments must be at most 500 characters.
+          </mat-error>
+        </mat-form-field>
+
+        <button mat-stroked-button class="feedback-submit" type="submit" [disabled]="feedbackForm.invalid || isSubmitting || !latestRecommendationId">
+          Submit Feedback
+        </button>
+      </form>
+    </div>
+  </ng-container>
+
+  <ng-template #waitingForRecommendation>
+    <div class="feedback-container feedback-loading" aria-live="polite">
+      <p class="feedback-loading__text">recomendarions loading wait plese</p>
+      <div class="feedback-spinner" aria-hidden="true"></div>
+    </div>
+  </ng-template>
+</section>

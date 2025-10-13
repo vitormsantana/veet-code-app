@@ -3,6 +3,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { QuestionComponent } from './questions/question/question.component';
+import { QuestionFeedbackComponent } from './questions/question-feedback/question-feedback.component';
 import { QuestionsTableComponent } from './questions/questions-table/questions-table.component';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -41,6 +42,7 @@ import { MatTabsModule } from '@angular/material/tabs'; // ✅ NEW IMPORT
   declarations: [
     AppComponent,
     QuestionComponent,
+    QuestionFeedbackComponent,
     QuestionsTableComponent,
     QuestionsStatsComponent,
     StudyComponent,
@@ -76,7 +78,7 @@ import { MatTabsModule } from '@angular/material/tabs'; // ✅ NEW IMPORT
     MatSelectModule,
     MatSnackBarModule,
     MatCheckboxModule,
-    MatTabsModule, // ✅ add this for <mat-tab-group>
+    MatTabsModule // ✅ add this for <mat-tab-group>
   ],
   providers: [
     provideAnimationsAsync(),

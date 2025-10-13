@@ -55,39 +55,4 @@
     </mat-checkbox>
 <button [disabled]="questionForm.invalid" mat-raised-button="" type="submit">Add Question</button>
 </form>
-<section class="feedback-shell">
-<header class="feedback-shell__header">
-<h3>Feedback On Recommendations</h3>
-<span class="feedback-shell__sub">Let us know if the suggestions are on target.</span>
-</header>
-<form (ngSubmit)="submitFeedback()" [formGroup]="feedbackForm" class="feedback-form">
-<div class="feedback-grid">
-<div class="feedback-context">
-<span class="feedback-context__label">Recommendation ID</span>
-<ng-container *ngIf="latestRecommendationId; else noRecommendation">
-<code class="feedback-context__value">{{ latestRecommendationId }}</code>
-</ng-container>
-</div>
-<ng-template #noRecommendation>
-<p class="feedback-context__empty">Recommendations will appear here after you fetch new suggestions.</p>
-</ng-template>
-<div class="feedback-choice">
-<label class="feedback-choice__label">Overall Feedback</label>
-<mat-button-toggle-group aria-label="Recommendation feedback" class="feedback-toggle" formControlName="feedbackValue" name="feedbackValue">
-<mat-button-toggle *ngFor="let option of feedbackOptions" [value]="option.value">{{ option.label }}</mat-button-toggle>
-</mat-button-toggle-group>
-<div class="feedback-error" *ngIf="feedbackForm.controls['feedbackValue'].invalid && feedbackForm.controls['feedbackValue'].touched">Select positive or negative feedback.</div>
-</div>
-</div>
-<mat-form-field appearance="fill" class="feedback-comment">
-<mat-label>Comment (optional)</mat-label>
-<textarea formControlName="comment" matInput="" rows="3"></textarea>
-<mat-hint align="end">{{ feedbackForm.controls['comment'].value?.length || 0 }}/500</mat-hint>
-<mat-error *ngIf="feedbackForm.controls['comment'].hasError('maxlength')">
-        Comments must be at most 500 characters.
-      </mat-error>
-</mat-form-field>
-<button [disabled]="feedbackForm.invalid || isSubmittingFeedback || !latestRecommendationId" class="feedback-submit" mat-stroked-button="" type="submit">Submit Feedback</button>
-</form>
-</section>
 </div>
