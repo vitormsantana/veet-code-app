@@ -16,17 +16,30 @@
     <p *ngFor="let line of recommendationsIntro">{{ line }}</p>
   </div>
 
+  <div *ngIf="!isLoading && (recommendationId || relatedMetricId)" class="recommendations-meta">
+    <div *ngIf="recommendationId" class="recommendations-meta__item">
+      <span class="recommendations-meta__label">Recommendation ID</span>
+      <code>{{ recommendationId }}</code>
+    </div>
+    <div *ngIf="relatedMetricId" class="recommendations-meta__item">
+      <span class="recommendations-meta__label">Metric ID</span>
+      <code>{{ relatedMetricId }}</code>
+    </div>
+  </div>
+
   <div *ngIf="!isLoading && parsedRecommendations.length" class="recommendations-table">
     <table>
       <colgroup>
-        <col class="col-index" />
-        <col class="col-category" />
-        <col class="col-question" />
-        <col class="col-reason" />
+      <col class="col-index" />
+      <col class="col-rec-id" />
+      <col class="col-category" />
+      <col class="col-question" />
+      <col class="col-reason" />
       </colgroup>
       <thead>
         <tr>
           <th>#</th>
+          <th>ID</th>
           <th>Category</th>
           <th>Question</th>
           <th>Reason</th>
@@ -35,6 +48,10 @@
       <tbody>
         <tr *ngFor="let rec of parsedRecommendations">
           <td class="col-index">{{ rec.index }}</td>
+          <td class="col-rec-id">
+            <code *ngIf="rec.recommendationId; else noRecId">{{ rec.recommendationId }}</code>
+            <ng-template #noRecId>—</ng-template>
+          </td>
           <td class="col-category">{{ rec.category }}</td>
           <td class="col-question">{{ rec.question }}</td>
           <td class="col-reason">{{ rec.reason }}</td>

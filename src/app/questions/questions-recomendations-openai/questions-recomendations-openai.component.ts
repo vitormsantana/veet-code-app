@@ -1,12 +1,14 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
-import { QuestionsRecomendationsOpenaiService } from './questions-recomendations-openai.service';
+import { QuestionsRecomendationsOpenaiService, QuestionRecommendation } from './questions-recomendations-openai.service';
 
 interface RecommendationRow {
   index: number;
   category: string;
   question: string;
   reason: string;
+  recommendationId?: string;
+  metricId?: string;
 }
 
 @Component({
@@ -19,6 +21,8 @@ export class QuestionsRecomendationsOpenaiComponent implements OnInit, OnDestroy
   rawRecommendations = '';
   parsedRecommendations: RecommendationRow[] = [];
   recommendationsIntro: string[] = [];
+  relatedMetricId: string | null = null;
+  recommendationId: string | null = null;
   isLoading = false;
   error: string | null = null;
   private readonly destroy$ = new Subject<void>();
@@ -42,12 +46,30 @@ export class QuestionsRecomendationsOpenaiComponent implements OnInit, OnDestroy
       .getRecommendations()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (response) => {
-          const raw = (response?.suggestions ?? '').replace(/\r\n/g, '\n').trim();
-          this.rawRecommendations = raw;
-          const parsed = this.parseRecommendations(raw);
-          this.recommendationsIntro = parsed.intro;
-          this.parsedRecommendations = parsed.rows;
+        next: (response: QuestionRecommendation) => {
+          const structured = response?.recommendations ?? [];
+          this.relatedMetricId = response?.metric_id ?? structured[0]?.metric_id ?? null;
+          this.recommendationId = response?.recommendation_id ?? structured[0]?.recommendation_id ?? null;
+
+          if (structured.length) {
+            this.parsedRecommendations = structured.map((rec, idx) => ({
+              index: idx + 1,
+              category: rec.category ?? 'General',
+              question: rec.question ?? rec.question_title ?? `Recommendation ${idx + 1}`,
+              reason: rec.reason ?? '—',
+              recommendationId: rec.recommendation_id,
+              metricId: rec.metric_id ?? response?.metric_id ?? ''
+            }));
+            this.recommendationsIntro = [];
+            this.rawRecommendations = response?.suggestions ?? '';
+          } else {
+            const raw = (response?.suggestions ?? '').replace(/\r\n/g, '\n').trim();
+            this.rawRecommendations = raw;
+            const parsed = this.parseRecommendations(raw);
+            this.recommendationsIntro = parsed.intro;
+            this.parsedRecommendations = parsed.rows;
+          }
+
           this.isLoading = false;
         },
         error: (error) => {

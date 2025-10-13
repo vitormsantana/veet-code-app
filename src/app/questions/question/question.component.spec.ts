@@ -5,9 +5,31 @@ import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { AuthService } from '../../auth/auth.service';
+import { BehaviorSubject } from 'rxjs';
 
 import { QuestionComponent } from './question.component';
 import { QuestionsRefreshService } from '../questions-refresh.service';
+import { QuestionsRecomendationsOpenaiService } from '../questions-recomendations-openai/questions-recomendations-openai.service';
+
+class QuestionsRecomendationsOpenaiServiceStub {
+  private readonly recommendationsSubject = new BehaviorSubject<Array<{ recommendation_id: string; question?: string; category?: string }>>([]);
+  private readonly recommendationIdSubject = new BehaviorSubject<string | null>(null);
+  recommendations$ = this.recommendationsSubject.asObservable();
+  recommendationId$ = this.recommendationIdSubject.asObservable();
+
+  getLatestRecommendationsSnapshot() {
+    return this.recommendationsSubject.getValue();
+  }
+
+  getLatestRecommendationId() {
+    return this.recommendationIdSubject.getValue();
+  }
+
+  emit(recommendations: Array<{ recommendation_id: string; question?: string; category?: string }>) {
+    this.recommendationsSubject.next(recommendations);
+    this.recommendationIdSubject.next(recommendations[0]?.recommendation_id ?? null);
+  }
+}
 
 describe('QuestionComponent', () => {
   let component: QuestionComponent;
@@ -30,7 +52,10 @@ describe('QuestionComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [QuestionComponent],
       imports: [ReactiveFormsModule, HttpClientTestingModule, MatSnackBarModule, NoopAnimationsModule],
-      providers: [{ provide: AuthService, useValue: authServiceSpy }],
+      providers: [
+        { provide: AuthService, useValue: authServiceSpy },
+        { provide: QuestionsRecomendationsOpenaiService, useClass: QuestionsRecomendationsOpenaiServiceStub }
+      ],
       schemas: [NO_ERRORS_SCHEMA]
     })
     .compileComponents();
@@ -40,6 +65,11 @@ describe('QuestionComponent', () => {
     refreshService = TestBed.inject(QuestionsRefreshService);
     httpMock = TestBed.inject(HttpTestingController);
     snackBar = TestBed.inject(MatSnackBar);
+    const recommendationsService = TestBed.inject(QuestionsRecomendationsOpenaiService) as unknown as QuestionsRecomendationsOpenaiServiceStub;
+    recommendationsService.emit([
+      { recommendation_id: 'rec-123', question: 'Longest Common Subsequence', category: 'Dynamic Programming' },
+      { recommendation_id: 'rec-456', question: 'Binary Search Variants', category: 'Binary Search' }
+    ]);
     spyOn(refreshService, 'triggerRefresh');
     spyOn(snackBar, 'open');
     fixture.detectChanges();
@@ -54,6 +84,7 @@ describe('QuestionComponent', () => {
   });
 
   it('should trigger refresh when a question is successfully submitted', fakeAsync(() => {
+    snackBar.open.calls.reset();
     component.questionForm.setValue({
       name: 'Two Sum',
       difficulty: 'Easy',
@@ -94,5 +125,65 @@ describe('QuestionComponent', () => {
         verticalPosition: 'top'
       })
     );
+  }));
+
+  it('should submit recommendation feedback', fakeAsync(() => {
+    snackBar.open.calls.reset();
+    component.feedbackForm.patchValue({
+      feedbackValue: 1,
+      comment: 'Loved this tip!'
+    });
+
+    component.submitFeedback();
+    tick();
+
+    const feedbackReq = httpMock.expectOne(/add_feedback_for_recomendation$/);
+    expect(feedbackReq.request.method).toBe('POST');
+    expect(feedbackReq.request.body).toEqual({
+      recomendation_id: 'rec-123',
+      feedback_value: 1,
+      feedback_comment: 'Loved this tip!'
+    });
+    feedbackReq.flush({ message: 'stored' });
+
+    tick();
+
+    expect(snackBar.open).toHaveBeenCalledWith(
+      'Thanks for the feedback!',
+      'Dismiss',
+      jasmine.objectContaining({
+        duration: 5000,
+        horizontalPosition: 'right',
+        verticalPosition: 'top'
+      })
+    );
+    expect(component.feedbackForm.get('feedbackValue')?.value).toBeNull();
+    expect(component.feedbackForm.get('comment')?.value).toBeNull();
+    expect(component['latestRecommendationId']).toBe('rec-123');
+    expect(component.isSubmittingFeedback).toBeFalse();
+  }));
+
+  it('should block feedback submission when no recommendation id is available', fakeAsync(() => {
+    const recommendationsService = TestBed.inject(QuestionsRecomendationsOpenaiService) as unknown as QuestionsRecomendationsOpenaiServiceStub;
+    recommendationsService.emit([]);
+    fixture.detectChanges();
+
+    snackBar.open.calls.reset();
+    component.feedbackForm.patchValue({ feedbackValue: 1, comment: 'Test' });
+
+    component.submitFeedback();
+    tick();
+
+    expect(snackBar.open).toHaveBeenCalledWith(
+      'No recommendation available to review yet.',
+      'Dismiss',
+      jasmine.objectContaining({
+        duration: 5000,
+        horizontalPosition: 'right',
+        verticalPosition: 'top'
+      })
+    );
+    httpMock.expectNone(/add_feedback_for_recomendation$/);
+    expect(component.isSubmittingFeedback).toBeFalse();
   }));
 });

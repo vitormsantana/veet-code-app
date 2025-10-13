@@ -1,10 +1,13 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../../auth/auth.service';
 import { QuestionsRefreshService } from '../questions-refresh.service';
+import { QuestionsRecomendationsOpenaiService } from '../questions-recomendations-openai/questions-recomendations-openai.service';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-question',
@@ -13,20 +16,29 @@ import { QuestionsRefreshService } from '../questions-refresh.service';
   styleUrls: ['./question.component.css']
 })
 
-export class QuestionComponent {
+export class QuestionComponent implements OnDestroy {
   questionForm: FormGroup;
+  feedbackForm: FormGroup;
   private readonly apiBaseUrl = environment.apiBaseUrl;
   private readonly notificationDurationMs = 5000;
+  private readonly destroy$ = new Subject<void>();
 
   availableTags = ['Arrays', 'Backtracking', 'String', 'Binary Search', 'Hash Tables', 'Linked Lists', 'Two Pointers', 'Sliding Window',
     'Stacks', 'Queues', 'Heaps', 'Recursion' , 'Tree', 'BST', 'Binary Tree', 'BFS', 'DFS', 'Sets', 'Sort',
     'Dynamic Programming', 'Memoization','Graph', 'Math', 'Greedy'];
+  feedbackOptions = [
+    { label: 'Positive', value: 1 },
+    { label: 'Negative', value: -1 }
+  ];
+  isSubmittingFeedback = false;
+  latestRecommendationId: string | null = null;
 
   constructor(
     private http: HttpClient,
     private authService: AuthService,
     private questionsRefreshService: QuestionsRefreshService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private recommendationsService: QuestionsRecomendationsOpenaiService
   ) {
     this.questionForm = new FormGroup({
       name: new FormControl('', Validators.required),
@@ -38,6 +50,32 @@ export class QuestionComponent {
       crackedExercise: new FormControl<'completed' | 'gave_up'>('completed', Validators.required),
       observation: new FormControl('', Validators.maxLength(1000))
     });
+
+    this.feedbackForm = new FormGroup({
+      feedbackValue: new FormControl<number | null>(null, Validators.required),
+      comment: new FormControl('', Validators.maxLength(500))
+    });
+
+    this.latestRecommendationId = this.recommendationsService.getLatestRecommendationId();
+
+    const snapshot = this.recommendationsService.getLatestRecommendationsSnapshot();
+    if (!this.latestRecommendationId && Array.isArray(snapshot) && snapshot.length) {
+      this.latestRecommendationId = snapshot[0]?.recommendation_id ?? null;
+    }
+
+    this.recommendationsService.recommendations$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((recommendations) => {
+        if (Array.isArray(recommendations) && recommendations.length && !this.latestRecommendationId) {
+          this.latestRecommendationId = recommendations[0]?.recommendation_id ?? null;
+        }
+      });
+
+    this.recommendationsService.recommendationId$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((id) => {
+        this.latestRecommendationId = id ?? null;
+      });
   }
 
   async submitForm() {
@@ -98,6 +136,11 @@ export class QuestionComponent {
     });
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   // Helper function to format the date
   formatDate(date: string | null | undefined): string {
     if (!date) {
@@ -153,6 +196,75 @@ export class QuestionComponent {
       }
     });
   }
+
+  async submitFeedback(): Promise<void> {
+    if (this.feedbackForm.invalid) {
+      this.feedbackForm.markAllAsTouched();
+      return;
+    }
+
+    const session = await this.authService.ensureValidSession();
+
+    if (!session || !session.accessToken) {
+      this.showLoginRequiredNotification();
+      return;
+    }
+
+    if (!this.latestRecommendationId) {
+      this.snackBar.open('No recommendation available to review yet.', 'Dismiss', {
+        duration: this.notificationDurationMs,
+        horizontalPosition: 'right',
+        verticalPosition: 'top'
+      });
+      return;
+    }
+
+    const headers = new HttpHeaders({
+      Authorization: `${session.tokenType || 'Bearer'} ${session.idToken}`
+    });
+
+    const { feedbackValue, comment } = this.feedbackForm.value;
+    const trimmedComment = (comment ?? '').trim();
+
+    const payload: FeedbackPayload = {
+      recomendation_id: this.latestRecommendationId,
+      feedback_value: Number(feedbackValue)
+    };
+
+    if (trimmedComment) {
+      payload.feedback_comment = trimmedComment;
+    }
+
+    this.isSubmittingFeedback = true;
+
+    const feedbackUrl = `${this.apiBaseUrl}/add_feedback_for_recomendation`;
+
+    this.http.post(feedbackUrl, payload, { headers }).subscribe({
+      next: () => {
+        this.snackBar.open('Thanks for the feedback!', 'Dismiss', {
+          duration: this.notificationDurationMs,
+          horizontalPosition: 'right',
+          verticalPosition: 'top'
+        });
+        this.feedbackForm.reset();
+        this.feedbackForm.markAsPristine();
+        this.feedbackForm.markAsUntouched();
+      },
+      error: (error) => {
+        console.error('Failed to submit feedback:', error);
+        this.snackBar.open('Unable to submit feedback. Please try again.', 'Dismiss', {
+          duration: this.notificationDurationMs,
+          horizontalPosition: 'right',
+          verticalPosition: 'top'
+        });
+        this.isSubmittingFeedback = false;
+      },
+      complete: () => {
+        this.isSubmittingFeedback = false;
+      }
+    });
+  }
+
 }
 
 interface SubmissionPayload {
@@ -170,4 +282,10 @@ interface MetricsRequestPayload {
   date: string;
   short_window_days: number;
   long_window_days: number;
+}
+
+interface FeedbackPayload {
+  recomendation_id: string;
+  feedback_value: number;
+  feedback_comment?: string;
 }
