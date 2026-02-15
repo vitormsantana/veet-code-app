@@ -1,5 +1,5 @@
 import { Component, HostListener, OnInit } from '@angular/core';
-import { EventTrackingService } from '../../analytics/event-tracking.service';
+import { AnalyticsCaptureService } from '../../analytics/analytics-capture.service';
 
 @Component({
   selector: 'app-questions-page',
@@ -8,10 +8,10 @@ import { EventTrackingService } from '../../analytics/event-tracking.service';
   styleUrls: ['./questions-page.component.css']
 })
 export class QuestionsPageComponent implements OnInit {
-  constructor(private readonly eventTrackingService: EventTrackingService) {}
+  constructor(private readonly analyticsCapture: AnalyticsCaptureService) {}
 
   ngOnInit(): void {
-    this.eventTrackingService.trackPageAccess();
+    this.analyticsCapture.capture({ type: 'page_access' });
   }
 
   @HostListener('click', ['$event'])
@@ -19,24 +19,15 @@ export class QuestionsPageComponent implements OnInit {
     const target = event.target as HTMLElement | null;
     const buttonElement = target?.closest('button, [role="button"]') as HTMLElement | null;
 
+    if (!event.isTrusted) {
+      return;
+    }
+
     if (!buttonElement) {
       return;
     }
 
-    const buttonLabel = this.getButtonLabel(buttonElement);
-    this.eventTrackingService.trackButtonClick(buttonLabel, {
-      buttonId: buttonElement.id || null,
-      buttonClasses: buttonElement.className || null
-    });
+    this.analyticsCapture.capture({ type: 'button_click', element: buttonElement });
   }
 
-  private getButtonLabel(buttonElement: HTMLElement): string {
-    const ariaLabel = buttonElement.getAttribute('aria-label')?.trim();
-    if (ariaLabel) {
-      return ariaLabel;
-    }
-
-    const text = buttonElement.textContent?.replace(/\s+/g, ' ').trim();
-    return text || 'unknown_button';
-  }
 }

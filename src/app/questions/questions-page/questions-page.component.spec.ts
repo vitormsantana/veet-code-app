@@ -1,24 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { QuestionsPageComponent } from './questions-page.component';
-import { EventTrackingService } from '../../analytics/event-tracking.service';
+import { AnalyticsCaptureService } from '../../analytics/analytics-capture.service';
 
 describe('QuestionsPageComponent', () => {
   let component: QuestionsPageComponent;
   let fixture: ComponentFixture<QuestionsPageComponent>;
-  let eventTrackingServiceSpy: jasmine.SpyObj<EventTrackingService>;
+  let analyticsCaptureSpy: jasmine.SpyObj<AnalyticsCaptureService>;
 
   beforeEach(async () => {
-    eventTrackingServiceSpy = jasmine.createSpyObj<EventTrackingService>('EventTrackingService', [
-      'trackPageAccess',
-      'trackButtonClick'
-    ]);
+    analyticsCaptureSpy = jasmine.createSpyObj<AnalyticsCaptureService>('AnalyticsCaptureService', ['capture']);
 
     await TestBed.configureTestingModule({
       declarations: [QuestionsPageComponent],
-      providers: [{ provide: EventTrackingService, useValue: eventTrackingServiceSpy }]
-    })
-    .compileComponents();
+      providers: [{ provide: AnalyticsCaptureService, useValue: analyticsCaptureSpy }]
+    }).compileComponents();
 
     fixture = TestBed.createComponent(QuestionsPageComponent);
     component = fixture.componentInstance;

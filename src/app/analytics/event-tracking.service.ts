@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { NavigationStart, Router } from '@angular/router';
 import { filter, firstValueFrom } from 'rxjs';
@@ -51,9 +51,30 @@ interface AnalyticsBatchPayload {
 export class EventTrackingService {
   private readonly apiUrl = environment.analyticsEventsApiUrl;
   private readonly appName = 'veet-app-web';
+
   private readonly MAX_BATCH_SIZE = 4;
+  private readonly FLUSH_INTERVAL_MS = 10000;
+
+  // Safety controls.
+  private readonly RATE_LIMIT_WINDOW_MS = 60_000;
+  private readonly MAX_FLUSHES_PER_WINDOW = 12;
+
+  private readonly BACKOFF_BASE_MS = 500;
+  private readonly BACKOFF_MAX_MS = 30_000;
+  private backoffAttempt = 0;
+  private backoffUntilMs = 0;
+
+  private readonly CIRCUIT_BREAKER_THRESHOLD = 3;
+  private readonly CIRCUIT_BREAKER_OPEN_MS = 120_000;
+  private consecutiveBreakerFailures = 0;
+  private breakerOpenUntilMs = 0;
+
+  private readonly GUARD_LOG_THROTTLE_MS = 30_000;
+  private lastGuardLogMs = 0;
+
   private queue: AnalyticsEvent[] = [];
   private isFlushing = false;
+  private flushAttemptTimestamps: number[] = [];
 
   constructor(
     private readonly http: HttpClient,
@@ -62,6 +83,7 @@ export class EventTrackingService {
   ) {
     this.setupRouteFlush();
     this.setupExitFlush();
+    this.setupPeriodicFlush();
   }
 
   trackPageAccess(): void {
@@ -122,20 +144,35 @@ export class EventTrackingService {
       return;
     }
 
+    if (!this.canAttemptFlush(reason)) {
+      return;
+    }
+
     this.isFlushing = true;
     const batch = this.queue.splice(0, this.queue.length);
     const payload = this.buildBatchPayload(batch, reason);
 
     try {
       await firstValueFrom(this.http.post(this.apiUrl, payload));
+      this.resetBackoff();
+      this.consecutiveBreakerFailures = 0;
     } catch (error) {
-      this.queue = [...batch, ...this.queue];
-      console.warn('[EventTracking] Failed to flush analytics batch', error);
+      const status = (error as HttpErrorResponse | undefined)?.status;
+
+      if (this.shouldRequeueAfterFailure(status)) {
+        this.queue = [...batch, ...this.queue];
+        const now = this.nowMs();
+        this.applyBackoff(now);
+        this.recordBreakerFailure(status, now);
+        console.warn('[EventTracking] Failed to flush analytics batch', { status, error });
+      } else {
+        // Non-retriable failures (usually 4xx) would otherwise cause infinite retries.
+        console.warn('[EventTracking] Dropping analytics batch due to non-retriable error', { status, error });
+        this.resetBackoff();
+        this.consecutiveBreakerFailures = 0;
+      }
     } finally {
       this.isFlushing = false;
-      if (this.queue.length >= this.MAX_BATCH_SIZE) {
-        void this.flush('max_batch_size');
-      }
     }
   }
 
@@ -166,9 +203,108 @@ export class EventTrackingService {
     };
 
     this.queue.push(event);
-    if (this.queue.length >= this.MAX_BATCH_SIZE) {
+    if (this.queue.length >= this.MAX_BATCH_SIZE && !this.isFlushing) {
       void this.flush('max_batch_size');
     }
+  }
+
+  private shouldRequeueAfterFailure(status: number | undefined): boolean {
+    if (typeof status !== 'number') {
+      return true;
+    }
+
+    if (status == 0) {
+      return true;
+    }
+
+    if (status === 429) {
+      return true;
+    }
+
+    if (status >= 500) {
+      return true;
+    }
+
+    return false;
+  }
+
+  private canAttemptFlush(reason: string): boolean {
+    const now = this.nowMs();
+
+    if (now < this.breakerOpenUntilMs) {
+      this.guardLogOnce(
+        `[EventTracking] Circuit breaker open (until ${new Date(this.breakerOpenUntilMs).toISOString()}), skipping flush (${reason})`,
+        now
+      );
+      return false;
+    }
+
+    if (now < this.backoffUntilMs) {
+      this.guardLogOnce(
+        `[EventTracking] Backoff active (until ${new Date(this.backoffUntilMs).toISOString()}), skipping flush (${reason})`,
+        now
+      );
+      return false;
+    }
+
+    // Hard per-session rate limit: rolling window.
+    this.flushAttemptTimestamps = this.flushAttemptTimestamps.filter((t) => now - t < this.RATE_LIMIT_WINDOW_MS);
+    if (this.flushAttemptTimestamps.length >= this.MAX_FLUSHES_PER_WINDOW) {
+      this.guardLogOnce(
+        `[EventTracking] Rate limit reached (${this.flushAttemptTimestamps.length}/${this.MAX_FLUSHES_PER_WINDOW} flushes/min), skipping flush (${reason})`,
+        now
+      );
+      return false;
+    }
+
+    this.flushAttemptTimestamps.push(now);
+    return true;
+  }
+
+  private applyBackoff(now: number): void {
+    this.backoffAttempt = Math.min(this.backoffAttempt + 1, 10);
+    const exp = this.BACKOFF_BASE_MS * (2 ** (this.backoffAttempt - 1));
+    const jitter = Math.floor(Math.random() * 200);
+    const delay = Math.min(exp + jitter, this.BACKOFF_MAX_MS);
+    this.backoffUntilMs = Math.max(this.backoffUntilMs, now + delay);
+  }
+
+  private resetBackoff(): void {
+    this.backoffAttempt = 0;
+    this.backoffUntilMs = 0;
+  }
+
+  private recordBreakerFailure(status: number | undefined, now: number): void {
+    const trippingStatus = status === 429 || status === 0 || (typeof status === 'number' && status >= 500);
+    if (!trippingStatus) {
+      this.consecutiveBreakerFailures = 0;
+      return;
+    }
+
+    this.consecutiveBreakerFailures += 1;
+    if (this.consecutiveBreakerFailures < this.CIRCUIT_BREAKER_THRESHOLD) {
+      return;
+    }
+
+    this.breakerOpenUntilMs = now + this.CIRCUIT_BREAKER_OPEN_MS;
+    this.backoffUntilMs = Math.max(this.backoffUntilMs, this.breakerOpenUntilMs);
+    this.consecutiveBreakerFailures = 0;
+
+    console.warn(
+      `[EventTracking] Circuit breaker opened for ${this.CIRCUIT_BREAKER_OPEN_MS}ms after repeated failures (last status ${status ?? 'unknown'}).`
+    );
+  }
+
+  private guardLogOnce(message: string, now: number): void {
+    if (now - this.lastGuardLogMs < this.GUARD_LOG_THROTTLE_MS) {
+      return;
+    }
+    this.lastGuardLogMs = now;
+    console.warn(message);
+  }
+
+  private nowMs(): number {
+    return Date.now();
   }
 
   private generateEventId(): string {
@@ -219,8 +355,29 @@ export class EventTrackingService {
     }
   }
 
+  private setupPeriodicFlush(): void {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    window.setInterval(() => {
+      if (this.queue.length === 0 || this.isFlushing) {
+        if (this.queue.length === 0) {
+          console.log('[EventTracking] 10s check: no new events to flush');
+        }
+        return;
+      }
+
+      void this.flush('interval_10s');
+    }, this.FLUSH_INTERVAL_MS);
+  }
+
   private flushOnExit(reason: string): void {
     if (!this.apiUrl || this.queue.length === 0) {
+      return;
+    }
+
+    if (!this.canAttemptFlush(reason)) {
       return;
     }
 

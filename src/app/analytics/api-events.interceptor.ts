@@ -11,7 +11,7 @@ import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { cognitoConfig } from '../auth/cognito.config';
 import { environment } from '../../environments/environment';
-import { EventTrackingService } from './event-tracking.service';
+import { AnalyticsCaptureService } from './analytics-capture.service';
 
 @Injectable()
 export class ApiEventsInterceptor implements HttpInterceptor {
@@ -22,7 +22,7 @@ export class ApiEventsInterceptor implements HttpInterceptor {
   ]);
 
   constructor(
-    private readonly eventTrackingService: EventTrackingService
+    private readonly analyticsCapture: AnalyticsCaptureService
   ) {}
 
   intercept(req: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
@@ -37,27 +37,27 @@ export class ApiEventsInterceptor implements HttpInterceptor {
     return next.handle(req).pipe(
       tap((event) => {
         if (event instanceof HttpResponse) {
-          this.eventTrackingService.trackApiResult(
-            'api_call',
+          this.analyticsCapture.capture({
+            type: 'api_call',
             apiName,
-            method,
-            endpoint,
-            event.status,
-            'success',
-            'page_load'
-          );
+            apiMethod: method,
+            apiEndpoint: endpoint,
+            statusCode: event.status,
+            outcome: 'success',
+            source: 'page_load'
+          });
         }
       }),
       catchError((error: HttpErrorResponse) => {
-        this.eventTrackingService.trackApiResult(
-          'api_call',
+        this.analyticsCapture.capture({
+          type: 'api_call',
           apiName,
-          method,
-          endpoint,
-          error.status || 0,
-          'error',
-          'page_load'
-        );
+          apiMethod: method,
+          apiEndpoint: endpoint,
+          statusCode: error.status || 0,
+          outcome: 'error',
+          source: 'page_load'
+        });
         return throwError(() => error);
       })
     );

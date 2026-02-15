@@ -10,7 +10,7 @@ import { AuthService } from '../../auth/auth.service';
 import { QuestionsRecomendationsOpenaiService } from '../questions-recomendations-openai/questions-recomendations-openai.service';
 import { QuestionFeedbackComponent } from './question-feedback.component';
 import { BehaviorSubject } from 'rxjs';
-import { EventTrackingService } from '../../analytics/event-tracking.service';
+import { AnalyticsCaptureService } from '../../analytics/analytics-capture.service';
 
 class AuthServiceStub {
   ensureValidSession = jasmine.createSpy('ensureValidSession').and.resolveTo({
@@ -42,10 +42,10 @@ describe('QuestionFeedbackComponent', () => {
   let fixture: ComponentFixture<QuestionFeedbackComponent>;
   let httpMock: HttpTestingController;
   let snackBar: MatSnackBar;
-  let eventTrackingServiceSpy: jasmine.SpyObj<EventTrackingService>;
+  let analyticsCaptureSpy: jasmine.SpyObj<AnalyticsCaptureService>;
 
   beforeEach(async () => {
-    eventTrackingServiceSpy = jasmine.createSpyObj<EventTrackingService>('EventTrackingService', ['trackApiResult']);
+    analyticsCaptureSpy = jasmine.createSpyObj<AnalyticsCaptureService>('AnalyticsCaptureService', ['capture']);
 
     await TestBed.configureTestingModule({
       declarations: [QuestionFeedbackComponent],
@@ -61,7 +61,7 @@ describe('QuestionFeedbackComponent', () => {
       providers: [
         { provide: AuthService, useClass: AuthServiceStub },
         { provide: QuestionsRecomendationsOpenaiService, useClass: RecommendationsServiceStub },
-        { provide: EventTrackingService, useValue: eventTrackingServiceSpy }
+        { provide: AnalyticsCaptureService, useValue: analyticsCaptureSpy }
       ]
     }).compileComponents();
 

@@ -5,7 +5,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../../auth/auth.service';
 import { QuestionsRefreshService } from '../questions-refresh.service';
-import { EventTrackingService } from '../../analytics/event-tracking.service';
+import { AnalyticsCaptureService } from '../../analytics/analytics-capture.service';
 
 @Component({
   selector: 'app-question',
@@ -50,7 +50,7 @@ export class QuestionComponent {
     private readonly authService: AuthService,
     private readonly questionsRefreshService: QuestionsRefreshService,
     private readonly snackBar: MatSnackBar,
-    private readonly eventTrackingService: EventTrackingService
+    private readonly analyticsCapture: AnalyticsCaptureService
   ) {
     this.questionForm = new FormGroup({
       name: new FormControl('', Validators.required),
@@ -106,16 +106,16 @@ export class QuestionComponent {
 
     this.http.post(createExerciseUrl, payload, { headers, observe: 'response' }).subscribe({
       next: (response: HttpResponse<unknown>) => {
-        this.eventTrackingService.trackApiResult(
-          'api_call',
-          'create_exercise',
-          'POST',
-          '/create_exercise',
-          response.status,
-          'success',
-          'user_click',
-          'Add Question'
-        );
+        this.analyticsCapture.capture({
+          type: 'api_call',
+          apiName: 'create_exercise',
+          apiMethod: 'POST',
+          apiEndpoint: '/create_exercise',
+          statusCode: response.status,
+          outcome: 'success',
+          source: 'user_click',
+          label: 'Add Question'
+        });
         this.questionsRefreshService.triggerRefresh();
         this.showSubmissionNotification(payload);
         this.triggerMetricsRecalculation(headers);
@@ -131,16 +131,16 @@ export class QuestionComponent {
         });
       },
       error: (error: HttpErrorResponse) => {
-        this.eventTrackingService.trackApiResult(
-          'api_call',
-          'create_exercise',
-          'POST',
-          '/create_exercise',
-          error.status || 0,
-          'error',
-          'user_click',
-          'Add Question'
-        );
+        this.analyticsCapture.capture({
+          type: 'api_call',
+          apiName: 'create_exercise',
+          apiMethod: 'POST',
+          apiEndpoint: '/create_exercise',
+          statusCode: error.status || 0,
+          outcome: 'error',
+          source: 'user_click',
+          label: 'Add Question'
+        });
         console.error('Error creating exercise:', error);
         this.showErrorNotification();
       }
@@ -196,28 +196,28 @@ export class QuestionComponent {
 
     this.http.post(`${this.apiBaseUrl}/create_user_metrics`, metricsPayload, { headers, observe: 'response' }).subscribe({
       next: (response: HttpResponse<unknown>) => {
-        this.eventTrackingService.trackApiResult(
-          'api_call',
-          'create_user_metrics',
-          'POST',
-          '/create_user_metrics',
-          response.status,
-          'success',
-          'user_click',
-          'Add Question'
-        );
+        this.analyticsCapture.capture({
+          type: 'api_call',
+          apiName: 'create_user_metrics',
+          apiMethod: 'POST',
+          apiEndpoint: '/create_user_metrics',
+          statusCode: response.status,
+          outcome: 'success',
+          source: 'user_click',
+          label: 'Add Question'
+        });
       },
       error: (error: HttpErrorResponse) => {
-        this.eventTrackingService.trackApiResult(
-          'api_call',
-          'create_user_metrics',
-          'POST',
-          '/create_user_metrics',
-          error.status || 0,
-          'error',
-          'user_click',
-          'Add Question'
-        );
+        this.analyticsCapture.capture({
+          type: 'api_call',
+          apiName: 'create_user_metrics',
+          apiMethod: 'POST',
+          apiEndpoint: '/create_user_metrics',
+          statusCode: error.status || 0,
+          outcome: 'error',
+          source: 'user_click',
+          label: 'Add Question'
+        });
         console.error('Failed to update user metrics:', error);
       }
     });

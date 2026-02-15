@@ -8,7 +8,7 @@ import { AuthService } from '../../auth/auth.service';
 
 import { QuestionComponent } from './question.component';
 import { QuestionsRefreshService } from '../questions-refresh.service';
-import { EventTrackingService } from '../../analytics/event-tracking.service';
+import { AnalyticsCaptureService } from '../../analytics/analytics-capture.service';
 
 describe('QuestionComponent', () => {
   let component: QuestionComponent;
@@ -17,7 +17,7 @@ describe('QuestionComponent', () => {
   let refreshService: QuestionsRefreshService;
   let httpMock: HttpTestingController;
   let snackBar: MatSnackBar;
-  let eventTrackingServiceSpy: jasmine.SpyObj<EventTrackingService>;
+  let analyticsCaptureSpy: jasmine.SpyObj<AnalyticsCaptureService>;
 
   beforeEach(async () => {
     authServiceSpy = jasmine.createSpyObj<AuthService>('AuthService', ['ensureValidSession']);
@@ -28,18 +28,18 @@ describe('QuestionComponent', () => {
       expiresAt: Date.now() + 100000,
       profile: {}
     } as any);
-    eventTrackingServiceSpy = jasmine.createSpyObj<EventTrackingService>('EventTrackingService', ['trackApiResult']);
+
+    analyticsCaptureSpy = jasmine.createSpyObj<AnalyticsCaptureService>('AnalyticsCaptureService', ['capture']);
 
     await TestBed.configureTestingModule({
       declarations: [QuestionComponent],
       imports: [ReactiveFormsModule, HttpClientTestingModule, MatSnackBarModule, NoopAnimationsModule],
       providers: [
         { provide: AuthService, useValue: authServiceSpy },
-        { provide: EventTrackingService, useValue: eventTrackingServiceSpy }
+        { provide: AnalyticsCaptureService, useValue: analyticsCaptureSpy }
       ],
       schemas: [NO_ERRORS_SCHEMA]
-    })
-      .compileComponents();
+    }).compileComponents();
 
     fixture = TestBed.createComponent(QuestionComponent);
     component = fixture.componentInstance;
@@ -80,10 +80,12 @@ describe('QuestionComponent', () => {
 
     const metricsReq = httpMock.expectOne(/create_user_metrics$/);
     expect(metricsReq.request.method).toBe('POST');
-    expect(metricsReq.request.body).toEqual(jasmine.objectContaining({
-      short_window_days: 7,
-      long_window_days: 30
-    }));
+    expect(metricsReq.request.body).toEqual(
+      jasmine.objectContaining({
+        short_window_days: 7,
+        long_window_days: 30
+      })
+    );
     metricsReq.flush({ message: 'metrics updated' });
 
     tick();

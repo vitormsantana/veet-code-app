@@ -1,5 +1,9 @@
 # Hammocker
 
+## Analytics
+
+Analytics event recorder (frontend batching + backend S3 + Athena + Grafana): see README.analytics-events.md (frontend) and ../../veet-code-go/README.event_recorder_analytics.md (end-to-end).
+
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.0.3.
 
 ## Development server
