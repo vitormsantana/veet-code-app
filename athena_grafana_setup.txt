@@ -1,0 +1,130 @@
+Athena + Local Grafana OSS Setup (No QuickSight)
+
+1) Prereqs
+- AWS account with analytics S3 bucket.
+- IAM user/role permissions:
+  - s3:GetObject, s3:ListBucket on analytics bucket
+  - athena:*QueryExecution*, athena:Get*
+  - glue:GetDatabase, glue:GetTable, glue:GetPartitions
+- Docker + Docker Compose installed locally.
+
+2) Create Athena database/table
+Run in Athena:
+
+CREATE DATABASE IF NOT EXISTS frontend_events;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS frontend_events.analytics_events (
+  eventid string,
+  eventtimestamp string,
+  ingestiontimestamp string,
+  phase string,
+  source string,
+  feature string,
+  page string,
+  label string,
+  usersub string,
+  useremail string,
+  apiname string,
+  apiendpoint string,
+  apimethod string,
+  apistatuscode int,
+  apioutcome string
+)
+PARTITIONED BY (
+  anomesdia string,
+  app string,
+  eventtype string
+)
+ROW FORMAT SERDE 'org.openx.data.jsonserde.JsonSerDe'
+LOCATION 's3://veet-code-frontend-events-<ACCOUNT_ID>/analytics-events/';
+
+Load partitions:
+
+MSCK REPAIR TABLE frontend_events.analytics_events;
+
+Validation query:
+
+SELECT eventtype, count(*)
+FROM frontend_events.analytics_events
+GROUP BY 1
+ORDER BY 2 DESC;
+
+3) Start local Grafana
+Create docker-compose.yml:
+
+services:
+  grafana:
+    image: grafana/grafana-oss:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_INSTALL_PLUGINS=grafana-athena-datasource
+      - AWS_REGION=sa-east-1
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning
+
+Run:
+
+docker compose up -d
+
+4) Configure Athena datasource in Grafana
+Create file: grafana/provisioning/datasources/athena.yaml
+
+apiVersion: 1
+datasources:
+  - name: Athena
+    type: grafana-athena-datasource
+    access: proxy
+    jsonData:
+      defaultRegion: sa-east-1
+      catalog: AwsDataCatalog
+      database: frontend_events
+      workgroup: primary
+      outputLocation: s3://aws-athena-query-results-<ACCOUNT_ID>-sa-east-1/
+    secureJsonData: {}
+
+Restart Grafana after provisioning files are created.
+
+5) Starter dashboard queries
+Events per day:
+
+SELECT anomesdia, count(*) AS events
+FROM analytics_events
+GROUP BY anomesdia
+ORDER BY anomesdia;
+
+Event type split:
+
+SELECT eventtype, count(*) AS total
+FROM analytics_events
+GROUP BY eventtype
+ORDER BY total DESC;
+
+API success/error:
+
+SELECT apiname, apioutcome, count(*) total
+FROM analytics_events
+WHERE eventtype = 'api_call'
+GROUP BY apiname, apioutcome
+ORDER BY total DESC;
+
+Top pages:
+
+SELECT page, count(*) total
+FROM analytics_events
+WHERE eventtype = 'page_access'
+GROUP BY page
+ORDER BY total DESC
+LIMIT 20;
+
+6) Other no-QuickSight options
+- Grafana OSS + Athena
+- Metabase OSS + Postgres/DuckDB mirror
+- Superset + Athena/Trino
+
+Notes
+- Replace <ACCOUNT_ID> before running.
+- Ensure Athena query output bucket exists and is writable.
+- If queries return empty, rerun MSCK REPAIR TABLE.

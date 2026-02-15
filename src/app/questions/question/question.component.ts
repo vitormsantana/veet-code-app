@@ -1,10 +1,11 @@
 import { Component } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../../auth/auth.service';
 import { QuestionsRefreshService } from '../questions-refresh.service';
+import { EventTrackingService } from '../../analytics/event-tracking.service';
 
 @Component({
   selector: 'app-question',
@@ -48,7 +49,8 @@ export class QuestionComponent {
     private readonly http: HttpClient,
     private readonly authService: AuthService,
     private readonly questionsRefreshService: QuestionsRefreshService,
-    private readonly snackBar: MatSnackBar
+    private readonly snackBar: MatSnackBar,
+    private readonly eventTrackingService: EventTrackingService
   ) {
     this.questionForm = new FormGroup({
       name: new FormControl('', Validators.required),
@@ -100,8 +102,20 @@ export class QuestionComponent {
       Authorization: `${session.tokenType || 'Bearer'} ${session.idToken}`
     });
 
-    this.http.post(`${this.apiBaseUrl}/create_exercise`, payload, { headers }).subscribe({
-      next: () => {
+    const createExerciseUrl = `${this.apiBaseUrl}/create_exercise`;
+
+    this.http.post(createExerciseUrl, payload, { headers, observe: 'response' }).subscribe({
+      next: (response: HttpResponse<unknown>) => {
+        this.eventTrackingService.trackApiResult(
+          'api_call',
+          'create_exercise',
+          'POST',
+          '/create_exercise',
+          response.status,
+          'success',
+          'user_click',
+          'Add Question'
+        );
         this.questionsRefreshService.triggerRefresh();
         this.showSubmissionNotification(payload);
         this.triggerMetricsRecalculation(headers);
@@ -116,7 +130,17 @@ export class QuestionComponent {
           observation: ''
         });
       },
-      error: (error) => {
+      error: (error: HttpErrorResponse) => {
+        this.eventTrackingService.trackApiResult(
+          'api_call',
+          'create_exercise',
+          'POST',
+          '/create_exercise',
+          error.status || 0,
+          'error',
+          'user_click',
+          'Add Question'
+        );
         console.error('Error creating exercise:', error);
         this.showErrorNotification();
       }
@@ -170,8 +194,30 @@ export class QuestionComponent {
       long_window_days: 30
     };
 
-    this.http.post(`${this.apiBaseUrl}/create_user_metrics`, metricsPayload, { headers }).subscribe({
-      error: (error) => {
+    this.http.post(`${this.apiBaseUrl}/create_user_metrics`, metricsPayload, { headers, observe: 'response' }).subscribe({
+      next: (response: HttpResponse<unknown>) => {
+        this.eventTrackingService.trackApiResult(
+          'api_call',
+          'create_user_metrics',
+          'POST',
+          '/create_user_metrics',
+          response.status,
+          'success',
+          'user_click',
+          'Add Question'
+        );
+      },
+      error: (error: HttpErrorResponse) => {
+        this.eventTrackingService.trackApiResult(
+          'api_call',
+          'create_user_metrics',
+          'POST',
+          '/create_user_metrics',
+          error.status || 0,
+          'error',
+          'user_click',
+          'Add Question'
+        );
         console.error('Failed to update user metrics:', error);
       }
     });

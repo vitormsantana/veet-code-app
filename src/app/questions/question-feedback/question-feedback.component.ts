@@ -1,12 +1,13 @@
 import { Component, OnDestroy } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../../auth/auth.service';
 import { QuestionsRecomendationsOpenaiService } from '../questions-recomendations-openai/questions-recomendations-openai.service';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { EventTrackingService } from '../../analytics/event-tracking.service';
 
 @Component({
   selector: 'app-question-feedback',
@@ -20,8 +21,8 @@ export class QuestionFeedbackComponent implements OnDestroy {
   latestRecommendationId: string | null = null;
   isWaitingForRecommendation = true;
   readonly feedbackOptions = [
-    { label: 'Positive', value: 1 },
-    { label: 'Negative', value: -1 }
+    { label: '👍 Yes — the guidance felt on point', value: 1 },
+    { label: '👎 Not really — I need something different', value: -1 }
   ];
 
   private readonly destroy$ = new Subject<void>();
@@ -31,7 +32,8 @@ export class QuestionFeedbackComponent implements OnDestroy {
     private readonly http: HttpClient,
     private readonly authService: AuthService,
     private readonly snackBar: MatSnackBar,
-    private readonly recommendationsService: QuestionsRecomendationsOpenaiService
+    private readonly recommendationsService: QuestionsRecomendationsOpenaiService,
+    private readonly eventTrackingService: EventTrackingService
   ) {
     this.feedbackForm = new FormGroup({
       feedbackValue: new FormControl<number | null>(null, Validators.required),
@@ -97,8 +99,18 @@ export class QuestionFeedbackComponent implements OnDestroy {
 
     this.isSubmitting = true;
 
-    this.http.post(`${this.apiBaseUrl}/add_feedback_for_recomendation`, payload, { headers }).subscribe({
-      next: () => {
+    this.http.post(`${this.apiBaseUrl}/create_feedback_for_recomendation`, payload, { headers, observe: 'response' }).subscribe({
+      next: (response: HttpResponse<unknown>) => {
+        this.eventTrackingService.trackApiResult(
+          'api_call',
+          'create_feedback_for_recomendation',
+          'POST',
+          '/create_feedback_for_recomendation',
+          response.status,
+          'success',
+          'user_click',
+          'Submit Feedback'
+        );
         this.snackBar.open('Thanks for the feedback!', 'Dismiss', {
           duration: 5000,
           horizontalPosition: 'right',
@@ -108,7 +120,17 @@ export class QuestionFeedbackComponent implements OnDestroy {
         this.feedbackForm.markAsPristine();
         this.feedbackForm.markAsUntouched();
       },
-      error: (error) => {
+      error: (error: HttpErrorResponse) => {
+        this.eventTrackingService.trackApiResult(
+          'api_call',
+          'create_feedback_for_recomendation',
+          'POST',
+          '/create_feedback_for_recomendation',
+          error.status || 0,
+          'error',
+          'user_click',
+          'Submit Feedback'
+        );
         console.error('Failed to submit feedback:', error);
         this.snackBar.open('Unable to submit feedback. Please try again.', 'Dismiss', {
           duration: 5000,

@@ -54,11 +54,6 @@
   gap: 1rem;
 }
 
-.feedback-grid {
-  display: grid;
-  gap: clamp(0.8rem, 2vw, 1.4rem);
-}
-
 .feedback-choice {
   display: flex;
   flex-direction: column;
@@ -70,6 +65,13 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--qp-text-muted, rgba(44, 44, 44, 0.55));
+}
+
+.feedback-choice__prompt {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: var(--qp-text-secondary, rgba(36, 36, 36, 0.72));
 }
 
 .feedback-toggle {
@@ -89,6 +91,13 @@
 .feedback-toggle ::ng-deep .mat-button-toggle-checked {
   background: var(--qp-text-primary, #0c0c0c);
   color: var(--qp-body-bg, #ffffff);
+}
+
+.feedback-toggle--primary ::ng-deep .mat-button-toggle {
+  min-width: clamp(220px, 26vw, 280px);
+  text-transform: none;
+  letter-spacing: 0.02em;
+  justify-content: flex-start;
 }
 
 .feedback-error {

@@ -8,6 +8,7 @@ import { AuthService } from '../../auth/auth.service';
 
 import { QuestionComponent } from './question.component';
 import { QuestionsRefreshService } from '../questions-refresh.service';
+import { EventTrackingService } from '../../analytics/event-tracking.service';
 
 describe('QuestionComponent', () => {
   let component: QuestionComponent;
@@ -16,6 +17,7 @@ describe('QuestionComponent', () => {
   let refreshService: QuestionsRefreshService;
   let httpMock: HttpTestingController;
   let snackBar: MatSnackBar;
+  let eventTrackingServiceSpy: jasmine.SpyObj<EventTrackingService>;
 
   beforeEach(async () => {
     authServiceSpy = jasmine.createSpyObj<AuthService>('AuthService', ['ensureValidSession']);
@@ -26,11 +28,15 @@ describe('QuestionComponent', () => {
       expiresAt: Date.now() + 100000,
       profile: {}
     } as any);
+    eventTrackingServiceSpy = jasmine.createSpyObj<EventTrackingService>('EventTrackingService', ['trackApiResult']);
 
     await TestBed.configureTestingModule({
       declarations: [QuestionComponent],
       imports: [ReactiveFormsModule, HttpClientTestingModule, MatSnackBarModule, NoopAnimationsModule],
-      providers: [{ provide: AuthService, useValue: authServiceSpy }],
+      providers: [
+        { provide: AuthService, useValue: authServiceSpy },
+        { provide: EventTrackingService, useValue: eventTrackingServiceSpy }
+      ],
       schemas: [NO_ERRORS_SCHEMA]
     })
       .compileComponents();

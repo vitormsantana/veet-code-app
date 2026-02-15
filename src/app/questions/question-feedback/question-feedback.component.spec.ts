@@ -10,6 +10,7 @@ import { AuthService } from '../../auth/auth.service';
 import { QuestionsRecomendationsOpenaiService } from '../questions-recomendations-openai/questions-recomendations-openai.service';
 import { QuestionFeedbackComponent } from './question-feedback.component';
 import { BehaviorSubject } from 'rxjs';
+import { EventTrackingService } from '../../analytics/event-tracking.service';
 
 class AuthServiceStub {
   ensureValidSession = jasmine.createSpy('ensureValidSession').and.resolveTo({
@@ -41,8 +42,11 @@ describe('QuestionFeedbackComponent', () => {
   let fixture: ComponentFixture<QuestionFeedbackComponent>;
   let httpMock: HttpTestingController;
   let snackBar: MatSnackBar;
+  let eventTrackingServiceSpy: jasmine.SpyObj<EventTrackingService>;
 
   beforeEach(async () => {
+    eventTrackingServiceSpy = jasmine.createSpyObj<EventTrackingService>('EventTrackingService', ['trackApiResult']);
+
     await TestBed.configureTestingModule({
       declarations: [QuestionFeedbackComponent],
       imports: [
@@ -56,7 +60,8 @@ describe('QuestionFeedbackComponent', () => {
       ],
       providers: [
         { provide: AuthService, useClass: AuthServiceStub },
-        { provide: QuestionsRecomendationsOpenaiService, useClass: RecommendationsServiceStub }
+        { provide: QuestionsRecomendationsOpenaiService, useClass: RecommendationsServiceStub },
+        { provide: EventTrackingService, useValue: eventTrackingServiceSpy }
       ]
     }).compileComponents();
 
@@ -82,7 +87,7 @@ describe('QuestionFeedbackComponent', () => {
     component.submitFeedback();
     tick();
 
-    const req = httpMock.expectOne(/add_feedback_for_recomendation$/);
+    const req = httpMock.expectOne(/create_feedback_for_recomendation$/);
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual({
       recomendation_id: 'rec-123',
@@ -125,6 +130,6 @@ describe('QuestionFeedbackComponent', () => {
         verticalPosition: 'top'
       })
     );
-    httpMock.expectNone(/add_feedback_for_recomendation$/);
+    httpMock.expectNone(/create_feedback_for_recomendation$/);
   }));
 });

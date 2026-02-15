@@ -37,6 +37,7 @@ import { AuthInterceptor } from './auth/auth.interceptor';
 import { FuturisticLandingComponent } from './landing/futuristic-landing/futuristic-landing.component';
 import { ProfileQuestionnaireComponent } from './profile/profile-questionnaire/profile-questionnaire.component';
 import { MatTabsModule } from '@angular/material/tabs'; // ✅ NEW IMPORT
+import { ApiEventsInterceptor } from './analytics/api-events.interceptor';
 
 @NgModule({
   declarations: [
@@ -86,6 +87,11 @@ import { MatTabsModule } from '@angular/material/tabs'; // ✅ NEW IMPORT
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,
+      multi: true,
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: ApiEventsInterceptor,
       multi: true,
     },
   ],

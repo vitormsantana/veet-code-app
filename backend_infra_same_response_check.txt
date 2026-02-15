@@ -1,0 +1,118 @@
+Issue Description: Same response returned for all API invocations
+
+Current situation
+- Frontend payload format is now correct for analytics events.
+- However, multiple different requests appear to return the same response body (example: `create_user_metrics` response shape).
+- The problematic endpoint in focus is:
+  - `POST https://29nac9o231.execute-api.sa-east-1.amazonaws.com/dev/frontend_event_reciever`
+- Expected behavior for this endpoint:
+  - Return analytics ack (`202/200` + `{ "eventId": "...", "status": "accepted" }`).
+- Actual suspicious behavior observed:
+  - Response body similar to business metrics payload (fields like `metric_id`, `avg_minutes_per_tag`, etc.), which should belong to `create_user_metrics`, not `frontend_event_reciever`.
+
+Why this is almost certainly backend/infra
+- Frontend sends requests to different endpoints and payloads.
+- If all of them return one identical business response, the usual cause is API Gateway integration/routing misconfiguration (methods or resources mapped to the wrong Lambda/backend).
+
+Most likely root causes
+1) Wrong API Gateway integration target
+- `/frontend_event_reciever` (or other routes) is integrated to the wrong Lambda.
+- Example symptom: analytics endpoint invokes metrics Lambda.
+
+2) Proxy route precedence/catch-all issue
+- A greedy route like `/{proxy+}` captures requests before specific route resolution.
+- Requests intended for analytics may be forwarded to a default backend.
+
+3) Stage/deployment drift
+- Terraform changed integration, but `dev` stage is still pointing to old deployment.
+- Endpoint exists, but effective integration is stale.
+
+4) Method mismatch
+- `POST` method on resource is linked to a different integration than expected.
+- `OPTIONS` may be correct while `POST` is wrong.
+
+5) Lambda alias/version mismatch
+- API Gateway points to an old alias/version or different function ARN.
+
+6) Shared integration copy/paste error
+- Multiple resources accidentally reusing one integration block/URI.
+
+7) Wrong environment URL consumed by frontend
+- Confirm frontend analytics URL points exactly to:
+  - `/dev/frontend_event_reciever`
+- Not to:
+  - `/dev/create_user_metrics`
+  - `/dev/{proxy+}` fallback
+
+Possible Go Lambda-side causes (also consider)
+1) Lambda code accidentally returns mocked/legacy metrics payload
+- Handler for `frontend_event_reciever` should return only ingestion ack.
+- Verify response builder in Go handler (`POST` path) is not reusing another DTO/serializer.
+
+2) Lambda binary/package mismatch
+- `frontend_event_reciever` function may be deployed with wrong zip artifact (e.g., metrics lambda binary).
+- Check deployed artifact hash and function code source.
+
+3) Handler entrypoint mismatch
+- Wrong `bootstrap` or handler wiring might execute unintended code path.
+- Validate module/function bootstrapping in deployed binary.
+
+4) Path/method switch bug in Go handler
+- If handler branches by path/method, ensure `/frontend_event_reciever` + `POST` leads to analytics ingest flow.
+- Add explicit structured logs for:
+  - received path
+  - method
+  - selected code branch
+
+5) Response mapping in Lambda proxy mode
+- Ensure Go handler returns proper `APIGatewayProxyResponse` and not a reused object from another package.
+- Confirm no middleware overwrites response body.
+
+What to verify in API Gateway (must-check)
+1) Resource + method
+- Confirm `POST /frontend_event_reciever` exists in REST API `hammocker-api`.
+
+2) Integration URI
+- Confirm `POST /frontend_event_reciever` integration URI points to Lambda `frontend_event_reciever` (exact ARN).
+
+3) Deployment and stage
+- Confirm latest deployment is attached to stage `dev`.
+- Redeploy after integration changes.
+
+4) Route conflicts
+- Check if `/{proxy+}` or parent resources intercept `/frontend_event_reciever`.
+
+5) Lambda permission
+- Confirm `lambda:InvokeFunction` permission for API Gateway source ARN is present for the intended function.
+
+6) Response sanity
+- Invoke endpoint directly with curl and compare CloudWatch logs:
+  - API Gateway execution logs should show integration target
+  - Target Lambda logs should show incoming analytics payload (`eventType`, `phase`, etc.)
+
+7) Compare with business endpoint behavior
+- Also invoke:
+  - `POST https://29nac9o231.execute-api.sa-east-1.amazonaws.com/dev/create_user_metrics`
+- Confirm this endpoint returns metrics payload.
+- If `frontend_event_reciever` returns same payload as `create_user_metrics`, routing or lambda packaging is wrong.
+
+Quick validation commands (example)
+- Send known analytics payload to:
+  - https://29nac9o231.execute-api.sa-east-1.amazonaws.com/dev/frontend_event_reciever
+- Expected response from analytics Lambda:
+  - 202 (or 200)
+  - body with event ack (e.g., `{ "eventId": "...", "status": "accepted" }`)
+- If response contains business metrics fields (`metric_id`, `avg_minutes_per_tag`, etc.), integration is incorrect.
+
+Extra validation for Go Lambda
+- In CloudWatch logs for `frontend_event_reciever`, verify logs include:
+  - endpoint path `/frontend_event_reciever`
+  - parsed analytics fields (`eventType`, `phase`, `feature`, `page`)
+  - S3 write attempt/result
+- If logs show analytics parsing and S3 write succeeded but HTTP response is metrics payload, check API Gateway mapping or middleware overwrite.
+
+Conclusion
+- This symptom is not explained by current frontend payload.
+- It indicates either:
+  - API Gateway/Lambda integration mapping issue (or stale deployment), or
+  - wrong Go Lambda artifact/handler/response path deployed for `frontend_event_reciever`.

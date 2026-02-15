@@ -7,17 +7,15 @@
       </div>
 
       <form (ngSubmit)="submitFeedback()" [formGroup]="feedbackForm" class="feedback-form">
-        <div class="feedback-grid">
-          <div class="feedback-choice">
-            <label class="feedback-choice__label">Overall Feedback</label>
-            <mat-button-toggle-group formControlName="feedbackValue" name="feedbackValue" class="feedback-toggle" aria-label="Recommendation feedback tone">
-              <mat-button-toggle *ngFor="let option of feedbackOptions" [value]="option.value">
-                {{ option.label }}
-              </mat-button-toggle>
-            </mat-button-toggle-group>
-            <div class="feedback-error" *ngIf="feedbackForm.controls['feedbackValue'].invalid && feedbackForm.controls['feedbackValue'].touched">
-              Select positive or negative feedback.
-            </div>
+        <div class="feedback-choice">
+          <p class="feedback-choice__prompt">Did these recommendations (and the summary) feel right for where you are in your journey?</p>
+          <mat-button-toggle-group formControlName="feedbackValue" name="feedbackValue" class="feedback-toggle feedback-toggle--primary" aria-label="Recommendation resonance feedback">
+            <mat-button-toggle *ngFor="let option of feedbackOptions" [value]="option.value">
+              {{ option.label }}
+            </mat-button-toggle>
+          </mat-button-toggle-group>
+          <div class="feedback-error" *ngIf="feedbackForm.controls['feedbackValue'].invalid && feedbackForm.controls['feedbackValue'].touched">
+            Choose the option that best matches how the guidance felt.
           </div>
         </div>
 
