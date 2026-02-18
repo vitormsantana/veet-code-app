@@ -87,8 +87,11 @@ describe('QuestionFeedbackComponent', () => {
     component.submitFeedback();
     tick();
 
-    const req = httpMock.expectOne(/create_feedback_for_recomendation$/);
+    const req = httpMock.expectOne((httpReq) => httpReq.url.endsWith('/create_feedback_for_recomendation'));
     expect(req.request.method).toBe('POST');
+    expect(req.request.headers.get('x-env')).toBe('dev');
+    expect(req.request.headers.get('x-app-version')).toBe('unknown');
+    expect(req.request.headers.has('x-correlation-id')).toBeTrue();
     expect(req.request.body).toEqual({
       recomendation_id: 'rec-123',
       feedback_value: 1,
@@ -130,6 +133,6 @@ describe('QuestionFeedbackComponent', () => {
         verticalPosition: 'top'
       })
     );
-    httpMock.expectNone(/create_feedback_for_recomendation$/);
+    httpMock.expectNone((httpReq) => httpReq.url.endsWith('/create_feedback_for_recomendation'));
   }));
 });

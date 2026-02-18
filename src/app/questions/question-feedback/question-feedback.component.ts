@@ -1,6 +1,6 @@
 import { Component, OnDestroy } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { HttpClient, HttpErrorResponse, HttpHeaders, HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../../auth/auth.service';
@@ -8,6 +8,7 @@ import { QuestionsRecomendationsOpenaiService } from '../questions-recomendation
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { AnalyticsCaptureService } from '../../analytics/analytics-capture.service';
+import { buildObservabilityHeaders } from '../observability-headers';
 
 @Component({
   selector: 'app-question-feedback',
@@ -83,7 +84,7 @@ export class QuestionFeedbackComponent implements OnDestroy {
       return;
     }
 
-    const headers = new HttpHeaders({
+    const headers = buildObservabilityHeaders({
       Authorization: `${session.tokenType || 'Bearer'} ${session.idToken}`
     });
 

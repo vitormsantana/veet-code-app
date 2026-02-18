@@ -6,6 +6,7 @@ import { environment } from '../../../environments/environment';
 import { AuthService } from '../../auth/auth.service';
 import { QuestionsRefreshService } from '../questions-refresh.service';
 import { AnalyticsCaptureService } from '../../analytics/analytics-capture.service';
+import { buildObservabilityHeaders } from '../observability-headers';
 
 @Component({
   selector: 'app-question',
@@ -98,7 +99,7 @@ export class QuestionComponent {
       obs: typeof formValue.observation === 'string' ? formValue.observation.trim() : ''
     };
 
-    const headers = new HttpHeaders({
+    const headers = buildObservabilityHeaders({
       Authorization: `${session.tokenType || 'Bearer'} ${session.idToken}`
     });
 

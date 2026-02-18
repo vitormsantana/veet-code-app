@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 
 import { QuestionsPageComponent } from './questions-page.component';
 import { AnalyticsCaptureService } from '../../analytics/analytics-capture.service';
@@ -13,7 +14,8 @@ describe('QuestionsPageComponent', () => {
 
     await TestBed.configureTestingModule({
       declarations: [QuestionsPageComponent],
-      providers: [{ provide: AnalyticsCaptureService, useValue: analyticsCaptureSpy }]
+      providers: [{ provide: AnalyticsCaptureService, useValue: analyticsCaptureSpy }],
+      schemas: [NO_ERRORS_SCHEMA]
     }).compileComponents();
 
     fixture = TestBed.createComponent(QuestionsPageComponent);

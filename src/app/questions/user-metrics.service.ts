@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { from, Observable, throwError } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import { AuthService } from '../auth/auth.service';
+import { buildObservabilityHeaders } from './observability-headers';
 
 interface ApiUserMetrics {
   user_id: string;
@@ -65,7 +66,7 @@ export class UserMetricsService {
           return throwError(() => new Error('Authentication is required to load user metrics.'));
         }
 
-        const headers = new HttpHeaders({
+        const headers = buildObservabilityHeaders({
           Authorization: `${session.tokenType || 'Bearer'} ${session.idToken}`
         });
 

@@ -48,7 +48,6 @@ describe('QuestionComponent', () => {
     snackBar = TestBed.inject(MatSnackBar);
     spyOn(refreshService, 'triggerRefresh');
     spyOn(snackBar, 'open');
-    fixture.detectChanges();
   });
 
   afterEach(() => {
@@ -74,12 +73,17 @@ describe('QuestionComponent', () => {
     component.submitForm();
     tick();
 
-    const createReq = httpMock.expectOne(/create_exercise$/);
+    const createReq = httpMock.expectOne((req) => req.url.endsWith('/create_exercise'));
     expect(createReq.request.method).toBe('POST');
+    expect(createReq.request.headers.get('x-env')).toBe('dev');
+    expect(createReq.request.headers.get('x-app-version')).toBe('unknown');
+    expect(createReq.request.headers.has('x-correlation-id')).toBeTrue();
+    const correlationId = createReq.request.headers.get('x-correlation-id');
     createReq.flush({ message: 'ok' });
 
-    const metricsReq = httpMock.expectOne(/create_user_metrics$/);
+    const metricsReq = httpMock.expectOne((req) => req.url.endsWith('/create_user_metrics'));
     expect(metricsReq.request.method).toBe('POST');
+    expect(metricsReq.request.headers.get('x-correlation-id')).toBe(correlationId);
     expect(metricsReq.request.body).toEqual(
       jasmine.objectContaining({
         short_window_days: 7,

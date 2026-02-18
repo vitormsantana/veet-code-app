@@ -40,7 +40,7 @@ describe('QuestionsStatsComponent', () => {
 
     fixture = TestBed.createComponent(QuestionsStatsComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
+    component.ngOnInit();
   });
 
   it('should create', () => {

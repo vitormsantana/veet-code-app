@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { from, Observable, throwError } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../../auth/auth.service';
+import { buildObservabilityHeaders } from '../observability-headers';
 
 export interface DayStatistic {
   date: string;
@@ -43,7 +44,7 @@ export class QuestionsStatsService {
           return throwError(() => new Error('Authentication is required to load statistics.'));
         }
 
-        const headers = new HttpHeaders({
+        const headers = buildObservabilityHeaders({
           Authorization: `${session.tokenType || 'Bearer'} ${session.idToken}`
         });
 

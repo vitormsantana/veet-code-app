@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, from, Observable, throwError } from 'rxjs';
 import { switchMap, tap } from 'rxjs/operators';
 import { AuthService } from '../../auth/auth.service';
+import { buildObservabilityHeaders } from '../observability-headers';
 
 export interface QuestionRecommendation {
   metric_id?: string;
@@ -38,7 +39,7 @@ export class QuestionsRecomendationsOpenaiService {
         }
 
         const trimmedGoal = goal?.trim();
-        const headers = new HttpHeaders({
+        const headers = buildObservabilityHeaders({
           Authorization: `${session.tokenType || 'Bearer'} ${session.idToken}`,
           'Content-Type': 'application/json'
         });

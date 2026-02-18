@@ -48,6 +48,9 @@ describe('QuestionsStatsService', () => {
     const req = httpMock.expectOne(`${environment.apiBaseUrl}/read_statistics_from_exercises`);
     expect(req.request.method).toBe('GET');
     expect(req.request.headers.get('Authorization')).toBe('Bearer id-token');
+    expect(req.request.headers.get('x-env')).toBe('dev');
+    expect(req.request.headers.get('x-app-version')).toBe('unknown');
+    expect(req.request.headers.has('x-correlation-id')).toBeTrue();
 
     req.flush({
       questionsCrackedPerDay: {

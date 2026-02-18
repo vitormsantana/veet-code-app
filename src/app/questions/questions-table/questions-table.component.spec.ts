@@ -50,7 +50,7 @@ describe('QuestionsTableComponent', () => {
   it('should create', fakeAsync(() => {
     fixture.detectChanges();
     tick();
-    httpMock.expectOne(/read_exercises$/).flush([]);
+    httpMock.expectOne((req) => req.url.endsWith('/read_exercises')).flush([]);
     tick();
     expect(component).toBeTruthy();
   }));
@@ -77,7 +77,7 @@ describe('QuestionsTableComponent', () => {
       }
     ];
 
-    let req = httpMock.expectOne(/read_exercises$/);
+    let req = httpMock.expectOne((request) => request.url.endsWith('/read_exercises'));
     expect(req.request.method).toBe('GET');
     req.flush(firstResponse);
     tick();
@@ -99,7 +99,7 @@ describe('QuestionsTableComponent', () => {
       }
     ];
 
-    req = httpMock.expectOne(/read_exercises$/);
+    req = httpMock.expectOne((request) => request.url.endsWith('/read_exercises'));
     expect(req.request.method).toBe('GET');
     req.flush(secondResponse);
     tick();

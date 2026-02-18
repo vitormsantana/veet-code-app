@@ -2,12 +2,13 @@ import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { AuthService } from '../../auth/auth.service';
 import { QuestionsRefreshService } from '../questions-refresh.service';
+import { buildObservabilityHeaders } from '../observability-headers';
 
 interface QuestionResponse {
   name: string;
@@ -81,7 +82,7 @@ export class QuestionsTableComponent implements OnInit, OnDestroy {
     }
 
     const apiUrl = `${environment.apiBaseUrl}/read_exercises`;
-    const headers = new HttpHeaders({
+    const headers = buildObservabilityHeaders({
       Authorization: `${session.tokenType || 'Bearer'} ${session.idToken}`
     });
 
